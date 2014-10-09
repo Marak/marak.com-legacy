@@ -9,8 +9,7 @@
   },
   "repository": "https://github.com/marak/marak.com",
   "dependencies": {
-    "resource": "0.5.x",
-    "big": "0.5.x"
+    "big": "0.5.x"  
   },
   "author": "",
   "license": "MIT"
