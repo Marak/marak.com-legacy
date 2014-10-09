@@ -1,0 +1,17 @@
+{
+  "name": "marak.com",
+  "version": "1.0.0",
+  "description": "website for marak.com",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": "https://github.com/marak/marak.com",
+  "dependencies": {
+    "resource": "0.5.x",
+    "big": "0.5.x"
+  },
+  "author": "",
+  "license": "MIT"
+}
