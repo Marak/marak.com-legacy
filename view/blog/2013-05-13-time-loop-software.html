@@ -1,0 +1,60 @@
+<div id="preview" preview=""><h1 id="time-loop-software">Time Loop Software</h1>
+<p>What if it were possible to write software capable of time travel? What if we could write software that was able to retrieve results from a computation solved sometime in the near future? What would this software look like? What problems could be solved?</p>
+<p><a href="http://en.wikipedia.org/wiki/Novikov_self-consistency_principle#Time_loop_logic">Time loop logic</a> is a hypothetical system of computation that exploits the <a href="http://en.wikipedia.org/wiki/Novikov_self-consistency_principle">Novikov self-consistency principle</a>. In this system the computer is able to send the result of a computation backwards through time and rely upon the self-consistency principle to force the sent result to be correct. This futuristic concept might seem impossible now but I'd imagine trying to explain nuclear fission to a 3rd century blacksmith would seem equally impossible.</p>
+<h2 id="writing-time-loop-software">Writing time loop software</h2>
+<p>Building on the concept of time loop logic we are able to implement theoretical programming constructs to help better understand the concept of time travel in software. In the following examples we demonstrate what a time loop logic program might look like.</p>
+<h3 id="an-event-loop">An event loop</h3>
+<p>In the follow examples we'll be using the JavaScript programing language. JavaScript provides a single thread of execution for code to run in. The JavaScript virtual machine is constantly running an event loop. Each tick of this event loop represents a single cycle of code execution. Once this cycle is completed the next tick in the event loop will occur. In the popular <a href="http://nodejs.org">Node.js</a> framework <a href="http://nodejs.org/api/process.html#process_process_nexttick_callback">an API is provided</a> to defer the execution of a block of code until the nextTick of the event loop occurs.</p>
+<h4 id="node-js-process-nexttick-example">node.js process.nextTick() example</h4>
+<pre><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'foo'</span>);
+}
+
+process.nextTick(foo);
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'bar'</span>);
+</code></pre><p>This will output:</p>
+<pre><code><span class="hljs-title">bar</span>
+foo
+</code></pre><p>The same effect of <code>process.nextTick</code> can also be achieved using JavaScript's setTimeout command</p>
+<pre><code><span class="hljs-keyword">set</span>Timeout(foo, <span class="hljs-number">0</span>);
+</code></pre><h4 id="node-js-process-prevtick-example">node.js process.prevTick() example</h4>
+<p>Now let's imagine that instead of deferring a line of code until the next tick of the event loop we could instead push that code <em>backwards</em> to the <em>previous</em> tick of the event loop.</p>
+<pre><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'foo'</span>);
+}
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'bar'</span>);
+process.prevTick(foo);
+</code></pre><p>Outputs:</p>
+<pre><code><span class="hljs-title">foo</span>
+bar
+</code></pre><p>The same effect of <code>process.prevTick</code> can also be achieved using setTimeout with a negative value</p>
+<pre><code><span class="hljs-keyword">set</span>Timeout(foo, -<span class="hljs-number">1</span>);
+</code></pre><p>Since all we are doing is logging a simple string to the console, this is a contrived example. However; building on the concept of <code>process.prevTick</code> we can begin to implement more complex time loop programs.</p>
+<h2 id="brute-force-cracking-with-time-loops">Brute force cracking with time loops</h2>
+<p>Let's assume a simple <a href="http://en.wikipedia.org/wiki/Brute-force_search">brute-force search</a> password cracking scenario. Imagine there is a login function which expects a password. We have access to a very large word dictionary in which our cracking software will sequentially attempt logins using every word in the dictionary as a password until a match is found.</p>
+<p>Here is the code for our brute-force program</p>
+<p><em>Note: It's important to remember that Novikov's self-consistency principle guarantees that the sequence of events generating the paradox in the following code has zero probability.</em></p>
+<script src="https://gist.github.com/Marak/5566478.js"></script>
+
+<h2 id="prime-factors-with-time-loops">Prime Factors with time loops</h2>
+<p>Using time-loop logic  prime factors can be calculated in polynomial time.</p>
+<script src="https://gist.github.com/Marak/3967740.js"></script>
+
+<h2 id="zero-lag-instant-communication">Zero-lag / Instant Communication</h2>
+<p>The theoretical application of time-loop logic is endless. Imagine a time-loop based communication protocol. This would mean zero millisecond latency. Imagine gaming, video broadcasting, and file sharing with instantaneous transfer and zero lag. Through exploiting self-consistency we know that data will be sent in the immediate future ( since the data has begun transferring from the source ) and that eventually the transmission will arrive at it's destination. As long as the data will eventually be received, we are able to send the result back from the future into the immediate present, removing the notion of latency or lag.</p>
+<h2 id="time-loop-logic-and-novikov-s-self-consistency-principle">Time Loop Logic and Novikov's Self-Consistency Principle</h2>
+<p>How is it actually possible to program a time loop? Based on the self-consistency principle and continuing advancements in quantum entanglement these types of mind-bending constructs are not very far away. It's very possible we'll see this type of software actively being developed within the next hundred years.</p>
+<p>Time loop logic was first written about by <a href="http://en.wikipedia.org/wiki/Hans_Moravec">Hans Moravec</a> who is best known for his work in robotics and artificial intelligence at Carnegie Mellon University. You can find Hans' original paper from 1991, "Time Travel and Computing", here: <a href="http://www.frc.ri.cmu.edu/users/hpm/project.archive/general.articles/1991/TempComp.html">http://www.frc.ri.cmu.edu/users/hpm/project.archive/general.articles/1991/TempComp.html</a>. I recommend reading the entire paper.</p>
+<p>What we know from <a href="https://en.wikipedia.org/wiki/Closed_timelike_curve#General_relativity">general relativity</a> is that at a quantum level backwards time-travel is mathematically possible in certain solutions containing <a href="http://en.wikipedia.org/wiki/Closed_timelike_curve">closed timelike curves</a>. A closed timelike curve is a <a href="http://en.wikipedia.org/wiki/World_line">world-line</a> in a <a href="http://en.wikipedia.org/wiki/Lorentzian_manifold#Lorentzian_manifold">Lorentzian manifold</a>. </p>
+<p>Closed timelike curves ( CTCs ) pose a problem for physicists. The existence of CTCs introduces the notion of time travel being possible. If time travel is possible, we have now introduced the notion of <a href="http://en.wikipedia.org/wiki/Grandfather_paradox">time travel paradoxes</a> which can violate <a href="http://en.wikipedia.org/wiki/Causality_(physics)">causality</a>. Since it's generally accepted that we cannot violate causality in our universe we must be able to explain how closed time-like curves can exist.</p>
+<p>In his self-consistency principle Novikov asserts that if an event exists that would give rise to a paradox, or to any "change" to the past whatsoever, then the probability of that event is zero. In short, it says that it is impossible to create time travel paradoxes. You can find the original paper here: <a href="http://authors.library.caltech.edu/3737">http://authors.library.caltech.edu/3737</a>. I recommend starting with reading the <a href="http://en.wikipedia.org/wiki/Novikov_self-consistency_principle#History_of_the_principle">history of the principle</a>.</p>
+<h1 id="a-somewhat-puzzling-debugging-session">A somewhat puzzling debugging session</h1>
+<p>In order for time loop logic to return an answer instantaneously, we <em>must</em> ensure that the problem will run long enough into the future to <em>actually</em> calculate the result. If a problem takes sixty seconds to solve, the program must run for at least sixty seconds. Time-loop logic does <em>not</em> violate causality. We are able to retrieve the answer instantly because we have committed to spending sixty seconds in the future calculating the answer and sending it back.</p>
+<p>This turns debugging time-loop logic into somewhat of an impossibility. Any bugs in a time loop indicate that sometime in the future a problem has occurred. <strong>This event may or may not be related to software.</strong> </p>
+<p>Imagine a computer that utilized a time loop to brute force crack passwords ( as our code posted above did). I turn the machine on and request it cracks the password. The program doesn't work. Frustrated, I turn off the machine and complain to my co-worker Josh.</p>
+<p>Josh turns on the machine and requests the password. The software works instantly cracking the password in under 1ms.</p>
+<p>Bewildered, I ask Josh why the machine worked for him but not for me.</p>
+<p>Josh replies, "It's actually quite simple. Using that computer it's going to take approximately 400 hours to brute force the password. After that 400 hours the CPU must recursively return the cracked password back in time until it reaches right now. I was able to get the answer instantly because I have decided to not turn this computer off for another 399 hours and 59 minutes. Simply put, you turned off the computer too quickly"</p>
+<p><em>The consequences of unplugging the computer</em></p>
+</div>
