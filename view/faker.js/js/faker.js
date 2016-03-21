@@ -4,10 +4,21 @@ var Faker = require('./lib');
 var faker = new Faker({ locales: require('./lib/locales') });
 module['exports'] = faker;
 },{"./lib":11,"./lib/locales":13}],2:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.address
+ */
 function Address (faker) {
   var f = faker.fake,
       Helpers = faker.helpers;
 
+  /**
+   * Generates random zipcode from format. If format is not specified, the
+   * locale's zip format is used.
+   *
+   * @method faker.address.zipCode
+   * @param {String} format
+   */
   this.zipCode = function(format) {
     // if zip format is not specified, use the zip format defined for the locale
     if (typeof format === 'undefined') {
@@ -21,12 +32,27 @@ function Address (faker) {
     return Helpers.replaceSymbols(format);
   }
 
+  /**
+   * Generates a random localized city name. The format string can contain any
+   * method provided by faker wrapped in `{{}}`, e.g. `{{name.firstName}}` in
+   * order to build the city name.
+   *
+   * If no format string is provided one of the following is randomly used:
+   * 
+   * * `{{address.cityPrefix}} {{name.firstName}}{{address.citySuffix}}`
+   * * `{{address.cityPrefix}} {{name.firstName}}`
+   * * `{{name.firstName}}{{address.citySuffix}}`
+   * * `{{name.lastName}}{{address.citySuffix}}`
+   *
+   * @method faker.address.city
+   * @param {String} format
+   */
   this.city = function (format) {
     var formats = [
-      '{{address.cityPrefix}} {{name.firstName}} {{address.citySuffix}}',
+      '{{address.cityPrefix}} {{name.firstName}}{{address.citySuffix}}',
       '{{address.cityPrefix}} {{name.firstName}}',
-      '{{name.firstName}} {{address.citySuffix}}',
-      '{{name.lastName}} {{address.citySuffix}}'
+      '{{name.firstName}}{{address.citySuffix}}',
+      '{{name.lastName}}{{address.citySuffix}}'
     ];
 
     if (typeof format !== "number") {
@@ -37,22 +63,41 @@ function Address (faker) {
 
   }
 
+  /**
+   * Return a random localized city prefix
+   * @method faker.address.cityPrefix
+   */
   this.cityPrefix = function () {
     return faker.random.arrayElement(faker.definitions.address.city_prefix);
   }
 
+  /**
+   * Return a random localized city suffix
+   *
+   * @method faker.address.citySuffix
+   */
   this.citySuffix = function () {
     return faker.random.arrayElement(faker.definitions.address.city_suffix);
   }
 
+  /**
+   * Returns a random localized street name
+   *
+   * @method faker.address.streetName
+   */
   this.streetName = function () {
       var result;
+      var suffix = faker.address.streetSuffix();
+      if (suffix !== "") {
+          suffix = " " + suffix
+      }
+
       switch (faker.random.number(1)) {
       case 0:
-          result = faker.name.lastName() + " " + faker.address.streetSuffix();
+          result = faker.name.lastName() + suffix;
           break;
       case 1:
-          result = faker.name.firstName() + " " + faker.address.streetSuffix();
+          result = faker.name.firstName() + suffix;
           break;
       }
       return result;
@@ -61,6 +106,12 @@ function Address (faker) {
   //
   // TODO: change all these methods that accept a boolean to instead accept an options hash.
   //
+  /**
+   * Returns a random localized street address
+   *
+   * @method faker.address.streetAddress
+   * @param {Boolean} useFullAddress
+   */
   this.streetAddress = function (useFullAddress) {
       if (useFullAddress === undefined) { useFullAddress = false; }
       var address = "";
@@ -78,14 +129,29 @@ function Address (faker) {
       return useFullAddress ? (address + " " + faker.address.secondaryAddress()) : address;
   }
 
+  /**
+   * streetSuffix
+   *
+   * @method faker.address.streetSuffix
+   */
   this.streetSuffix = function () {
       return faker.random.arrayElement(faker.definitions.address.street_suffix);
   }
   
+  /**
+   * streetPrefix
+   *
+   * @method faker.address.streetPrefix
+   */
   this.streetPrefix = function () {
       return faker.random.arrayElement(faker.definitions.address.street_prefix);
   }
 
+  /**
+   * secondaryAddress
+   *
+   * @method faker.address.secondaryAddress
+   */
   this.secondaryAddress = function () {
       return Helpers.replaceSymbolWithNumber(faker.random.arrayElement(
           [
@@ -95,30 +161,66 @@ function Address (faker) {
       ));
   }
 
+  /**
+   * county
+   *
+   * @method faker.address.county
+   */
   this.county = function () {
     return faker.random.arrayElement(faker.definitions.address.county);
   }
 
+  /**
+   * country
+   *
+   * @method faker.address.country
+   */
   this.country = function () {
     return faker.random.arrayElement(faker.definitions.address.country);
   }
 
+  /**
+   * countryCode
+   *
+   * @method faker.address.countryCode
+   */
   this.countryCode = function () {
     return faker.random.arrayElement(faker.definitions.address.country_code);
   }
 
+  /**
+   * state
+   *
+   * @method faker.address.state
+   * @param {Boolean} useAbbr
+   */
   this.state = function (useAbbr) {
       return faker.random.arrayElement(faker.definitions.address.state);
   }
 
+  /**
+   * stateAbbr
+   *
+   * @method faker.address.stateAbbr
+   */
   this.stateAbbr = function () {
       return faker.random.arrayElement(faker.definitions.address.state_abbr);
   }
 
+  /**
+   * latitude
+   *
+   * @method faker.address.latitude
+   */
   this.latitude = function () {
       return (faker.random.number(180 * 10000) / 10000.0 - 90.0).toFixed(4);
   }
 
+  /**
+   * longitude
+   *
+   * @method faker.address.longitude
+   */
   this.longitude = function () {
       return (faker.random.number(360 * 10000) / 10000.0 - 180.0).toFixed(4);
   }
@@ -130,40 +232,53 @@ function Address (faker) {
 module.exports = Address;
 
 },{}],3:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.commerce
+ */
 var Commerce = function (faker) {
   var self = this;
 
+  /**
+   * color
+   *
+   * @method faker.commerce.color
+   */
   self.color = function() {
       return faker.random.arrayElement(faker.definitions.commerce.color);
   };
 
+  /**
+   * department
+   *
+   * @method faker.commerce.department
+   * @param {number} max
+   * @param {number} fixedAmount
+   */
   self.department = function(max, fixedAmount) {
-    
       return faker.random.arrayElement(faker.definitions.commerce.department);
-      /*
-      max = max || 3;
-
-      var num = Math.floor((Math.random() * max) + 1);
-      if (fixedAmount) {
-          num = max;
-      }
-
-      var categories = faker.commerce.categories(num);
-
-      if(num > 1) {
-          return faker.commerce.mergeCategories(categories);
-      }
-
-      return categories[0];
-      */
   };
 
+  /**
+   * productName
+   *
+   * @method faker.commerce.productName
+   */
   self.productName = function() {
       return faker.commerce.productAdjective() + " " +
               faker.commerce.productMaterial() + " " +
               faker.commerce.product();
   };
 
+  /**
+   * price
+   *
+   * @method faker.commerce.price
+   * @param {number} min
+   * @param {number} max
+   * @param {number} dec
+   * @param {string} symbol
+   */
   self.price = function(min, max, dec, symbol) {
       min = min || 0;
       max = max || 1000;
@@ -174,7 +289,9 @@ var Commerce = function (faker) {
           return symbol + 0.00;
       }
 
-      return symbol + (Math.round((Math.random() * (max - min) + min) * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
+      var randValue = faker.random.number({ max: max, min: min });
+
+      return symbol + (Math.round(randValue * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
   };
 
   /*
@@ -203,14 +320,29 @@ var Commerce = function (faker) {
   };
   */
 
+  /**
+   * productAdjective
+   *
+   * @method faker.commerce.productAdjective
+   */
   self.productAdjective = function() {
       return faker.random.arrayElement(faker.definitions.commerce.product_name.adjective);
   };
 
+  /**
+   * productMaterial
+   *
+   * @method faker.commerce.productMaterial
+   */
   self.productMaterial = function() {
       return faker.random.arrayElement(faker.definitions.commerce.product_name.material);
   };
 
+  /**
+   * product
+   *
+   * @method faker.commerce.product
+   */
   self.product = function() {
       return faker.random.arrayElement(faker.definitions.commerce.product_name.product);
   }
@@ -219,17 +351,33 @@ var Commerce = function (faker) {
 };
 
 module['exports'] = Commerce;
+
 },{}],4:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.company
+ */
 var Company = function (faker) {
   
   var self = this;
   var f = faker.fake;
   
+  /**
+   * suffixes
+   *
+   * @method faker.company.suffixes
+   */
   this.suffixes = function () {
     // Don't want the source array exposed to modification, so return a copy
     return faker.definitions.company.suffix.slice(0);
   }
 
+  /**
+   * companyName
+   *
+   * @method faker.company.companyName
+   * @param {string} format
+   */
   this.companyName = function (format) {
 
     var formats = [
@@ -245,38 +393,83 @@ var Company = function (faker) {
     return f(formats[format]);
   }
 
+  /**
+   * companySuffix
+   *
+   * @method faker.company.companySuffix
+   */
   this.companySuffix = function () {
       return faker.random.arrayElement(faker.company.suffixes());
   }
 
+  /**
+   * catchPhrase
+   *
+   * @method faker.company.catchPhrase
+   */
   this.catchPhrase = function () {
     return f('{{company.catchPhraseAdjective}} {{company.catchPhraseDescriptor}} {{company.catchPhraseNoun}}')
   }
 
+  /**
+   * bs
+   *
+   * @method faker.company.bs
+   */
   this.bs = function () {
     return f('{{company.bsAdjective}} {{company.bsBuzz}} {{company.bsNoun}}');
   }
 
+  /**
+   * catchPhraseAdjective
+   *
+   * @method faker.company.catchPhraseAdjective
+   */
   this.catchPhraseAdjective = function () {
       return faker.random.arrayElement(faker.definitions.company.adjective);
   }
 
+  /**
+   * catchPhraseDescriptor
+   *
+   * @method faker.company.catchPhraseDescriptor
+   */
   this.catchPhraseDescriptor = function () {
       return faker.random.arrayElement(faker.definitions.company.descriptor);
   }
 
+  /**
+   * catchPhraseNoun
+   *
+   * @method faker.company.catchPhraseNoun
+   */
   this.catchPhraseNoun = function () {
       return faker.random.arrayElement(faker.definitions.company.noun);
   }
 
+  /**
+   * bsAdjective
+   *
+   * @method faker.company.bsAdjective
+   */
   this.bsAdjective = function () {
       return faker.random.arrayElement(faker.definitions.company.bs_adjective);
   }
 
+  /**
+   * bsBuzz
+   *
+   * @method faker.company.bsBuzz
+   */
   this.bsBuzz = function () {
       return faker.random.arrayElement(faker.definitions.company.bs_verb);
   }
 
+  /**
+   * bsNoun
+   *
+   * @method faker.company.bsNoun
+   */
   this.bsNoun = function () {
       return faker.random.arrayElement(faker.definitions.company.bs_noun);
   }
@@ -285,8 +478,19 @@ var Company = function (faker) {
 
 module['exports'] = Company;
 },{}],5:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.date
+ */
 var _Date = function (faker) {
   var self = this;
+  /**
+   * past
+   *
+   * @method faker.date.past
+   * @param {number} years
+   * @param {date} refDate
+   */
   self.past = function (years, refDate) {
       var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
       var range = {
@@ -301,6 +505,13 @@ var _Date = function (faker) {
       return date;
   };
 
+  /**
+   * future
+   *
+   * @method faker.date.future
+   * @param {number} years
+   * @param {date} refDate
+   */
   self.future = function (years, refDate) {
       var date = (refDate) ? new Date(Date.parse(refDate)) : new Date();
       var range = {
@@ -315,6 +526,13 @@ var _Date = function (faker) {
       return date;
   };
 
+  /**
+   * between
+   *
+   * @method faker.date.between
+   * @param {date} from
+   * @param {date} to
+   */
   self.between = function (from, to) {
       var fromMilli = Date.parse(from);
       var dateOffset = faker.random.number(Date.parse(to) - fromMilli);
@@ -324,6 +542,12 @@ var _Date = function (faker) {
       return newDate;
   };
 
+  /**
+   * recent
+   *
+   * @method faker.date.recent
+   * @param {number} days
+   */
   self.recent = function (days) {
       var date = new Date();
       var range = {
@@ -336,7 +560,51 @@ var _Date = function (faker) {
       date.setTime(future);
 
       return date;
-  }
+  };
+
+  /**
+   * month
+   *
+   * @method faker.date.month
+   * @param {object} options
+   */
+  self.month = function (options) {
+      options = options || {};
+
+      var type = 'wide';
+      if (options.abbr) {
+          type = 'abbr';
+      }
+      if (options.context && typeof faker.definitions.date.month[type + '_context'] !== 'undefined') {
+          type += '_context';
+      }
+
+      var source = faker.definitions.date.month[type];
+
+      return faker.random.arrayElement(source);
+  };
+
+  /**
+   * weekday
+   *
+   * @param {object} options
+   * @method faker.date.weekday
+   */
+  self.weekday = function (options) {
+      options = options || {};
+
+      var type = 'wide';
+      if (options.abbr) {
+          type = 'abbr';
+      }
+      if (options.context && typeof faker.definitions.date.weekday[type + '_context'] !== 'undefined') {
+          type += '_context';
+      }
+
+      var source = faker.definitions.date.weekday[type];
+
+      return faker.random.arrayElement(source);
+  };
   
   return self;
   
@@ -351,6 +619,23 @@ module['exports'] = _Date;
 
 function Fake (faker) {
   
+  /**
+   * Generator method for combining faker methods based on string input
+   *
+   * __Example:__
+   *
+   * ```
+   * console.log(faker.fake('{{name.lastName}}, {{name.firstName}} {{name.suffix}}'));
+   * //outputs: "Marks, Dean Sr."
+   * ```
+   *
+   * This will interpolate the format string with the value of methods
+   * [name.lastName]{@link faker.name.lastName}, [name.firstName]{@link faker.name.firstName},
+   * and [name.suffix]{@link faker.name.suffix}
+   *
+   * @method faker.fake
+   * @param {string} str
+   */
   this.fake = function fake (str) {
     // setup default response as empty string
     var res = '';
@@ -374,11 +659,19 @@ function Fake (faker) {
 
     // extract method name from between the {{ }} that we found
     // for example: {{name.firstName}}
-    var method = str.substr(start + 2,  end - start - 2);
-    method = method.replace('}}', '');
-    method = method.replace('{{', '');
+    var token = str.substr(start + 2,  end - start - 2);
+    var method = token.replace('}}', '').replace('{{', '');
 
     // console.log('method', method)
+
+    // extract method parameters
+    var regExp = /\(([^)]+)\)/;
+    var matches = regExp.exec(method);
+    var parameters = '';
+    if (matches) {
+      method = method.replace(regExp, '');
+      parameters = matches[1];
+    }
 
     // split the method into module and function
     var parts = method.split('.');
@@ -394,8 +687,28 @@ function Fake (faker) {
     // assign the function from the module.function namespace
     var fn = faker[parts[0]][parts[1]];
 
+    // If parameters are populated here, they are always going to be of string type
+    // since we might actually be dealing with an object or array,
+    // we always attempt to the parse the incoming parameters into JSON
+    var params;
+    // Note: we experience a small performance hit here due to JSON.parse try / catch
+    // If anyone actually needs to optimize this specific code path, please open a support issue on github
+    try {
+      params = JSON.parse(parameters)
+    } catch (err) {
+      // since JSON.parse threw an error, assume parameters was actually a string
+      params = parameters;
+    }
+
+    var result;
+    if (typeof params === "string" && params.length === 0) {
+      result = fn.call(this);
+    } else {
+      result = fn.call(this, params);
+    }
+
     // replace the found tag with the returned fake value
-    res = str.replace('{{' + method + '}}', fn());
+    res = str.replace('{{' + token + '}}', result);
 
     // return the response recursively until we are done finding all tags
     return fake(res);    
@@ -408,10 +721,20 @@ function Fake (faker) {
 
 module['exports'] = Fake;
 },{}],7:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.finance
+ */
 var Finance = function (faker) {
   var Helpers = faker.helpers,
       self = this;
 
+  /**
+   * account
+   *
+   * @method faker.finance.account
+   * @param {number} length
+   */
   self.account = function (length) {
 
       length = length || 8;
@@ -425,11 +748,24 @@ var Finance = function (faker) {
       return Helpers.replaceSymbolWithNumber(template);
   }
 
+  /**
+   * accountName
+   *
+   * @method faker.finance.accountName
+   */
   self.accountName = function () {
 
       return [Helpers.randomize(faker.definitions.finance.account_type), 'Account'].join(' ');
   }
 
+  /**
+   * mask
+   *
+   * @method faker.finance.mask
+   * @param {number} length
+   * @param {boolean} parens
+   * @param {boolean} elipsis
+   */
   self.mask = function (length, parens, elipsis) {
 
 
@@ -460,29 +796,59 @@ var Finance = function (faker) {
   //min and max take in minimum and maximum amounts, dec is the decimal place you want rounded to, symbol is $, €, £, etc
   //NOTE: this returns a string representation of the value, if you want a number use parseFloat and no symbol
 
+  /**
+   * amount
+   *
+   * @method faker.finance.amount
+   * @param {number} min
+   * @param {number} max
+   * @param {number} dec
+   * @param {string} symbol
+   */
   self.amount = function (min, max, dec, symbol) {
 
       min = min || 0;
       max = max || 1000;
       dec = dec || 2;
       symbol = symbol || '';
+      var randValue = faker.random.number({ max: max, min: min });
 
-      return symbol + (Math.round((Math.random() * (max - min) + min) * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
+      return symbol + (Math.round(randValue * Math.pow(10, dec)) / Math.pow(10, dec)).toFixed(dec);
 
   }
 
+  /**
+   * transactionType
+   *
+   * @method faker.finance.transactionType
+   */
   self.transactionType = function () {
       return Helpers.randomize(faker.definitions.finance.transaction_type);
   }
 
+  /**
+   * currencyCode
+   *
+   * @method faker.finance.currencyCode
+   */
   self.currencyCode = function () {
       return faker.random.objectElement(faker.definitions.finance.currency)['code'];
   }
 
+  /**
+   * currencyName
+   *
+   * @method faker.finance.currencyName
+   */
   self.currencyName = function () {
       return faker.random.objectElement(faker.definitions.finance.currency, 'key');
   }
 
+  /**
+   * currencySymbol
+   *
+   * @method faker.finance.currencySymbol
+   */
   self.currencySymbol = function () {
       var symbol;
 
@@ -491,41 +857,92 @@ var Finance = function (faker) {
       }
       return symbol;
   }
+
+  /**
+   * bitcoinAddress
+   *
+   * @method  faker.finance.bitcoinAddress
+   */
+  self.bitcoinAddress = function () {
+    var addressLength = faker.random.number({ min: 27, max: 34 });
+
+    var address = faker.random.arrayElement(['1', '3']);
+
+    for (var i = 0; i < addressLength - 1; i++)
+      address += faker.random.alphaNumeric().toUpperCase();
+
+    return address;
+  }
 }
 
 module['exports'] = Finance;
+
 },{}],8:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.hacker
+ */
 var Hacker = function (faker) {
   var self = this;
   
+  /**
+   * abbreviation
+   *
+   * @method faker.hacker.abbreviation
+   */
   self.abbreviation = function () {
     return faker.random.arrayElement(faker.definitions.hacker.abbreviation);
   };
 
+  /**
+   * adjective
+   *
+   * @method faker.hacker.adjective
+   */
   self.adjective = function () {
     return faker.random.arrayElement(faker.definitions.hacker.adjective);
   };
 
+  /**
+   * noun
+   *
+   * @method faker.hacker.noun
+   */
   self.noun = function () {
     return faker.random.arrayElement(faker.definitions.hacker.noun);
   };
 
+  /**
+   * verb
+   *
+   * @method faker.hacker.verb
+   */
   self.verb = function () {
     return faker.random.arrayElement(faker.definitions.hacker.verb);
   };
 
+  /**
+   * ingverb
+   *
+   * @method faker.hacker.ingverb
+   */
   self.ingverb = function () {
     return faker.random.arrayElement(faker.definitions.hacker.ingverb);
   };
 
+  /**
+   * phrase
+   *
+   * @method faker.hacker.phrase
+   */
   self.phrase = function () {
 
     var data = {
-      abbreviation: self.abbreviation(),
-      adjective: self.adjective(),
-      ingverb: self.ingverb(),
-      noun: self.noun(),
-      verb: self.verb()
+      abbreviation: self.abbreviation,
+      adjective: self.adjective,
+      ingverb: self.ingverb,
+      noun: self.noun,
+      verb: self.verb
     };
 
     var phrase = faker.random.arrayElement([ "If we {{verb}} the {{noun}}, we can get to the {{abbreviation}} {{noun}} through the {{adjective}} {{abbreviation}} {{noun}}!",
@@ -547,23 +964,43 @@ var Hacker = function (faker) {
 
 module['exports'] = Hacker;
 },{}],9:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.helpers
+ */
 var Helpers = function (faker) {
 
   var self = this;
 
-  // backword-compatibility
+  /**
+   * backword-compatibility
+   *
+   * @method faker.helpers.randomize
+   * @param {array} array
+   */
   self.randomize = function (array) {
       array = array || ["a", "b", "c"];
       return faker.random.arrayElement(array);
   };
 
-  // slugifies string
+  /**
+   * slugifies string
+   *
+   * @method faker.helpers.slugify
+   * @param {string} string
+   */
   self.slugify = function (string) {
       string = string || "";
       return string.replace(/ /g, '-').replace(/[^\w\.\-]+/g, '');
   };
 
-  // parses string for a symbol and replace it with a random number from 1-10
+  /**
+   * parses string for a symbol and replace it with a random number from 1-10
+   *
+   * @method faker.helpers.replaceSymbolWithNumber
+   * @param {string} string
+   * @param {string} symbol defaults to `"#"`
+   */
   self.replaceSymbolWithNumber = function (string, symbol) {
       string = string || "";
       // default symbol is '#'
@@ -582,7 +1019,12 @@ var Helpers = function (faker) {
       return str;
   };
 
-  // parses string for symbols (numbers or letters) and replaces them appropriately
+  /**
+   * parses string for symbols (numbers or letters) and replaces them appropriately
+   *
+   * @method faker.helpers.replaceSymbols
+   * @param {string} string
+   */
   self.replaceSymbols = function (string) {
       string = string || "";
   	var alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -592,7 +1034,7 @@ var Helpers = function (faker) {
           if (string.charAt(i) == "#") {
               str += faker.random.number(9);
   		} else if (string.charAt(i) == "?") {
-  			str += alpha[Math.floor(Math.random() * alpha.length)];
+  			str += faker.random.arrayElement(alpha);
           } else {
               str += string.charAt(i);
           }
@@ -600,13 +1042,25 @@ var Helpers = function (faker) {
       return str;
   };
 
-  // takes an array and returns it randomized
+  /**
+   * takes an array and returns it randomized
+   *
+   * @method faker.helpers.shuffle
+   * @param {array} o
+   */
   self.shuffle = function (o) {
       o = o || ["a", "b", "c"];
       for (var j, x, i = o.length-1; i; j = faker.random.number(i), x = o[--i], o[i] = o[j], o[j] = x);
       return o;
   };
 
+  /**
+   * mustache
+   *
+   * @method faker.helpers.mustache
+   * @param {string} str
+   * @param {object} data
+   */
   self.mustache = function (str, data) {
     if (typeof str === 'undefined') {
       return '';
@@ -618,6 +1072,11 @@ var Helpers = function (faker) {
     return str;
   };
 
+  /**
+   * createCard
+   *
+   * @method faker.helpers.createCard
+   */
   self.createCard = function () {
       return {
           "name": faker.name.findName(),
@@ -668,6 +1127,11 @@ var Helpers = function (faker) {
       };
   };
 
+  /**
+   * contextualCard
+   *
+   * @method faker.helpers.contextualCard
+   */
   self.contextualCard = function () {
     var name = faker.name.firstName(),
         userName = faker.internet.userName(name);
@@ -698,6 +1162,11 @@ var Helpers = function (faker) {
   };
 
 
+  /**
+   * userCard
+   *
+   * @method faker.helpers.userCard
+   */
   self.userCard = function () {
       return {
           "name": faker.name.findName(),
@@ -723,6 +1192,11 @@ var Helpers = function (faker) {
       };
   };
 
+  /**
+   * createTransaction
+   *
+   * @method faker.helpers.createTransaction
+   */
   self.createTransaction = function(){
     return {
       "amount" : faker.finance.amount(),
@@ -733,9 +1207,9 @@ var Helpers = function (faker) {
       "account" : faker.finance.account()
     };
   };
-  
+
   return self;
-  
+
 };
 
 
@@ -748,19 +1222,46 @@ String.prototype.capitalize = function () { //v1.0
 */
 
 module['exports'] = Helpers;
+
 },{}],10:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.image
+ */
 var Image = function (faker) {
 
   var self = this;
 
-  self.image = function () {
+  /**
+   * image
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.image
+   */
+  self.image = function (width, height, randomize) {
     var categories = ["abstract", "animals", "business", "cats", "city", "food", "nightlife", "fashion", "people", "nature", "sports", "technics", "transport"];
-    return self[faker.random.arrayElement(categories)]();
+    return self[faker.random.arrayElement(categories)](width, height, randomize);
   };
+  /**
+   * avatar
+   *
+   * @method faker.image.avatar
+   */
   self.avatar = function () {
     return faker.internet.avatar();
   };
-  self.imageUrl = function (width, height, category) {
+  /**
+   * imageUrl
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {string} category
+   * @param {boolean} randomize
+   * @method faker.image.imageUrl
+   */
+  self.imageUrl = function (width, height, category, randomize) {
       var width = width || 640;
       var height = height || 480;
 
@@ -768,46 +1269,155 @@ var Image = function (faker) {
       if (typeof category !== 'undefined') {
         url += '/' + category;
       }
+
+      if (randomize) {
+        url += '?' + faker.random.number()
+      }
+
       return url;
   };
-  self.abstract = function (width, height) {
-    return faker.image.imageUrl(width, height, 'abstract');
+  /**
+   * abstract
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.abstract
+   */
+  self.abstract = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'abstract', randomize);
   };
-  self.animals = function (width, height) {
-    return faker.image.imageUrl(width, height, 'animals');
+  /**
+   * animals
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.animals
+   */
+  self.animals = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'animals', randomize);
   };
-  self.business = function (width, height) {
-    return faker.image.imageUrl(width, height, 'business');
+  /**
+   * business
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.business
+   */
+  self.business = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'business', randomize);
   };
-  self.cats = function (width, height) {
-    return faker.image.imageUrl(width, height, 'cats');
+  /**
+   * cats
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.cats
+   */
+  self.cats = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'cats', randomize);
   };
-  self.city = function (width, height) {
-    return faker.image.imageUrl(width, height, 'city');
+  /**
+   * city
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.city
+   */
+  self.city = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'city', randomize);
   };
-  self.food = function (width, height) {
-    return faker.image.imageUrl(width, height, 'food');
+  /**
+   * food
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.food
+   */
+  self.food = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'food', randomize);
   };
-  self.nightlife = function (width, height) {
-    return faker.image.imageUrl(width, height, 'nightlife');
+  /**
+   * nightlife
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.nightlife
+   */
+  self.nightlife = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'nightlife', randomize);
   };
-  self.fashion = function (width, height) {
-    return faker.image.imageUrl(width, height, 'fashion');
+  /**
+   * fashion
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.fashion
+   */
+  self.fashion = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'fashion', randomize);
   };
-  self.people = function (width, height) {
-    return faker.image.imageUrl(width, height, 'people');
+  /**
+   * people
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.people
+   */
+  self.people = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'people', randomize);
   };
-  self.nature = function (width, height) {
-    return faker.image.imageUrl(width, height, 'nature');
+  /**
+   * nature
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.nature
+   */
+  self.nature = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'nature', randomize);
   };
-  self.sports = function (width, height) {
-    return faker.image.imageUrl(width, height, 'sports');
+  /**
+   * sports
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.sports
+   */
+  self.sports = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'sports', randomize);
   };
-  self.technics = function (width, height) {
-    return faker.image.imageUrl(width, height, 'technics');
+  /**
+   * technics
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.technics
+   */
+  self.technics = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'technics', randomize);
   };
-  self.transport = function (width, height) {
-    return faker.image.imageUrl(width, height, 'transport');
+  /**
+   * transport
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {boolean} randomize
+   * @method faker.image.transport
+   */
+  self.transport = function (width, height, randomize) {
+    return faker.image.imageUrl(width, height, 'transport', randomize);
   }  
 }
 
@@ -832,8 +1442,12 @@ module["exports"] = Image;
 
 */
 
+/**
+ *
+ * @namespace faker
+ */
 function Faker (opts) {
-  
+
   var self = this;
 
   opts = opts || {};
@@ -842,20 +1456,19 @@ function Faker (opts) {
   var locales = self.locales || opts.locales || {};
   var locale = self.locale || opts.locale || "en";
   var localeFallback = self.localeFallback || opts.localeFallback || "en";
-  
+
   self.locales = locales;
   self.locale = locale;
   self.localeFallback = localeFallback;
-  
-  
+
   self.definitions = {};
-  
+
   var Fake = require('./fake');
   self.fake = new Fake(self).fake;
-  
+
   var Random = require('./random');
   self.random = new Random(self);
-  // self.random = require('./random');  
+  // self.random = require('./random');
 
   var Helpers = require('./helpers');
   self.helpers = new Helpers(self);
@@ -894,8 +1507,9 @@ function Faker (opts) {
   var Commerce = require('./commerce');
   self.commerce = new Commerce(self);
 
-  // TODO: fix self.commerce = require('./commerce');
-  
+  var System = require('./system');
+  self.system = new System(self);
+
   var _definitions = {
     "name": ["first_name", "last_name", "prefix", "suffix", "title", "male_first_name", "female_first_name", "male_middle_name", "female_middle_name", "male_last_name", "female_last_name"],
     "address": ["city_prefix", "city_suffix", "street_suffix", "county", "country", "country_code", "state", "state_abbr", "street_prefix", "postcode"],
@@ -904,8 +1518,10 @@ function Faker (opts) {
     "hacker": ["abbreviation", "adjective", "noun", "verb", "ingverb"],
     "phone_number": ["formats"],
     "finance": ["account_type", "transaction_type", "currency"],
-    "internet": ["avatar_uri", "domain_suffix", "free_email", "password"],
+    "internet": ["avatar_uri", "domain_suffix", "free_email", "example_email", "password"],
     "commerce": ["color", "department", "product_name", "price", "categories"],
+    "system": ["mimeTypes"],
+    "date": ["month", "weekday"],
     "title": "",
     "separator": ""
   };
@@ -937,26 +1553,93 @@ function Faker (opts) {
       });
     });
   });
-  
-  
+
 };
 
+Faker.prototype.seed = function(value) {
+  var Random = require('./random');
+  this.seedValue = value;
+  this.random = new Random(this, this.seedValue);
+}
 module['exports'] = Faker;
-},{"./address":2,"./commerce":3,"./company":4,"./date":5,"./fake":6,"./finance":7,"./hacker":8,"./helpers":9,"./image":10,"./internet":12,"./lorem":855,"./name":856,"./phone_number":857,"./random":858}],12:[function(require,module,exports){
+
+},{"./address":2,"./commerce":3,"./company":4,"./date":5,"./fake":6,"./finance":7,"./hacker":8,"./helpers":9,"./image":10,"./internet":12,"./lorem":954,"./name":955,"./phone_number":956,"./random":957,"./system":958}],12:[function(require,module,exports){
 var password_generator = require('../vendor/password-generator.js'),
     random_ua = require('../vendor/user-agent');
 
+/**
+ *
+ * @namespace faker.internet
+ */
 var Internet = function (faker) {
   var self = this;
+  /**
+   * avatar
+   *
+   * @method faker.internet.avatar
+   */
   self.avatar = function () {
       return faker.random.arrayElement(faker.definitions.internet.avatar_uri);
   };
 
+  self.avatar.schema = {
+    "description": "Generates a URL for an avatar.",
+    "sampleResults": ["https://s3.amazonaws.com/uifaces/faces/twitter/igorgarybaldi/128.jpg"]
+  };
+
+  /**
+   * email
+   *
+   * @method faker.internet.email
+   * @param {string} firstName
+   * @param {string} lastName
+   * @param {string} provider
+   */
   self.email = function (firstName, lastName, provider) {
       provider = provider || faker.random.arrayElement(faker.definitions.internet.free_email);
       return  faker.helpers.slugify(faker.internet.userName(firstName, lastName)) + "@" + provider;
   };
 
+  self.email.schema = {
+    "description": "Generates a valid email address based on optional input criteria",
+    "sampleResults": ["foo.bar@gmail.com"],
+    "properties": {
+      "firstName": {
+        "type": "string",
+        "required": false,
+        "description": "The first name of the user"
+      },
+      "lastName": {
+        "type": "string",
+        "required": false,
+        "description": "The last name of the user"
+      },
+      "provider": {
+        "type": "string",
+        "required": false,
+        "description": "The domain of the user"
+      }
+    }
+  };
+  /**
+   * exampleEmail
+   *
+   * @method faker.internet.exampleEmail
+   * @param {string} firstName
+   * @param {string} lastName
+   */
+  self.exampleEmail = function (firstName, lastName) {
+      var provider = faker.random.arrayElement(faker.definitions.internet.example_email);
+      return self.email(firstName, lastName, provider);
+  };
+
+  /**
+   * userName
+   *
+   * @method faker.internet.userName
+   * @param {string} firstName
+   * @param {string} lastName
+   */
   self.userName = function (firstName, lastName) {
       var result;
       firstName = firstName || faker.name.firstName();
@@ -977,27 +1660,108 @@ var Internet = function (faker) {
       return result;
   };
 
+  self.userName.schema = {
+    "description": "Generates a username based on one of several patterns. The pattern is chosen randomly.",
+    "sampleResults": [
+      "Kirstin39",
+      "Kirstin.Smith",
+      "Kirstin.Smith39",
+      "KirstinSmith",
+      "KirstinSmith39",
+    ],
+    "properties": {
+      "firstName": {
+        "type": "string",
+        "required": false,
+        "description": "The first name of the user"
+      },
+      "lastName": {
+        "type": "string",
+        "required": false,
+        "description": "The last name of the user"
+      }
+    }
+  };
+
+  /**
+   * protocol
+   *
+   * @method faker.internet.protocol
+   */
   self.protocol = function () {
       var protocols = ['http','https'];
       return faker.random.arrayElement(protocols);
   };
 
+  self.protocol.schema = {
+    "description": "Randomly generates http or https",
+    "sampleResults": ["https", "http"]
+  };
+
+  /**
+   * url
+   *
+   * @method faker.internet.url
+   */
   self.url = function () {
       return faker.internet.protocol() + '://' + faker.internet.domainName();
   };
 
+  self.url.schema = {
+    "description": "Generates a random URL. The URL could be secure or insecure.",
+    "sampleResults": [
+      "http://rashawn.name",
+      "https://rashawn.name"
+    ]
+  };
+
+  /**
+   * domainName
+   *
+   * @method faker.internet.domainName
+   */
   self.domainName = function () {
       return faker.internet.domainWord() + "." + faker.internet.domainSuffix();
   };
 
+  self.domainName.schema = {
+    "description": "Generates a random domain name.",
+    "sampleResults": ["marvin.org"]
+  };
+
+  /**
+   * domainSuffix
+   *
+   * @method faker.internet.domainSuffix
+   */
   self.domainSuffix = function () {
       return faker.random.arrayElement(faker.definitions.internet.domain_suffix);
   };
 
-  self.domainWord = function () {
-      return faker.name.firstName().replace(/([\\~#&*{}/:<>?|\"])/ig, '').toLowerCase();
+  self.domainSuffix.schema = {
+    "description": "Generates a random domain suffix.",
+    "sampleResults": ["net"]
   };
 
+  /**
+   * domainWord
+   *
+   * @method faker.internet.domainWord
+   */
+  self.domainWord = function () {
+      return faker.name.firstName().replace(/([\\~#&*{}/:<>?|\"'])/ig, '').toLowerCase();
+  };
+
+  self.domainWord.schema = {
+    "description": "Generates a random domain word.",
+    "sampleResults": ["alyce"]
+  };
+
+  /**
+   * ip
+   *
+   * @method faker.internet.ip
+   */
   self.ip = function () {
       var randNum = function () {
           return (faker.random.number(255)).toFixed(0);
@@ -1011,10 +1775,33 @@ var Internet = function (faker) {
       return result.join(".");
   };
 
+  self.ip.schema = {
+    "description": "Generates a random IP.",
+    "sampleResults": ["97.238.241.11"]
+  };
+
+  /**
+   * userAgent
+   *
+   * @method faker.internet.userAgent
+   */
   self.userAgent = function () {
     return random_ua.generate();
   };
 
+  self.userAgent.schema = {
+    "description": "Generates a random user agent.",
+    "sampleResults": ["Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_7_5 rv:6.0; SL) AppleWebKit/532.0.1 (KHTML, like Gecko) Version/7.1.6 Safari/532.0.1"]
+  };
+
+  /**
+   * color
+   *
+   * @method faker.internet.color
+   * @param {number} baseRed255
+   * @param {number} baseGreen255
+   * @param {number} baseBlue255
+   */
   self.color = function (baseRed255, baseGreen255, baseBlue255) {
       baseRed255 = baseRed255 || 0;
       baseGreen255 = baseGreen255 || 0;
@@ -1033,10 +1820,37 @@ var Internet = function (faker) {
 
   };
 
+  self.color.schema = {
+    "description": "Generates a random hexadecimal color.",
+    "sampleResults": ["#06267f"],
+    "properties": {
+      "baseRed255": {
+        "type": "number",
+        "required": false,
+        "description": "The red value. Valid values are 0 - 255."
+      },
+      "baseGreen255": {
+        "type": "number",
+        "required": false,
+        "description": "The green value. Valid values are 0 - 255."
+      },
+      "baseBlue255": {
+        "type": "number",
+        "required": false,
+        "description": "The blue value. Valid values are 0 - 255."
+      }
+    }
+  };
+
+  /**
+   * mac
+   *
+   * @method faker.internet.mac
+   */
   self.mac = function(){
       var i, mac = "";
       for (i=0; i < 12; i++) {
-          mac+= parseInt(Math.random()*16).toString(16);
+          mac+= faker.random.number(15).toString(16);
           if (i%2==1 && i != 11) {
               mac+=":";
           }
@@ -1044,6 +1858,20 @@ var Internet = function (faker) {
       return mac;
   };
 
+  self.mac.schema = {
+    "description": "Generates a random mac address.",
+    "sampleResults": ["78:06:cc:ae:b3:81"]
+  };
+
+  /**
+   * password
+   *
+   * @method faker.internet.password
+   * @param {number} len
+   * @param {boolean} memorable
+   * @param {string} pattern
+   * @param {string} prefix
+   */
   self.password = function (len, memorable, pattern, prefix) {
     len = len || 15;
     if (typeof memorable === "undefined") {
@@ -1051,13 +1879,43 @@ var Internet = function (faker) {
     }
     return password_generator(len, memorable, pattern, prefix);
   }
-  
+
+  self.password.schema = {
+    "description": "Generates a random password.",
+    "sampleResults": [
+      "AM7zl6Mg",
+      "susejofe"
+    ],
+    "properties": {
+      "length": {
+        "type": "number",
+        "required": false,
+        "description": "The number of characters in the password."
+      },
+      "memorable": {
+        "type": "boolean",
+        "required": false,
+        "description": "Whether a password should be easy to remember."
+      },
+      "pattern": {
+        "type": "regex",
+        "required": false,
+        "description": "A regex to match each character of the password against. This parameter will be negated if the memorable setting is turned on."
+      },
+      "prefix": {
+        "type": "string",
+        "required": false,
+        "description": "A value to prepend to the generated password. The prefix counts towards the length of the password."
+      }
+    }
+  };
+
 };
 
 
 module["exports"] = Internet;
 
-},{"../vendor/password-generator.js":860,"../vendor/user-agent":861}],13:[function(require,module,exports){
+},{"../vendor/password-generator.js":960,"../vendor/user-agent":961}],13:[function(require,module,exports){
 exports['de'] = require('./locales/de');
 exports['de_AT'] = require('./locales/de_AT');
 exports['de_CH'] = require('./locales/de_CH');
@@ -1071,10 +1929,12 @@ exports['en_IND'] = require('./locales/en_IND');
 exports['en_US'] = require('./locales/en_US');
 exports['en_au_ocker'] = require('./locales/en_au_ocker');
 exports['es'] = require('./locales/es');
+exports['es_MX'] = require('./locales/es_MX');
 exports['fa'] = require('./locales/fa');
 exports['fr'] = require('./locales/fr');
 exports['fr_CA'] = require('./locales/fr_CA');
 exports['ge'] = require('./locales/ge');
+exports['id_ID'] = require('./locales/id_ID');
 exports['it'] = require('./locales/it');
 exports['ja'] = require('./locales/ja');
 exports['ko'] = require('./locales/ko');
@@ -1092,7 +1952,7 @@ exports['vi'] = require('./locales/vi');
 exports['zh_CN'] = require('./locales/zh_CN');
 exports['zh_TW'] = require('./locales/zh_TW');
 
-},{"./locales/de":34,"./locales/de_AT":67,"./locales/de_CH":86,"./locales/en":153,"./locales/en_AU":182,"./locales/en_BORK":190,"./locales/en_CA":198,"./locales/en_GB":210,"./locales/en_IE":220,"./locales/en_IND":232,"./locales/en_US":244,"./locales/en_au_ocker":264,"./locales/es":296,"./locales/fa":309,"./locales/fr":335,"./locales/fr_CA":355,"./locales/ge":381,"./locales/it":416,"./locales/ja":438,"./locales/ko":459,"./locales/nb_NO":489,"./locales/nep":509,"./locales/nl":533,"./locales/pl":573,"./locales/pt_BR":602,"./locales/ru":636,"./locales/sk":676,"./locales/sv":720,"./locales/tr":746,"./locales/uk":779,"./locales/vi":806,"./locales/zh_CN":829,"./locales/zh_TW":848}],14:[function(require,module,exports){
+},{"./locales/de":34,"./locales/de_AT":67,"./locales/de_CH":86,"./locales/en":161,"./locales/en_AU":193,"./locales/en_BORK":201,"./locales/en_CA":209,"./locales/en_GB":222,"./locales/en_IE":232,"./locales/en_IND":244,"./locales/en_US":256,"./locales/en_au_ocker":276,"./locales/es":308,"./locales/es_MX":352,"./locales/fa":371,"./locales/fr":397,"./locales/fr_CA":417,"./locales/ge":443,"./locales/id_ID":472,"./locales/it":509,"./locales/ja":531,"./locales/ko":552,"./locales/nb_NO":582,"./locales/nep":602,"./locales/nl":626,"./locales/pl":666,"./locales/pt_BR":695,"./locales/ru":732,"./locales/sk":772,"./locales/sv":819,"./locales/tr":845,"./locales/uk":878,"./locales/vi":905,"./locales/zh_CN":928,"./locales/zh_TW":947}],14:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
@@ -6254,9 +7114,10 @@ de_CH.title = "German (Switzerland)";
 de_CH.address = require("./address");
 de_CH.company = require("./company");
 de_CH.internet = require("./internet");
+de_CH.name = require("./name");
 de_CH.phone_number = require("./phone_number");
 
-},{"./address":81,"./company":83,"./internet":88,"./phone_number":90}],87:[function(require,module,exports){
+},{"./address":81,"./company":83,"./internet":88,"./name":90,"./phone_number":95}],87:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -6276,6 +7137,585 @@ internet.domain_suffix = require("./domain_suffix");
 
 },{"./domain_suffix":87}],89:[function(require,module,exports){
 module["exports"] = [
+    "Adolf",
+    "Adrian",
+    "Agnes",
+    "Alain",
+    "Albert",
+    "Alberto",
+    "Aldo",
+    "Alex",
+    "Alexander",
+    "Alexandre",
+    "Alfons",
+    "Alfred",
+    "Alice",
+    "Alois",
+    "André",
+    "Andrea",
+    "Andreas",
+    "Angela",
+    "Angelo",
+    "Anita",
+    "Anna",
+    "Anne",
+    "Anne-Marie",
+    "Annemarie",
+    "Antoine",
+    "Anton",
+    "Antonio",
+    "Armin",
+    "Arnold",
+    "Arthur",
+    "Astrid",
+    "Barbara",
+    "Beat",
+    "Beatrice",
+    "Beatrix",
+    "Bernadette",
+    "Bernard",
+    "Bernhard",
+    "Bettina",
+    "Brigitta",
+    "Brigitte",
+    "Bruno",
+    "Carlo",
+    "Carmen",
+    "Caroline",
+    "Catherine",
+    "Chantal",
+    "Charles",
+    "Charlotte",
+    "Christa",
+    "Christian",
+    "Christiane",
+    "Christina",
+    "Christine",
+    "Christoph",
+    "Christophe",
+    "Claire",
+    "Claude",
+    "Claudia",
+    "Claudine",
+    "Claudio",
+    "Corinne",
+    "Cornelia",
+    "Daniel",
+    "Daniela",
+    "Daniele",
+    "Danielle",
+    "David",
+    "Denis",
+    "Denise",
+    "Didier",
+    "Dieter",
+    "Dominik",
+    "Dominique",
+    "Dora",
+    "Doris",
+    "Edgar",
+    "Edith",
+    "Eduard",
+    "Edwin",
+    "Eliane",
+    "Elisabeth",
+    "Elsa",
+    "Elsbeth",
+    "Emil",
+    "Enrico",
+    "Eric",
+    "Erica",
+    "Erich",
+    "Erika",
+    "Ernst",
+    "Erwin",
+    "Esther",
+    "Eugen",
+    "Eva",
+    "Eveline",
+    "Evelyne",
+    "Fabienne",
+    "Felix",
+    "Ferdinand",
+    "Florence",
+    "Francesco",
+    "Francis",
+    "Franco",
+    "François",
+    "Françoise",
+    "Frank",
+    "Franz",
+    "Franziska",
+    "Frédéric",
+    "Fredy",
+    "Fridolin",
+    "Friedrich",
+    "Fritz",
+    "Gabriel",
+    "Gabriela",
+    "Gabrielle",
+    "Georg",
+    "Georges",
+    "Gérald",
+    "Gérard",
+    "Gerhard",
+    "Gertrud",
+    "Gianni",
+    "Gilbert",
+    "Giorgio",
+    "Giovanni",
+    "Gisela",
+    "Giuseppe",
+    "Gottfried",
+    "Guido",
+    "Guy",
+    "Hanna",
+    "Hans",
+    "Hans-Peter",
+    "Hans-Rudolf",
+    "Hans-Ulrich",
+    "Hansjörg",
+    "Hanspeter",
+    "Hansruedi",
+    "Hansueli",
+    "Harry",
+    "Heidi",
+    "Heinrich",
+    "Heinz",
+    "Helen",
+    "Helena",
+    "Helene",
+    "Helmut",
+    "Henri",
+    "Herbert",
+    "Hermann",
+    "Hildegard",
+    "Hubert",
+    "Hugo",
+    "Ingrid",
+    "Irene",
+    "Iris",
+    "Isabelle",
+    "Jacqueline",
+    "Jacques",
+    "Jakob",
+    "Jan",
+    "Janine",
+    "Jean",
+    "Jean-Claude",
+    "Jean-Daniel",
+    "Jean-François",
+    "Jean-Jacques",
+    "Jean-Louis",
+    "Jean-Luc",
+    "Jean-Marc",
+    "Jean-Marie",
+    "Jean-Paul",
+    "Jean-Pierre",
+    "Johann",
+    "Johanna",
+    "Johannes",
+    "John",
+    "Jolanda",
+    "Jörg",
+    "Josef",
+    "Joseph",
+    "Josette",
+    "Josiane",
+    "Judith",
+    "Julia",
+    "Jürg",
+    "Karin",
+    "Karl",
+    "Katharina",
+    "Klaus",
+    "Konrad",
+    "Kurt",
+    "Laura",
+    "Laurence",
+    "Laurent",
+    "Leo",
+    "Liliane",
+    "Liselotte",
+    "Louis",
+    "Luca",
+    "Luigi",
+    "Lukas",
+    "Lydia",
+    "Madeleine",
+    "Maja",
+    "Manfred",
+    "Manuel",
+    "Manuela",
+    "Marc",
+    "Marcel",
+    "Marco",
+    "Margrit",
+    "Margrith",
+    "Maria",
+    "Marianne",
+    "Mario",
+    "Marion",
+    "Markus",
+    "Marlène",
+    "Marlies",
+    "Marlis",
+    "Martha",
+    "Martin",
+    "Martina",
+    "Martine",
+    "Massimo",
+    "Matthias",
+    "Maurice",
+    "Max",
+    "Maya",
+    "Michael",
+    "Michel",
+    "Michele",
+    "Micheline",
+    "Monica",
+    "Monika",
+    "Monique",
+    "Myriam",
+    "Nadia",
+    "Nadja",
+    "Nathalie",
+    "Nelly",
+    "Nicolas",
+    "Nicole",
+    "Niklaus",
+    "Norbert",
+    "Olivier",
+    "Oskar",
+    "Otto",
+    "Paola",
+    "Paolo",
+    "Pascal",
+    "Patricia",
+    "Patrick",
+    "Paul",
+    "Peter",
+    "Petra",
+    "Philipp",
+    "Philippe",
+    "Pia",
+    "Pierre",
+    "Pierre-Alain",
+    "Pierre-André",
+    "Pius",
+    "Priska",
+    "Rainer",
+    "Raymond",
+    "Regina",
+    "Regula",
+    "Reinhard",
+    "Remo",
+    "Renata",
+    "Renate",
+    "Renato",
+    "Rene",
+    "René",
+    "Reto",
+    "Richard",
+    "Rita",
+    "Robert",
+    "Roberto",
+    "Roger",
+    "Roland",
+    "Rolf",
+    "Roman",
+    "Rosa",
+    "Rosemarie",
+    "Rosmarie",
+    "Rudolf",
+    "Ruedi",
+    "Ruth",
+    "Sabine",
+    "Samuel",
+    "Sandra",
+    "Sandro",
+    "Serge",
+    "Silvia",
+    "Silvio",
+    "Simon",
+    "Simone",
+    "Sonia",
+    "Sonja",
+    "Stefan",
+    "Stephan",
+    "Stéphane",
+    "Stéphanie",
+    "Susanna",
+    "Susanne",
+    "Suzanne",
+    "Sylvia",
+    "Sylvie",
+    "Theo",
+    "Theodor",
+    "Therese",
+    "Thomas",
+    "Toni",
+    "Ueli",
+    "Ulrich",
+    "Urs",
+    "Ursula",
+    "Verena",
+    "Véronique",
+    "Victor",
+    "Viktor",
+    "Vreni",
+    "Walter",
+    "Werner",
+    "Willi",
+    "Willy",
+    "Wolfgang",
+    "Yolande",
+    "Yves",
+    "Yvette",
+    "Yvonne",
+
+];
+
+},{}],90:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.first_name = require("./first_name");
+name.last_name = require("./last_name");
+name.prefix = require("./prefix");
+name.name = require("./name");
+
+},{"./first_name":89,"./last_name":91,"./name":92,"./prefix":93}],91:[function(require,module,exports){
+module["exports"] = [
+    "Ackermann",
+    "Aebi",
+    "Albrecht",
+    "Ammann",
+    "Amrein",
+    "Arnold",
+    "Bachmann",
+    "Bader",
+    "Bär",
+    "Bättig",
+    "Bauer",
+    "Baumann",
+    "Baumgartner",
+    "Baur",
+    "Beck",
+    "Benz",
+    "Berger",
+    "Bernasconi",
+    "Betschart",
+    "Bianchi",
+    "Bieri",
+    "Blaser",
+    "Blum",
+    "Bolliger",
+    "Bosshard",
+    "Braun",
+    "Brun",
+    "Brunner",
+    "Bucher",
+    "Bühler",
+    "Bühlmann",
+    "Burri",
+    "Christen",
+    "Egger",
+    "Egli",
+    "Eichenberger",
+    "Erni",
+    "Ernst",
+    "Eugster",
+    "Fankhauser",
+    "Favre",
+    "Fehr",
+    "Felber",
+    "Felder",
+    "Ferrari",
+    "Fischer",
+    "Flückiger",
+    "Forster",
+    "Frei",
+    "Frey",
+    "Frick",
+    "Friedli",
+    "Fuchs",
+    "Furrer",
+    "Gasser",
+    "Geiger",
+    "Gerber",
+    "Gfeller",
+    "Giger",
+    "Gloor",
+    "Graf",
+    "Grob",
+    "Gross",
+    "Gut",
+    "Haas",
+    "Häfliger",
+    "Hafner",
+    "Hartmann",
+    "Hasler",
+    "Hauser",
+    "Hermann",
+    "Herzog",
+    "Hess",
+    "Hirt",
+    "Hodel",
+    "Hofer",
+    "Hoffmann",
+    "Hofmann",
+    "Hofstetter",
+    "Hotz",
+    "Huber",
+    "Hug",
+    "Hunziker",
+    "Hürlimann",
+    "Imhof",
+    "Isler",
+    "Iten",
+    "Jäggi",
+    "Jenni",
+    "Jost",
+    "Kägi",
+    "Kaiser",
+    "Kälin",
+    "Käser",
+    "Kaufmann",
+    "Keller",
+    "Kern",
+    "Kessler",
+    "Knecht",
+    "Koch",
+    "Kohler",
+    "Kuhn",
+    "Küng",
+    "Kunz",
+    "Lang",
+    "Lanz",
+    "Lehmann",
+    "Leu",
+    "Leunberger",
+    "Lüscher",
+    "Lustenberger",
+    "Lüthi",
+    "Lutz",
+    "Mäder",
+    "Maier",
+    "Marti",
+    "Martin",
+    "Maurer",
+    "Mayer",
+    "Meier",
+    "Meili",
+    "Meister",
+    "Merz",
+    "Mettler",
+    "Meyer",
+    "Michel",
+    "Moser",
+    "Müller",
+    "Näf",
+    "Ott",
+    "Peter",
+    "Pfister",
+    "Portmann",
+    "Probst",
+    "Rey",
+    "Ritter",
+    "Roos",
+    "Roth",
+    "Rüegg",
+    "Schäfer",
+    "Schaller",
+    "Schär",
+    "Schärer",
+    "Schaub",
+    "Scheidegger",
+    "Schenk",
+    "Scherrer",
+    "Schlatter",
+    "Schmid",
+    "Schmidt",
+    "Schneider",
+    "Schnyder",
+    "Schoch",
+    "Schuler",
+    "Schumacher",
+    "Schürch",
+    "Schwab",
+    "Schwarz",
+    "Schweizer",
+    "Seiler",
+    "Senn",
+    "Sidler",
+    "Siegrist",
+    "Sigrist",
+    "Spörri",
+    "Stadelmann",
+    "Stalder",
+    "Staub",
+    "Stauffer",
+    "Steffen",
+    "Steiger",
+    "Steiner",
+    "Steinmann",
+    "Stettler",
+    "Stocker",
+    "Stöckli",
+    "Stucki",
+    "Studer",
+    "Stutz",
+    "Suter",
+    "Sutter",
+    "Tanner",
+    "Thommen",
+    "Tobler",
+    "Vogel",
+    "Vogt",
+    "Wagner",
+    "Walder",
+    "Walter",
+    "Weber",
+    "Wegmann",
+    "Wehrli",
+    "Weibel",
+    "Wenger",
+    "Wettstein",
+    "Widmer",
+    "Winkler",
+    "Wirth",
+    "Wirz",
+    "Wolf",
+    "Wüthrich",
+    "Wyss",
+    "Zbinden",
+    "Zehnder",
+    "Ziegler",
+    "Zimmermann",
+    "Zingg",
+    "Zollinger",
+    "Zürcher"
+];
+
+},{}],92:[function(require,module,exports){
+module["exports"] = [
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}",
+  "#{first_name} #{last_name}"
+];
+
+},{}],93:[function(require,module,exports){
+module["exports"] = [
+  "Hr.",
+  "Fr.",
+  "Dr."
+];
+
+},{}],94:[function(require,module,exports){
+module["exports"] = [
   "0800 ### ###",
   "0800 ## ## ##",
   "0## ### ## ##",
@@ -6287,18 +7727,18 @@ module["exports"] = [
   "0041 79 ### ## ##"
 ];
 
-},{}],90:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":89,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],91:[function(require,module,exports){
+},{"./formats":94,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],96:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "####",
   "###"
 ];
 
-},{}],92:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 module.exports=require(15)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/city.js":15}],93:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/city.js":15}],98:[function(require,module,exports){
 module["exports"] = [
   "North",
   "East",
@@ -6309,7 +7749,7 @@ module["exports"] = [
   "Port"
 ];
 
-},{}],94:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 module["exports"] = [
   "town",
   "ton",
@@ -6332,7 +7772,7 @@ module["exports"] = [
   "shire"
 ];
 
-},{}],95:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -6581,7 +8021,7 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],96:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 module["exports"] = [
   "AD",
   "AE",
@@ -6835,7 +8275,7 @@ module["exports"] = [
   "ZW"
 ];
 
-},{}],97:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -6845,12 +8285,12 @@ module["exports"] = [
   "Cambridgeshire"
 ];
 
-},{}],98:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 module["exports"] = [
   "United States of America"
 ];
 
-},{}],99:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -6871,21 +8311,21 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":91,"./city":92,"./city_prefix":93,"./city_suffix":94,"./country":95,"./country_code":96,"./county":97,"./default_country":98,"./postcode":100,"./postcode_by_state":101,"./secondary_address":102,"./state":103,"./state_abbr":104,"./street_address":105,"./street_name":106,"./street_suffix":107,"./time_zone":108}],100:[function(require,module,exports){
+},{"./building_number":96,"./city":97,"./city_prefix":98,"./city_suffix":99,"./country":100,"./country_code":101,"./county":102,"./default_country":103,"./postcode":105,"./postcode_by_state":106,"./secondary_address":107,"./state":108,"./state_abbr":109,"./street_address":110,"./street_name":111,"./street_suffix":112,"./time_zone":113}],105:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####-####"
 ];
 
-},{}],101:[function(require,module,exports){
-module.exports=require(100)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/postcode.js":100}],102:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
+module.exports=require(105)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/postcode.js":105}],107:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Suite ###"
 ];
 
-},{}],103:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module["exports"] = [
   "Alabama",
   "Alaska",
@@ -6939,7 +8379,7 @@ module["exports"] = [
   "Wyoming"
 ];
 
-},{}],104:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 module["exports"] = [
   "AL",
   "AK",
@@ -6993,18 +8433,18 @@ module["exports"] = [
   "WY"
 ];
 
-},{}],105:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 module["exports"] = [
   "#{building_number} #{street_name}"
 ];
 
-},{}],106:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name} #{street_suffix}",
   "#{Name.last_name} #{street_suffix}"
 ];
 
-},{}],107:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module["exports"] = [
   "Alley",
   "Avenue",
@@ -7233,7 +8673,7 @@ module["exports"] = [
   "Wells"
 ];
 
-},{}],108:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 module["exports"] = [
   "Pacific/Midway",
   "Pacific/Pago_Pago",
@@ -7380,20 +8820,20 @@ module["exports"] = [
   "Pacific/Apia"
 ];
 
-},{}],109:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module["exports"] = [
   "#{Name.name}",
   "#{Company.name}"
 ];
 
-},{}],110:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 var app = {};
 module['exports'] = app;
 app.name = require("./name");
 app.version = require("./version");
 app.author = require("./author");
 
-},{"./author":109,"./name":111,"./version":112}],111:[function(require,module,exports){
+},{"./author":114,"./name":116,"./version":117}],116:[function(require,module,exports){
 module["exports"] = [
   "Redhold",
   "Treeflex",
@@ -7459,7 +8899,7 @@ module["exports"] = [
   "Keylex"
 ];
 
-},{}],112:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 module["exports"] = [
   "0.#.#",
   "0.##",
@@ -7468,7 +8908,7 @@ module["exports"] = [
   "#.#.#"
 ];
 
-},{}],113:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 module["exports"] = [
   "2011-10-12",
   "2012-11-12",
@@ -7476,7 +8916,7 @@ module["exports"] = [
   "2013-9-12"
 ];
 
-},{}],114:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module["exports"] = [
   "1234-2121-1221-1211",
   "1212-1221-1121-1234",
@@ -7484,7 +8924,7 @@ module["exports"] = [
   "1228-1221-1221-1431"
 ];
 
-},{}],115:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module["exports"] = [
   "visa",
   "mastercard",
@@ -7492,14 +8932,14 @@ module["exports"] = [
   "discover"
 ];
 
-},{}],116:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 var business = {};
 module['exports'] = business;
 business.credit_card_numbers = require("./credit_card_numbers");
 business.credit_card_expiry_dates = require("./credit_card_expiry_dates");
 business.credit_card_types = require("./credit_card_types");
 
-},{"./credit_card_expiry_dates":113,"./credit_card_numbers":114,"./credit_card_types":115}],117:[function(require,module,exports){
+},{"./credit_card_expiry_dates":118,"./credit_card_numbers":119,"./credit_card_types":120}],122:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###) ###-####",
@@ -7507,9 +8947,9 @@ module["exports"] = [
   "###.###.####"
 ];
 
-},{}],118:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":117,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],119:[function(require,module,exports){
+},{"./formats":122,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],124:[function(require,module,exports){
 module["exports"] = [
   "red",
   "green",
@@ -7544,7 +8984,7 @@ module["exports"] = [
   "silver"
 ];
 
-},{}],120:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 module["exports"] = [
   "Books",
   "Movies",
@@ -7570,14 +9010,14 @@ module["exports"] = [
   "Industrial"
 ];
 
-},{}],121:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var commerce = {};
 module['exports'] = commerce;
 commerce.color = require("./color");
 commerce.department = require("./department");
 commerce.product_name = require("./product_name");
 
-},{"./color":119,"./department":120,"./product_name":122}],122:[function(require,module,exports){
+},{"./color":124,"./department":125,"./product_name":127}],127:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Small",
@@ -7639,7 +9079,7 @@ module["exports"] = {
   ]
 };
 
-},{}],123:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module["exports"] = [
   "Adaptive",
   "Advanced",
@@ -7743,7 +9183,7 @@ module["exports"] = [
   "Vision-oriented"
 ];
 
-},{}],124:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -7812,7 +9252,7 @@ module["exports"] = [
   "rich"
 ];
 
-},{}],125:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 module["exports"] = [
   "synergies",
   "web-readiness",
@@ -7860,7 +9300,7 @@ module["exports"] = [
   "methodologies"
 ];
 
-},{}],126:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 module["exports"] = [
   "implement",
   "utilize",
@@ -7924,7 +9364,7 @@ module["exports"] = [
   "recontextualize"
 ];
 
-},{}],127:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module["exports"] = [
   "24 hour",
   "24/7",
@@ -8029,7 +9469,7 @@ module["exports"] = [
   "zero tolerance"
 ];
 
-},{}],128:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -8041,14 +9481,14 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":123,"./bs_adjective":124,"./bs_noun":125,"./bs_verb":126,"./descriptor":127,"./name":129,"./noun":130,"./suffix":131}],129:[function(require,module,exports){
+},{"./adjective":128,"./bs_adjective":129,"./bs_noun":130,"./bs_verb":131,"./descriptor":132,"./name":134,"./noun":135,"./suffix":136}],134:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} and #{Name.last_name}"
 ];
 
-},{}],130:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 module["exports"] = [
   "ability",
   "access",
@@ -8156,7 +9596,7 @@ module["exports"] = [
   "workforce"
 ];
 
-},{}],131:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 module["exports"] = [
   "Inc",
   "and Sons",
@@ -8164,19 +9604,19 @@ module["exports"] = [
   "Group"
 ];
 
-},{}],132:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 module["exports"] = [
   "/34##-######-####L/",
   "/37##-######-####L/"
 ];
 
-},{}],133:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 module["exports"] = [
   "/30[0-5]#-######-###L/",
   "/368#-######-###L/"
 ];
 
-},{}],134:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 module["exports"] = [
   "/6011-####-####-###L/",
   "/65##-####-####-###L/",
@@ -8186,7 +9626,7 @@ module["exports"] = [
   "/64[4-9]#-62##-####-####-###L/"
 ];
 
-},{}],135:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var credit_card = {};
 module['exports'] = credit_card;
 credit_card.visa = require("./visa");
@@ -8200,14 +9640,14 @@ credit_card.solo = require("./solo");
 credit_card.maestro = require("./maestro");
 credit_card.laser = require("./laser");
 
-},{"./american_express":132,"./diners_club":133,"./discover":134,"./jcb":136,"./laser":137,"./maestro":138,"./mastercard":139,"./solo":140,"./switch":141,"./visa":142}],136:[function(require,module,exports){
+},{"./american_express":137,"./diners_club":138,"./discover":139,"./jcb":141,"./laser":142,"./maestro":143,"./mastercard":144,"./solo":145,"./switch":146,"./visa":147}],141:[function(require,module,exports){
 module["exports"] = [
   "/3528-####-####-###L/",
   "/3529-####-####-###L/",
   "/35[3-8]#-####-####-###L/"
 ];
 
-},{}],137:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module["exports"] = [
   "/6304###########L/",
   "/6706###########L/",
@@ -8219,40 +9659,156 @@ module["exports"] = [
   "/6709#########{5,6}L/"
 ];
 
-},{}],138:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 module["exports"] = [
   "/50#{9,16}L/",
   "/5[6-8]#{9,16}L/",
   "/56##{9,16}L/"
 ];
 
-},{}],139:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 module["exports"] = [
   "/5[1-5]##-####-####-###L/",
   "/6771-89##-####-###L/"
 ];
 
-},{}],140:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 module["exports"] = [
   "/6767-####-####-###L/",
   "/6767-####-####-####-#L/",
   "/6767-####-####-####-##L/"
 ];
 
-},{}],141:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 module["exports"] = [
   "/6759-####-####-###L/",
   "/6759-####-####-####-#L/",
   "/6759-####-####-####-##L/"
 ];
 
-},{}],142:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 module["exports"] = [
   "/4###########L/",
   "/4###-####-####-###L/"
 ];
 
-},{}],143:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
+var date = {};
+module["exports"] = date;
+date.month = require("./month");
+date.weekday = require("./weekday");
+
+},{"./month":149,"./weekday":150}],149:[function(require,module,exports){
+// Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
+module["exports"] = {
+  wide: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ],
+  // Property "wide_context" is optional, if not set then "wide" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  wide_context: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ],
+  abbr: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ],
+  // Property "abbr_context" is optional, if not set then "abbr" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  abbr_context: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ]
+};
+
+},{}],150:[function(require,module,exports){
+// Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
+module["exports"] = {
+  wide: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ],
+  // Property "wide_context" is optional, if not set then "wide" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  wide_context: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ],
+  abbr: [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ],
+  // Property "abbr_context" is optional, if not set then "abbr" will be used instead
+  // It is used to specify a word in context, which may differ from a stand-alone word
+  abbr_context: [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ]
+};
+
+},{}],151:[function(require,module,exports){
 module["exports"] = [
   "Checking",
   "Savings",
@@ -8264,7 +9820,7 @@ module["exports"] = [
   "Personal Loan"
 ];
 
-},{}],144:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 module["exports"] = {
   "UAE Dirham": {
     "code": "AED",
@@ -8944,14 +10500,14 @@ module["exports"] = {
   }
 };
 
-},{}],145:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 var finance = {};
 module['exports'] = finance;
 finance.account_type = require("./account_type");
 finance.transaction_type = require("./transaction_type");
 finance.currency = require("./currency");
 
-},{"./account_type":143,"./currency":144,"./transaction_type":146}],146:[function(require,module,exports){
+},{"./account_type":151,"./currency":152,"./transaction_type":154}],154:[function(require,module,exports){
 module["exports"] = [
   "deposit",
   "withdrawal",
@@ -8959,7 +10515,7 @@ module["exports"] = [
   "invoice"
 ];
 
-},{}],147:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 module["exports"] = [
   "TCP",
   "HTTP",
@@ -8992,7 +10548,7 @@ module["exports"] = [
   "JBOD"
 ];
 
-},{}],148:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 module["exports"] = [
   "auxiliary",
   "primary",
@@ -9014,7 +10570,7 @@ module["exports"] = [
   "mobile"
 ];
 
-},{}],149:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var hacker = {};
 module['exports'] = hacker;
 hacker.abbreviation = require("./abbreviation");
@@ -9023,7 +10579,7 @@ hacker.noun = require("./noun");
 hacker.verb = require("./verb");
 hacker.ingverb = require("./ingverb");
 
-},{"./abbreviation":147,"./adjective":148,"./ingverb":150,"./noun":151,"./verb":152}],150:[function(require,module,exports){
+},{"./abbreviation":155,"./adjective":156,"./ingverb":158,"./noun":159,"./verb":160}],158:[function(require,module,exports){
 module["exports"] = [
   "backing up",
   "bypassing",
@@ -9043,7 +10599,7 @@ module["exports"] = [
   "parsing"
 ];
 
-},{}],151:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 module["exports"] = [
   "driver",
   "protocol",
@@ -9071,7 +10627,7 @@ module["exports"] = [
   "matrix"
 ];
 
-},{}],152:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 module["exports"] = [
   "back up",
   "bypass",
@@ -9093,7 +10649,7 @@ module["exports"] = [
   "parse"
 ];
 
-},{}],153:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 var en = {};
 module['exports'] = en;
 en.title = "English";
@@ -9112,8 +10668,10 @@ en.team = require("./team");
 en.hacker = require("./hacker");
 en.app = require("./app");
 en.finance = require("./finance");
+en.date = require("./date");
+en.system = require("./system");
 
-},{"./address":99,"./app":110,"./business":116,"./cell_phone":118,"./commerce":121,"./company":128,"./credit_card":135,"./finance":145,"./hacker":149,"./internet":157,"./lorem":158,"./name":162,"./phone_number":169,"./team":171}],154:[function(require,module,exports){
+},{"./address":104,"./app":115,"./business":121,"./cell_phone":123,"./commerce":126,"./company":133,"./credit_card":140,"./date":148,"./finance":153,"./hacker":157,"./internet":166,"./lorem":167,"./name":171,"./phone_number":178,"./system":179,"./team":182}],162:[function(require,module,exports){
 module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/jarjan/128.jpg",
   "https://s3.amazonaws.com/uifaces/faces/twitter/mahdif/128.jpg",
@@ -10383,7 +11941,7 @@ module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg"
 ];
 
-},{}],155:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 module["exports"] = [
   "com",
   "biz",
@@ -10393,22 +11951,30 @@ module["exports"] = [
   "org"
 ];
 
-},{}],156:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
+module["exports"] = [
+  "example.org",
+  "example.com",
+  "example.net"
+];
+
+},{}],165:[function(require,module,exports){
 module.exports=require(36)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],157:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],166:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
+internet.example_email = require("./example_email");
 internet.domain_suffix = require("./domain_suffix");
 internet.avatar_uri = require("./avatar_uri");
 
-},{"./avatar_uri":154,"./domain_suffix":155,"./free_email":156}],158:[function(require,module,exports){
+},{"./avatar_uri":162,"./domain_suffix":163,"./example_email":164,"./free_email":165}],167:[function(require,module,exports){
 var lorem = {};
 module['exports'] = lorem;
 lorem.words = require("./words");
 lorem.supplemental = require("./supplemental");
 
-},{"./supplemental":159,"./words":160}],159:[function(require,module,exports){
+},{"./supplemental":168,"./words":169}],168:[function(require,module,exports){
 module["exports"] = [
   "abbas",
   "abduco",
@@ -11252,9 +12818,9 @@ module["exports"] = [
   "xiphias"
 ];
 
-},{}],160:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],161:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],170:[function(require,module,exports){
 module["exports"] = [
   "Aaliyah",
   "Aaron",
@@ -14265,7 +15831,7 @@ module["exports"] = [
   "Zula"
 ];
 
-},{}],162:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -14275,7 +15841,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name":161,"./last_name":163,"./name":164,"./prefix":165,"./suffix":166,"./title":167}],163:[function(require,module,exports){
+},{"./first_name":170,"./last_name":172,"./name":173,"./prefix":174,"./suffix":175,"./title":176}],172:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Abernathy",
@@ -14753,7 +16319,7 @@ module["exports"] = [
   "Zulauf"
 ];
 
-},{}],164:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -14763,7 +16329,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],165:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 module["exports"] = [
   "Mr.",
   "Mrs.",
@@ -14772,7 +16338,7 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],166:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -14787,7 +16353,7 @@ module["exports"] = [
   "DVM"
 ];
 
-},{}],167:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Lead",
@@ -14881,7 +16447,7 @@ module["exports"] = {
   ]
 };
 
-},{}],168:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###) ###-####",
@@ -14905,9 +16471,6595 @@ module["exports"] = [
   "###.###.#### x#####"
 ];
 
-},{}],169:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":168,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],170:[function(require,module,exports){
+},{"./formats":177,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],179:[function(require,module,exports){
+var system = {};
+module['exports'] = system;
+system.mimeTypes = require("./mimeTypes");
+},{"./mimeTypes":180}],180:[function(require,module,exports){
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Jonathan Ong me@jongleberry.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Definitions from mime-db v1.21.0
+For updates check: https://github.com/jshttp/mime-db/blob/master/db.json
+
+*/
+
+module['exports'] = {
+  "application/1d-interleaved-parityfec": {
+    "source": "iana"
+  },
+  "application/3gpdash-qoe-report+xml": {
+    "source": "iana"
+  },
+  "application/3gpp-ims+xml": {
+    "source": "iana"
+  },
+  "application/a2l": {
+    "source": "iana"
+  },
+  "application/activemessage": {
+    "source": "iana"
+  },
+  "application/alto-costmap+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-costmapfilter+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-directory+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-endpointcost+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-endpointcostparams+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-endpointprop+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-endpointpropparams+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-error+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-networkmap+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/alto-networkmapfilter+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/aml": {
+    "source": "iana"
+  },
+  "application/andrew-inset": {
+    "source": "iana",
+    "extensions": ["ez"]
+  },
+  "application/applefile": {
+    "source": "iana"
+  },
+  "application/applixware": {
+    "source": "apache",
+    "extensions": ["aw"]
+  },
+  "application/atf": {
+    "source": "iana"
+  },
+  "application/atfx": {
+    "source": "iana"
+  },
+  "application/atom+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["atom"]
+  },
+  "application/atomcat+xml": {
+    "source": "iana",
+    "extensions": ["atomcat"]
+  },
+  "application/atomdeleted+xml": {
+    "source": "iana"
+  },
+  "application/atomicmail": {
+    "source": "iana"
+  },
+  "application/atomsvc+xml": {
+    "source": "iana",
+    "extensions": ["atomsvc"]
+  },
+  "application/atxml": {
+    "source": "iana"
+  },
+  "application/auth-policy+xml": {
+    "source": "iana"
+  },
+  "application/bacnet-xdd+zip": {
+    "source": "iana"
+  },
+  "application/batch-smtp": {
+    "source": "iana"
+  },
+  "application/bdoc": {
+    "compressible": false,
+    "extensions": ["bdoc"]
+  },
+  "application/beep+xml": {
+    "source": "iana"
+  },
+  "application/calendar+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/calendar+xml": {
+    "source": "iana"
+  },
+  "application/call-completion": {
+    "source": "iana"
+  },
+  "application/cals-1840": {
+    "source": "iana"
+  },
+  "application/cbor": {
+    "source": "iana"
+  },
+  "application/ccmp+xml": {
+    "source": "iana"
+  },
+  "application/ccxml+xml": {
+    "source": "iana",
+    "extensions": ["ccxml"]
+  },
+  "application/cdfx+xml": {
+    "source": "iana"
+  },
+  "application/cdmi-capability": {
+    "source": "iana",
+    "extensions": ["cdmia"]
+  },
+  "application/cdmi-container": {
+    "source": "iana",
+    "extensions": ["cdmic"]
+  },
+  "application/cdmi-domain": {
+    "source": "iana",
+    "extensions": ["cdmid"]
+  },
+  "application/cdmi-object": {
+    "source": "iana",
+    "extensions": ["cdmio"]
+  },
+  "application/cdmi-queue": {
+    "source": "iana",
+    "extensions": ["cdmiq"]
+  },
+  "application/cdni": {
+    "source": "iana"
+  },
+  "application/cea": {
+    "source": "iana"
+  },
+  "application/cea-2018+xml": {
+    "source": "iana"
+  },
+  "application/cellml+xml": {
+    "source": "iana"
+  },
+  "application/cfw": {
+    "source": "iana"
+  },
+  "application/cms": {
+    "source": "iana"
+  },
+  "application/cnrp+xml": {
+    "source": "iana"
+  },
+  "application/coap-group+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/commonground": {
+    "source": "iana"
+  },
+  "application/conference-info+xml": {
+    "source": "iana"
+  },
+  "application/cpl+xml": {
+    "source": "iana"
+  },
+  "application/csrattrs": {
+    "source": "iana"
+  },
+  "application/csta+xml": {
+    "source": "iana"
+  },
+  "application/cstadata+xml": {
+    "source": "iana"
+  },
+  "application/csvm+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/cu-seeme": {
+    "source": "apache",
+    "extensions": ["cu"]
+  },
+  "application/cybercash": {
+    "source": "iana"
+  },
+  "application/dart": {
+    "compressible": true
+  },
+  "application/dash+xml": {
+    "source": "iana",
+    "extensions": ["mdp"]
+  },
+  "application/dashdelta": {
+    "source": "iana"
+  },
+  "application/davmount+xml": {
+    "source": "iana",
+    "extensions": ["davmount"]
+  },
+  "application/dca-rft": {
+    "source": "iana"
+  },
+  "application/dcd": {
+    "source": "iana"
+  },
+  "application/dec-dx": {
+    "source": "iana"
+  },
+  "application/dialog-info+xml": {
+    "source": "iana"
+  },
+  "application/dicom": {
+    "source": "iana"
+  },
+  "application/dii": {
+    "source": "iana"
+  },
+  "application/dit": {
+    "source": "iana"
+  },
+  "application/dns": {
+    "source": "iana"
+  },
+  "application/docbook+xml": {
+    "source": "apache",
+    "extensions": ["dbk"]
+  },
+  "application/dskpp+xml": {
+    "source": "iana"
+  },
+  "application/dssc+der": {
+    "source": "iana",
+    "extensions": ["dssc"]
+  },
+  "application/dssc+xml": {
+    "source": "iana",
+    "extensions": ["xdssc"]
+  },
+  "application/dvcs": {
+    "source": "iana"
+  },
+  "application/ecmascript": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["ecma"]
+  },
+  "application/edi-consent": {
+    "source": "iana"
+  },
+  "application/edi-x12": {
+    "source": "iana",
+    "compressible": false
+  },
+  "application/edifact": {
+    "source": "iana",
+    "compressible": false
+  },
+  "application/emergencycalldata.comment+xml": {
+    "source": "iana"
+  },
+  "application/emergencycalldata.deviceinfo+xml": {
+    "source": "iana"
+  },
+  "application/emergencycalldata.providerinfo+xml": {
+    "source": "iana"
+  },
+  "application/emergencycalldata.serviceinfo+xml": {
+    "source": "iana"
+  },
+  "application/emergencycalldata.subscriberinfo+xml": {
+    "source": "iana"
+  },
+  "application/emma+xml": {
+    "source": "iana",
+    "extensions": ["emma"]
+  },
+  "application/emotionml+xml": {
+    "source": "iana"
+  },
+  "application/encaprtp": {
+    "source": "iana"
+  },
+  "application/epp+xml": {
+    "source": "iana"
+  },
+  "application/epub+zip": {
+    "source": "iana",
+    "extensions": ["epub"]
+  },
+  "application/eshop": {
+    "source": "iana"
+  },
+  "application/exi": {
+    "source": "iana",
+    "extensions": ["exi"]
+  },
+  "application/fastinfoset": {
+    "source": "iana"
+  },
+  "application/fastsoap": {
+    "source": "iana"
+  },
+  "application/fdt+xml": {
+    "source": "iana"
+  },
+  "application/fits": {
+    "source": "iana"
+  },
+  "application/font-sfnt": {
+    "source": "iana"
+  },
+  "application/font-tdpfr": {
+    "source": "iana",
+    "extensions": ["pfr"]
+  },
+  "application/font-woff": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["woff"]
+  },
+  "application/font-woff2": {
+    "compressible": false,
+    "extensions": ["woff2"]
+  },
+  "application/framework-attributes+xml": {
+    "source": "iana"
+  },
+  "application/gml+xml": {
+    "source": "apache",
+    "extensions": ["gml"]
+  },
+  "application/gpx+xml": {
+    "source": "apache",
+    "extensions": ["gpx"]
+  },
+  "application/gxf": {
+    "source": "apache",
+    "extensions": ["gxf"]
+  },
+  "application/gzip": {
+    "source": "iana",
+    "compressible": false
+  },
+  "application/h224": {
+    "source": "iana"
+  },
+  "application/held+xml": {
+    "source": "iana"
+  },
+  "application/http": {
+    "source": "iana"
+  },
+  "application/hyperstudio": {
+    "source": "iana",
+    "extensions": ["stk"]
+  },
+  "application/ibe-key-request+xml": {
+    "source": "iana"
+  },
+  "application/ibe-pkg-reply+xml": {
+    "source": "iana"
+  },
+  "application/ibe-pp-data": {
+    "source": "iana"
+  },
+  "application/iges": {
+    "source": "iana"
+  },
+  "application/im-iscomposing+xml": {
+    "source": "iana"
+  },
+  "application/index": {
+    "source": "iana"
+  },
+  "application/index.cmd": {
+    "source": "iana"
+  },
+  "application/index.obj": {
+    "source": "iana"
+  },
+  "application/index.response": {
+    "source": "iana"
+  },
+  "application/index.vnd": {
+    "source": "iana"
+  },
+  "application/inkml+xml": {
+    "source": "iana",
+    "extensions": ["ink","inkml"]
+  },
+  "application/iotp": {
+    "source": "iana"
+  },
+  "application/ipfix": {
+    "source": "iana",
+    "extensions": ["ipfix"]
+  },
+  "application/ipp": {
+    "source": "iana"
+  },
+  "application/isup": {
+    "source": "iana"
+  },
+  "application/its+xml": {
+    "source": "iana"
+  },
+  "application/java-archive": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["jar","war","ear"]
+  },
+  "application/java-serialized-object": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["ser"]
+  },
+  "application/java-vm": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["class"]
+  },
+  "application/javascript": {
+    "source": "iana",
+    "charset": "UTF-8",
+    "compressible": true,
+    "extensions": ["js"]
+  },
+  "application/jose": {
+    "source": "iana"
+  },
+  "application/jose+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/jrd+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/json": {
+    "source": "iana",
+    "charset": "UTF-8",
+    "compressible": true,
+    "extensions": ["json","map"]
+  },
+  "application/json-patch+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/json-seq": {
+    "source": "iana"
+  },
+  "application/json5": {
+    "extensions": ["json5"]
+  },
+  "application/jsonml+json": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["jsonml"]
+  },
+  "application/jwk+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/jwk-set+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/jwt": {
+    "source": "iana"
+  },
+  "application/kpml-request+xml": {
+    "source": "iana"
+  },
+  "application/kpml-response+xml": {
+    "source": "iana"
+  },
+  "application/ld+json": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["jsonld"]
+  },
+  "application/link-format": {
+    "source": "iana"
+  },
+  "application/load-control+xml": {
+    "source": "iana"
+  },
+  "application/lost+xml": {
+    "source": "iana",
+    "extensions": ["lostxml"]
+  },
+  "application/lostsync+xml": {
+    "source": "iana"
+  },
+  "application/lxf": {
+    "source": "iana"
+  },
+  "application/mac-binhex40": {
+    "source": "iana",
+    "extensions": ["hqx"]
+  },
+  "application/mac-compactpro": {
+    "source": "apache",
+    "extensions": ["cpt"]
+  },
+  "application/macwriteii": {
+    "source": "iana"
+  },
+  "application/mads+xml": {
+    "source": "iana",
+    "extensions": ["mads"]
+  },
+  "application/manifest+json": {
+    "charset": "UTF-8",
+    "compressible": true,
+    "extensions": ["webmanifest"]
+  },
+  "application/marc": {
+    "source": "iana",
+    "extensions": ["mrc"]
+  },
+  "application/marcxml+xml": {
+    "source": "iana",
+    "extensions": ["mrcx"]
+  },
+  "application/mathematica": {
+    "source": "iana",
+    "extensions": ["ma","nb","mb"]
+  },
+  "application/mathml+xml": {
+    "source": "iana",
+    "extensions": ["mathml"]
+  },
+  "application/mathml-content+xml": {
+    "source": "iana"
+  },
+  "application/mathml-presentation+xml": {
+    "source": "iana"
+  },
+  "application/mbms-associated-procedure-description+xml": {
+    "source": "iana"
+  },
+  "application/mbms-deregister+xml": {
+    "source": "iana"
+  },
+  "application/mbms-envelope+xml": {
+    "source": "iana"
+  },
+  "application/mbms-msk+xml": {
+    "source": "iana"
+  },
+  "application/mbms-msk-response+xml": {
+    "source": "iana"
+  },
+  "application/mbms-protection-description+xml": {
+    "source": "iana"
+  },
+  "application/mbms-reception-report+xml": {
+    "source": "iana"
+  },
+  "application/mbms-register+xml": {
+    "source": "iana"
+  },
+  "application/mbms-register-response+xml": {
+    "source": "iana"
+  },
+  "application/mbms-schedule+xml": {
+    "source": "iana"
+  },
+  "application/mbms-user-service-description+xml": {
+    "source": "iana"
+  },
+  "application/mbox": {
+    "source": "iana",
+    "extensions": ["mbox"]
+  },
+  "application/media-policy-dataset+xml": {
+    "source": "iana"
+  },
+  "application/media_control+xml": {
+    "source": "iana"
+  },
+  "application/mediaservercontrol+xml": {
+    "source": "iana",
+    "extensions": ["mscml"]
+  },
+  "application/merge-patch+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/metalink+xml": {
+    "source": "apache",
+    "extensions": ["metalink"]
+  },
+  "application/metalink4+xml": {
+    "source": "iana",
+    "extensions": ["meta4"]
+  },
+  "application/mets+xml": {
+    "source": "iana",
+    "extensions": ["mets"]
+  },
+  "application/mf4": {
+    "source": "iana"
+  },
+  "application/mikey": {
+    "source": "iana"
+  },
+  "application/mods+xml": {
+    "source": "iana",
+    "extensions": ["mods"]
+  },
+  "application/moss-keys": {
+    "source": "iana"
+  },
+  "application/moss-signature": {
+    "source": "iana"
+  },
+  "application/mosskey-data": {
+    "source": "iana"
+  },
+  "application/mosskey-request": {
+    "source": "iana"
+  },
+  "application/mp21": {
+    "source": "iana",
+    "extensions": ["m21","mp21"]
+  },
+  "application/mp4": {
+    "source": "iana",
+    "extensions": ["mp4s","m4p"]
+  },
+  "application/mpeg4-generic": {
+    "source": "iana"
+  },
+  "application/mpeg4-iod": {
+    "source": "iana"
+  },
+  "application/mpeg4-iod-xmt": {
+    "source": "iana"
+  },
+  "application/mrb-consumer+xml": {
+    "source": "iana"
+  },
+  "application/mrb-publish+xml": {
+    "source": "iana"
+  },
+  "application/msc-ivr+xml": {
+    "source": "iana"
+  },
+  "application/msc-mixer+xml": {
+    "source": "iana"
+  },
+  "application/msword": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["doc","dot"]
+  },
+  "application/mxf": {
+    "source": "iana",
+    "extensions": ["mxf"]
+  },
+  "application/nasdata": {
+    "source": "iana"
+  },
+  "application/news-checkgroups": {
+    "source": "iana"
+  },
+  "application/news-groupinfo": {
+    "source": "iana"
+  },
+  "application/news-transmission": {
+    "source": "iana"
+  },
+  "application/nlsml+xml": {
+    "source": "iana"
+  },
+  "application/nss": {
+    "source": "iana"
+  },
+  "application/ocsp-request": {
+    "source": "iana"
+  },
+  "application/ocsp-response": {
+    "source": "iana"
+  },
+  "application/octet-stream": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer"]
+  },
+  "application/oda": {
+    "source": "iana",
+    "extensions": ["oda"]
+  },
+  "application/odx": {
+    "source": "iana"
+  },
+  "application/oebps-package+xml": {
+    "source": "iana",
+    "extensions": ["opf"]
+  },
+  "application/ogg": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["ogx"]
+  },
+  "application/omdoc+xml": {
+    "source": "apache",
+    "extensions": ["omdoc"]
+  },
+  "application/onenote": {
+    "source": "apache",
+    "extensions": ["onetoc","onetoc2","onetmp","onepkg"]
+  },
+  "application/oxps": {
+    "source": "iana",
+    "extensions": ["oxps"]
+  },
+  "application/p2p-overlay+xml": {
+    "source": "iana"
+  },
+  "application/parityfec": {
+    "source": "iana"
+  },
+  "application/patch-ops-error+xml": {
+    "source": "iana",
+    "extensions": ["xer"]
+  },
+  "application/pdf": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["pdf"]
+  },
+  "application/pdx": {
+    "source": "iana"
+  },
+  "application/pgp-encrypted": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["pgp"]
+  },
+  "application/pgp-keys": {
+    "source": "iana"
+  },
+  "application/pgp-signature": {
+    "source": "iana",
+    "extensions": ["asc","sig"]
+  },
+  "application/pics-rules": {
+    "source": "apache",
+    "extensions": ["prf"]
+  },
+  "application/pidf+xml": {
+    "source": "iana"
+  },
+  "application/pidf-diff+xml": {
+    "source": "iana"
+  },
+  "application/pkcs10": {
+    "source": "iana",
+    "extensions": ["p10"]
+  },
+  "application/pkcs12": {
+    "source": "iana"
+  },
+  "application/pkcs7-mime": {
+    "source": "iana",
+    "extensions": ["p7m","p7c"]
+  },
+  "application/pkcs7-signature": {
+    "source": "iana",
+    "extensions": ["p7s"]
+  },
+  "application/pkcs8": {
+    "source": "iana",
+    "extensions": ["p8"]
+  },
+  "application/pkix-attr-cert": {
+    "source": "iana",
+    "extensions": ["ac"]
+  },
+  "application/pkix-cert": {
+    "source": "iana",
+    "extensions": ["cer"]
+  },
+  "application/pkix-crl": {
+    "source": "iana",
+    "extensions": ["crl"]
+  },
+  "application/pkix-pkipath": {
+    "source": "iana",
+    "extensions": ["pkipath"]
+  },
+  "application/pkixcmp": {
+    "source": "iana",
+    "extensions": ["pki"]
+  },
+  "application/pls+xml": {
+    "source": "iana",
+    "extensions": ["pls"]
+  },
+  "application/poc-settings+xml": {
+    "source": "iana"
+  },
+  "application/postscript": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["ai","eps","ps"]
+  },
+  "application/provenance+xml": {
+    "source": "iana"
+  },
+  "application/prs.alvestrand.titrax-sheet": {
+    "source": "iana"
+  },
+  "application/prs.cww": {
+    "source": "iana",
+    "extensions": ["cww"]
+  },
+  "application/prs.hpub+zip": {
+    "source": "iana"
+  },
+  "application/prs.nprend": {
+    "source": "iana"
+  },
+  "application/prs.plucker": {
+    "source": "iana"
+  },
+  "application/prs.rdf-xml-crypt": {
+    "source": "iana"
+  },
+  "application/prs.xsf+xml": {
+    "source": "iana"
+  },
+  "application/pskc+xml": {
+    "source": "iana",
+    "extensions": ["pskcxml"]
+  },
+  "application/qsig": {
+    "source": "iana"
+  },
+  "application/raptorfec": {
+    "source": "iana"
+  },
+  "application/rdap+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/rdf+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["rdf"]
+  },
+  "application/reginfo+xml": {
+    "source": "iana",
+    "extensions": ["rif"]
+  },
+  "application/relax-ng-compact-syntax": {
+    "source": "iana",
+    "extensions": ["rnc"]
+  },
+  "application/remote-printing": {
+    "source": "iana"
+  },
+  "application/reputon+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/resource-lists+xml": {
+    "source": "iana",
+    "extensions": ["rl"]
+  },
+  "application/resource-lists-diff+xml": {
+    "source": "iana",
+    "extensions": ["rld"]
+  },
+  "application/rfc+xml": {
+    "source": "iana"
+  },
+  "application/riscos": {
+    "source": "iana"
+  },
+  "application/rlmi+xml": {
+    "source": "iana"
+  },
+  "application/rls-services+xml": {
+    "source": "iana",
+    "extensions": ["rs"]
+  },
+  "application/rpki-ghostbusters": {
+    "source": "iana",
+    "extensions": ["gbr"]
+  },
+  "application/rpki-manifest": {
+    "source": "iana",
+    "extensions": ["mft"]
+  },
+  "application/rpki-roa": {
+    "source": "iana",
+    "extensions": ["roa"]
+  },
+  "application/rpki-updown": {
+    "source": "iana"
+  },
+  "application/rsd+xml": {
+    "source": "apache",
+    "extensions": ["rsd"]
+  },
+  "application/rss+xml": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["rss"]
+  },
+  "application/rtf": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["rtf"]
+  },
+  "application/rtploopback": {
+    "source": "iana"
+  },
+  "application/rtx": {
+    "source": "iana"
+  },
+  "application/samlassertion+xml": {
+    "source": "iana"
+  },
+  "application/samlmetadata+xml": {
+    "source": "iana"
+  },
+  "application/sbml+xml": {
+    "source": "iana",
+    "extensions": ["sbml"]
+  },
+  "application/scaip+xml": {
+    "source": "iana"
+  },
+  "application/scim+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/scvp-cv-request": {
+    "source": "iana",
+    "extensions": ["scq"]
+  },
+  "application/scvp-cv-response": {
+    "source": "iana",
+    "extensions": ["scs"]
+  },
+  "application/scvp-vp-request": {
+    "source": "iana",
+    "extensions": ["spq"]
+  },
+  "application/scvp-vp-response": {
+    "source": "iana",
+    "extensions": ["spp"]
+  },
+  "application/sdp": {
+    "source": "iana",
+    "extensions": ["sdp"]
+  },
+  "application/sep+xml": {
+    "source": "iana"
+  },
+  "application/sep-exi": {
+    "source": "iana"
+  },
+  "application/session-info": {
+    "source": "iana"
+  },
+  "application/set-payment": {
+    "source": "iana"
+  },
+  "application/set-payment-initiation": {
+    "source": "iana",
+    "extensions": ["setpay"]
+  },
+  "application/set-registration": {
+    "source": "iana"
+  },
+  "application/set-registration-initiation": {
+    "source": "iana",
+    "extensions": ["setreg"]
+  },
+  "application/sgml": {
+    "source": "iana"
+  },
+  "application/sgml-open-catalog": {
+    "source": "iana"
+  },
+  "application/shf+xml": {
+    "source": "iana",
+    "extensions": ["shf"]
+  },
+  "application/sieve": {
+    "source": "iana"
+  },
+  "application/simple-filter+xml": {
+    "source": "iana"
+  },
+  "application/simple-message-summary": {
+    "source": "iana"
+  },
+  "application/simplesymbolcontainer": {
+    "source": "iana"
+  },
+  "application/slate": {
+    "source": "iana"
+  },
+  "application/smil": {
+    "source": "iana"
+  },
+  "application/smil+xml": {
+    "source": "iana",
+    "extensions": ["smi","smil"]
+  },
+  "application/smpte336m": {
+    "source": "iana"
+  },
+  "application/soap+fastinfoset": {
+    "source": "iana"
+  },
+  "application/soap+xml": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/sparql-query": {
+    "source": "iana",
+    "extensions": ["rq"]
+  },
+  "application/sparql-results+xml": {
+    "source": "iana",
+    "extensions": ["srx"]
+  },
+  "application/spirits-event+xml": {
+    "source": "iana"
+  },
+  "application/sql": {
+    "source": "iana"
+  },
+  "application/srgs": {
+    "source": "iana",
+    "extensions": ["gram"]
+  },
+  "application/srgs+xml": {
+    "source": "iana",
+    "extensions": ["grxml"]
+  },
+  "application/sru+xml": {
+    "source": "iana",
+    "extensions": ["sru"]
+  },
+  "application/ssdl+xml": {
+    "source": "apache",
+    "extensions": ["ssdl"]
+  },
+  "application/ssml+xml": {
+    "source": "iana",
+    "extensions": ["ssml"]
+  },
+  "application/tamp-apex-update": {
+    "source": "iana"
+  },
+  "application/tamp-apex-update-confirm": {
+    "source": "iana"
+  },
+  "application/tamp-community-update": {
+    "source": "iana"
+  },
+  "application/tamp-community-update-confirm": {
+    "source": "iana"
+  },
+  "application/tamp-error": {
+    "source": "iana"
+  },
+  "application/tamp-sequence-adjust": {
+    "source": "iana"
+  },
+  "application/tamp-sequence-adjust-confirm": {
+    "source": "iana"
+  },
+  "application/tamp-status-query": {
+    "source": "iana"
+  },
+  "application/tamp-status-response": {
+    "source": "iana"
+  },
+  "application/tamp-update": {
+    "source": "iana"
+  },
+  "application/tamp-update-confirm": {
+    "source": "iana"
+  },
+  "application/tar": {
+    "compressible": true
+  },
+  "application/tei+xml": {
+    "source": "iana",
+    "extensions": ["tei","teicorpus"]
+  },
+  "application/thraud+xml": {
+    "source": "iana",
+    "extensions": ["tfi"]
+  },
+  "application/timestamp-query": {
+    "source": "iana"
+  },
+  "application/timestamp-reply": {
+    "source": "iana"
+  },
+  "application/timestamped-data": {
+    "source": "iana",
+    "extensions": ["tsd"]
+  },
+  "application/ttml+xml": {
+    "source": "iana"
+  },
+  "application/tve-trigger": {
+    "source": "iana"
+  },
+  "application/ulpfec": {
+    "source": "iana"
+  },
+  "application/urc-grpsheet+xml": {
+    "source": "iana"
+  },
+  "application/urc-ressheet+xml": {
+    "source": "iana"
+  },
+  "application/urc-targetdesc+xml": {
+    "source": "iana"
+  },
+  "application/urc-uisocketdesc+xml": {
+    "source": "iana"
+  },
+  "application/vcard+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vcard+xml": {
+    "source": "iana"
+  },
+  "application/vemmi": {
+    "source": "iana"
+  },
+  "application/vividence.scriptfile": {
+    "source": "apache"
+  },
+  "application/vnd.3gpp-prose+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp-prose-pc3ch+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.access-transfer-events+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.bsf+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.mid-call+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.pic-bw-large": {
+    "source": "iana",
+    "extensions": ["plb"]
+  },
+  "application/vnd.3gpp.pic-bw-small": {
+    "source": "iana",
+    "extensions": ["psb"]
+  },
+  "application/vnd.3gpp.pic-bw-var": {
+    "source": "iana",
+    "extensions": ["pvb"]
+  },
+  "application/vnd.3gpp.sms": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.srvcc-ext+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.srvcc-info+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.state-and-event-info+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp.ussd+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp2.bcmcsinfo+xml": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp2.sms": {
+    "source": "iana"
+  },
+  "application/vnd.3gpp2.tcap": {
+    "source": "iana",
+    "extensions": ["tcap"]
+  },
+  "application/vnd.3m.post-it-notes": {
+    "source": "iana",
+    "extensions": ["pwn"]
+  },
+  "application/vnd.accpac.simply.aso": {
+    "source": "iana",
+    "extensions": ["aso"]
+  },
+  "application/vnd.accpac.simply.imp": {
+    "source": "iana",
+    "extensions": ["imp"]
+  },
+  "application/vnd.acucobol": {
+    "source": "iana",
+    "extensions": ["acu"]
+  },
+  "application/vnd.acucorp": {
+    "source": "iana",
+    "extensions": ["atc","acutc"]
+  },
+  "application/vnd.adobe.air-application-installer-package+zip": {
+    "source": "apache",
+    "extensions": ["air"]
+  },
+  "application/vnd.adobe.flash.movie": {
+    "source": "iana"
+  },
+  "application/vnd.adobe.formscentral.fcdt": {
+    "source": "iana",
+    "extensions": ["fcdt"]
+  },
+  "application/vnd.adobe.fxp": {
+    "source": "iana",
+    "extensions": ["fxp","fxpl"]
+  },
+  "application/vnd.adobe.partial-upload": {
+    "source": "iana"
+  },
+  "application/vnd.adobe.xdp+xml": {
+    "source": "iana",
+    "extensions": ["xdp"]
+  },
+  "application/vnd.adobe.xfdf": {
+    "source": "iana",
+    "extensions": ["xfdf"]
+  },
+  "application/vnd.aether.imp": {
+    "source": "iana"
+  },
+  "application/vnd.ah-barcode": {
+    "source": "iana"
+  },
+  "application/vnd.ahead.space": {
+    "source": "iana",
+    "extensions": ["ahead"]
+  },
+  "application/vnd.airzip.filesecure.azf": {
+    "source": "iana",
+    "extensions": ["azf"]
+  },
+  "application/vnd.airzip.filesecure.azs": {
+    "source": "iana",
+    "extensions": ["azs"]
+  },
+  "application/vnd.amazon.ebook": {
+    "source": "apache",
+    "extensions": ["azw"]
+  },
+  "application/vnd.americandynamics.acc": {
+    "source": "iana",
+    "extensions": ["acc"]
+  },
+  "application/vnd.amiga.ami": {
+    "source": "iana",
+    "extensions": ["ami"]
+  },
+  "application/vnd.amundsen.maze+xml": {
+    "source": "iana"
+  },
+  "application/vnd.android.package-archive": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["apk"]
+  },
+  "application/vnd.anki": {
+    "source": "iana"
+  },
+  "application/vnd.anser-web-certificate-issue-initiation": {
+    "source": "iana",
+    "extensions": ["cii"]
+  },
+  "application/vnd.anser-web-funds-transfer-initiation": {
+    "source": "apache",
+    "extensions": ["fti"]
+  },
+  "application/vnd.antix.game-component": {
+    "source": "iana",
+    "extensions": ["atx"]
+  },
+  "application/vnd.apache.thrift.binary": {
+    "source": "iana"
+  },
+  "application/vnd.apache.thrift.compact": {
+    "source": "iana"
+  },
+  "application/vnd.apache.thrift.json": {
+    "source": "iana"
+  },
+  "application/vnd.api+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.apple.installer+xml": {
+    "source": "iana",
+    "extensions": ["mpkg"]
+  },
+  "application/vnd.apple.mpegurl": {
+    "source": "iana",
+    "extensions": ["m3u8"]
+  },
+  "application/vnd.apple.pkpass": {
+    "compressible": false,
+    "extensions": ["pkpass"]
+  },
+  "application/vnd.arastra.swi": {
+    "source": "iana"
+  },
+  "application/vnd.aristanetworks.swi": {
+    "source": "iana",
+    "extensions": ["swi"]
+  },
+  "application/vnd.artsquare": {
+    "source": "iana"
+  },
+  "application/vnd.astraea-software.iota": {
+    "source": "iana",
+    "extensions": ["iota"]
+  },
+  "application/vnd.audiograph": {
+    "source": "iana",
+    "extensions": ["aep"]
+  },
+  "application/vnd.autopackage": {
+    "source": "iana"
+  },
+  "application/vnd.avistar+xml": {
+    "source": "iana"
+  },
+  "application/vnd.balsamiq.bmml+xml": {
+    "source": "iana"
+  },
+  "application/vnd.balsamiq.bmpr": {
+    "source": "iana"
+  },
+  "application/vnd.bekitzur-stech+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.biopax.rdf+xml": {
+    "source": "iana"
+  },
+  "application/vnd.blueice.multipass": {
+    "source": "iana",
+    "extensions": ["mpm"]
+  },
+  "application/vnd.bluetooth.ep.oob": {
+    "source": "iana"
+  },
+  "application/vnd.bluetooth.le.oob": {
+    "source": "iana"
+  },
+  "application/vnd.bmi": {
+    "source": "iana",
+    "extensions": ["bmi"]
+  },
+  "application/vnd.businessobjects": {
+    "source": "iana",
+    "extensions": ["rep"]
+  },
+  "application/vnd.cab-jscript": {
+    "source": "iana"
+  },
+  "application/vnd.canon-cpdl": {
+    "source": "iana"
+  },
+  "application/vnd.canon-lips": {
+    "source": "iana"
+  },
+  "application/vnd.cendio.thinlinc.clientconf": {
+    "source": "iana"
+  },
+  "application/vnd.century-systems.tcp_stream": {
+    "source": "iana"
+  },
+  "application/vnd.chemdraw+xml": {
+    "source": "iana",
+    "extensions": ["cdxml"]
+  },
+  "application/vnd.chipnuts.karaoke-mmd": {
+    "source": "iana",
+    "extensions": ["mmd"]
+  },
+  "application/vnd.cinderella": {
+    "source": "iana",
+    "extensions": ["cdy"]
+  },
+  "application/vnd.cirpack.isdn-ext": {
+    "source": "iana"
+  },
+  "application/vnd.citationstyles.style+xml": {
+    "source": "iana"
+  },
+  "application/vnd.claymore": {
+    "source": "iana",
+    "extensions": ["cla"]
+  },
+  "application/vnd.cloanto.rp9": {
+    "source": "iana",
+    "extensions": ["rp9"]
+  },
+  "application/vnd.clonk.c4group": {
+    "source": "iana",
+    "extensions": ["c4g","c4d","c4f","c4p","c4u"]
+  },
+  "application/vnd.cluetrust.cartomobile-config": {
+    "source": "iana",
+    "extensions": ["c11amc"]
+  },
+  "application/vnd.cluetrust.cartomobile-config-pkg": {
+    "source": "iana",
+    "extensions": ["c11amz"]
+  },
+  "application/vnd.coffeescript": {
+    "source": "iana"
+  },
+  "application/vnd.collection+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.collection.doc+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.collection.next+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.commerce-battelle": {
+    "source": "iana"
+  },
+  "application/vnd.commonspace": {
+    "source": "iana",
+    "extensions": ["csp"]
+  },
+  "application/vnd.contact.cmsg": {
+    "source": "iana",
+    "extensions": ["cdbcmsg"]
+  },
+  "application/vnd.cosmocaller": {
+    "source": "iana",
+    "extensions": ["cmc"]
+  },
+  "application/vnd.crick.clicker": {
+    "source": "iana",
+    "extensions": ["clkx"]
+  },
+  "application/vnd.crick.clicker.keyboard": {
+    "source": "iana",
+    "extensions": ["clkk"]
+  },
+  "application/vnd.crick.clicker.palette": {
+    "source": "iana",
+    "extensions": ["clkp"]
+  },
+  "application/vnd.crick.clicker.template": {
+    "source": "iana",
+    "extensions": ["clkt"]
+  },
+  "application/vnd.crick.clicker.wordbank": {
+    "source": "iana",
+    "extensions": ["clkw"]
+  },
+  "application/vnd.criticaltools.wbs+xml": {
+    "source": "iana",
+    "extensions": ["wbs"]
+  },
+  "application/vnd.ctc-posml": {
+    "source": "iana",
+    "extensions": ["pml"]
+  },
+  "application/vnd.ctct.ws+xml": {
+    "source": "iana"
+  },
+  "application/vnd.cups-pdf": {
+    "source": "iana"
+  },
+  "application/vnd.cups-postscript": {
+    "source": "iana"
+  },
+  "application/vnd.cups-ppd": {
+    "source": "iana",
+    "extensions": ["ppd"]
+  },
+  "application/vnd.cups-raster": {
+    "source": "iana"
+  },
+  "application/vnd.cups-raw": {
+    "source": "iana"
+  },
+  "application/vnd.curl": {
+    "source": "iana"
+  },
+  "application/vnd.curl.car": {
+    "source": "apache",
+    "extensions": ["car"]
+  },
+  "application/vnd.curl.pcurl": {
+    "source": "apache",
+    "extensions": ["pcurl"]
+  },
+  "application/vnd.cyan.dean.root+xml": {
+    "source": "iana"
+  },
+  "application/vnd.cybank": {
+    "source": "iana"
+  },
+  "application/vnd.dart": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["dart"]
+  },
+  "application/vnd.data-vision.rdz": {
+    "source": "iana",
+    "extensions": ["rdz"]
+  },
+  "application/vnd.debian.binary-package": {
+    "source": "iana"
+  },
+  "application/vnd.dece.data": {
+    "source": "iana",
+    "extensions": ["uvf","uvvf","uvd","uvvd"]
+  },
+  "application/vnd.dece.ttml+xml": {
+    "source": "iana",
+    "extensions": ["uvt","uvvt"]
+  },
+  "application/vnd.dece.unspecified": {
+    "source": "iana",
+    "extensions": ["uvx","uvvx"]
+  },
+  "application/vnd.dece.zip": {
+    "source": "iana",
+    "extensions": ["uvz","uvvz"]
+  },
+  "application/vnd.denovo.fcselayout-link": {
+    "source": "iana",
+    "extensions": ["fe_launch"]
+  },
+  "application/vnd.desmume-movie": {
+    "source": "iana"
+  },
+  "application/vnd.dir-bi.plate-dl-nosuffix": {
+    "source": "iana"
+  },
+  "application/vnd.dm.delegation+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dna": {
+    "source": "iana",
+    "extensions": ["dna"]
+  },
+  "application/vnd.document+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.dolby.mlp": {
+    "source": "apache",
+    "extensions": ["mlp"]
+  },
+  "application/vnd.dolby.mobile.1": {
+    "source": "iana"
+  },
+  "application/vnd.dolby.mobile.2": {
+    "source": "iana"
+  },
+  "application/vnd.doremir.scorecloud-binary-document": {
+    "source": "iana"
+  },
+  "application/vnd.dpgraph": {
+    "source": "iana",
+    "extensions": ["dpg"]
+  },
+  "application/vnd.dreamfactory": {
+    "source": "iana",
+    "extensions": ["dfac"]
+  },
+  "application/vnd.drive+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ds-keypoint": {
+    "source": "apache",
+    "extensions": ["kpxx"]
+  },
+  "application/vnd.dtg.local": {
+    "source": "iana"
+  },
+  "application/vnd.dtg.local.flash": {
+    "source": "iana"
+  },
+  "application/vnd.dtg.local.html": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ait": {
+    "source": "iana",
+    "extensions": ["ait"]
+  },
+  "application/vnd.dvb.dvbj": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.esgcontainer": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ipdcdftnotifaccess": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ipdcesgaccess": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ipdcesgaccess2": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ipdcesgpdd": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.ipdcroaming": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.iptv.alfec-base": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.iptv.alfec-enhancement": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-aggregate-root+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-container+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-generic+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-ia-msglist+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-ia-registration-request+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-ia-registration-response+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.notif-init+xml": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.pfr": {
+    "source": "iana"
+  },
+  "application/vnd.dvb.service": {
+    "source": "iana",
+    "extensions": ["svc"]
+  },
+  "application/vnd.dxr": {
+    "source": "iana"
+  },
+  "application/vnd.dynageo": {
+    "source": "iana",
+    "extensions": ["geo"]
+  },
+  "application/vnd.dzr": {
+    "source": "iana"
+  },
+  "application/vnd.easykaraoke.cdgdownload": {
+    "source": "iana"
+  },
+  "application/vnd.ecdis-update": {
+    "source": "iana"
+  },
+  "application/vnd.ecowin.chart": {
+    "source": "iana",
+    "extensions": ["mag"]
+  },
+  "application/vnd.ecowin.filerequest": {
+    "source": "iana"
+  },
+  "application/vnd.ecowin.fileupdate": {
+    "source": "iana"
+  },
+  "application/vnd.ecowin.series": {
+    "source": "iana"
+  },
+  "application/vnd.ecowin.seriesrequest": {
+    "source": "iana"
+  },
+  "application/vnd.ecowin.seriesupdate": {
+    "source": "iana"
+  },
+  "application/vnd.emclient.accessrequest+xml": {
+    "source": "iana"
+  },
+  "application/vnd.enliven": {
+    "source": "iana",
+    "extensions": ["nml"]
+  },
+  "application/vnd.enphase.envoy": {
+    "source": "iana"
+  },
+  "application/vnd.eprints.data+xml": {
+    "source": "iana"
+  },
+  "application/vnd.epson.esf": {
+    "source": "iana",
+    "extensions": ["esf"]
+  },
+  "application/vnd.epson.msf": {
+    "source": "iana",
+    "extensions": ["msf"]
+  },
+  "application/vnd.epson.quickanime": {
+    "source": "iana",
+    "extensions": ["qam"]
+  },
+  "application/vnd.epson.salt": {
+    "source": "iana",
+    "extensions": ["slt"]
+  },
+  "application/vnd.epson.ssf": {
+    "source": "iana",
+    "extensions": ["ssf"]
+  },
+  "application/vnd.ericsson.quickcall": {
+    "source": "iana"
+  },
+  "application/vnd.eszigno3+xml": {
+    "source": "iana",
+    "extensions": ["es3","et3"]
+  },
+  "application/vnd.etsi.aoc+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.asic-e+zip": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.asic-s+zip": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.cug+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvcommand+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvdiscovery+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvprofile+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvsad-bc+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvsad-cod+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvsad-npvr+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvservice+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvsync+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.iptvueprofile+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.mcid+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.mheg5": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.overload-control-policy-dataset+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.pstn+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.sci+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.simservs+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.timestamp-token": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.tsl+xml": {
+    "source": "iana"
+  },
+  "application/vnd.etsi.tsl.der": {
+    "source": "iana"
+  },
+  "application/vnd.eudora.data": {
+    "source": "iana"
+  },
+  "application/vnd.ezpix-album": {
+    "source": "iana",
+    "extensions": ["ez2"]
+  },
+  "application/vnd.ezpix-package": {
+    "source": "iana",
+    "extensions": ["ez3"]
+  },
+  "application/vnd.f-secure.mobile": {
+    "source": "iana"
+  },
+  "application/vnd.fastcopy-disk-image": {
+    "source": "iana"
+  },
+  "application/vnd.fdf": {
+    "source": "iana",
+    "extensions": ["fdf"]
+  },
+  "application/vnd.fdsn.mseed": {
+    "source": "iana",
+    "extensions": ["mseed"]
+  },
+  "application/vnd.fdsn.seed": {
+    "source": "iana",
+    "extensions": ["seed","dataless"]
+  },
+  "application/vnd.ffsns": {
+    "source": "iana"
+  },
+  "application/vnd.filmit.zfc": {
+    "source": "iana"
+  },
+  "application/vnd.fints": {
+    "source": "iana"
+  },
+  "application/vnd.firemonkeys.cloudcell": {
+    "source": "iana"
+  },
+  "application/vnd.flographit": {
+    "source": "iana",
+    "extensions": ["gph"]
+  },
+  "application/vnd.fluxtime.clip": {
+    "source": "iana",
+    "extensions": ["ftc"]
+  },
+  "application/vnd.font-fontforge-sfd": {
+    "source": "iana"
+  },
+  "application/vnd.framemaker": {
+    "source": "iana",
+    "extensions": ["fm","frame","maker","book"]
+  },
+  "application/vnd.frogans.fnc": {
+    "source": "iana",
+    "extensions": ["fnc"]
+  },
+  "application/vnd.frogans.ltf": {
+    "source": "iana",
+    "extensions": ["ltf"]
+  },
+  "application/vnd.fsc.weblaunch": {
+    "source": "iana",
+    "extensions": ["fsc"]
+  },
+  "application/vnd.fujitsu.oasys": {
+    "source": "iana",
+    "extensions": ["oas"]
+  },
+  "application/vnd.fujitsu.oasys2": {
+    "source": "iana",
+    "extensions": ["oa2"]
+  },
+  "application/vnd.fujitsu.oasys3": {
+    "source": "iana",
+    "extensions": ["oa3"]
+  },
+  "application/vnd.fujitsu.oasysgp": {
+    "source": "iana",
+    "extensions": ["fg5"]
+  },
+  "application/vnd.fujitsu.oasysprs": {
+    "source": "iana",
+    "extensions": ["bh2"]
+  },
+  "application/vnd.fujixerox.art-ex": {
+    "source": "iana"
+  },
+  "application/vnd.fujixerox.art4": {
+    "source": "iana"
+  },
+  "application/vnd.fujixerox.ddd": {
+    "source": "iana",
+    "extensions": ["ddd"]
+  },
+  "application/vnd.fujixerox.docuworks": {
+    "source": "iana",
+    "extensions": ["xdw"]
+  },
+  "application/vnd.fujixerox.docuworks.binder": {
+    "source": "iana",
+    "extensions": ["xbd"]
+  },
+  "application/vnd.fujixerox.docuworks.container": {
+    "source": "iana"
+  },
+  "application/vnd.fujixerox.hbpl": {
+    "source": "iana"
+  },
+  "application/vnd.fut-misnet": {
+    "source": "iana"
+  },
+  "application/vnd.fuzzysheet": {
+    "source": "iana",
+    "extensions": ["fzs"]
+  },
+  "application/vnd.genomatix.tuxedo": {
+    "source": "iana",
+    "extensions": ["txd"]
+  },
+  "application/vnd.geo+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.geocube+xml": {
+    "source": "iana"
+  },
+  "application/vnd.geogebra.file": {
+    "source": "iana",
+    "extensions": ["ggb"]
+  },
+  "application/vnd.geogebra.tool": {
+    "source": "iana",
+    "extensions": ["ggt"]
+  },
+  "application/vnd.geometry-explorer": {
+    "source": "iana",
+    "extensions": ["gex","gre"]
+  },
+  "application/vnd.geonext": {
+    "source": "iana",
+    "extensions": ["gxt"]
+  },
+  "application/vnd.geoplan": {
+    "source": "iana",
+    "extensions": ["g2w"]
+  },
+  "application/vnd.geospace": {
+    "source": "iana",
+    "extensions": ["g3w"]
+  },
+  "application/vnd.gerber": {
+    "source": "iana"
+  },
+  "application/vnd.globalplatform.card-content-mgt": {
+    "source": "iana"
+  },
+  "application/vnd.globalplatform.card-content-mgt-response": {
+    "source": "iana"
+  },
+  "application/vnd.gmx": {
+    "source": "iana",
+    "extensions": ["gmx"]
+  },
+  "application/vnd.google-apps.document": {
+    "compressible": false,
+    "extensions": ["gdoc"]
+  },
+  "application/vnd.google-apps.presentation": {
+    "compressible": false,
+    "extensions": ["gslides"]
+  },
+  "application/vnd.google-apps.spreadsheet": {
+    "compressible": false,
+    "extensions": ["gsheet"]
+  },
+  "application/vnd.google-earth.kml+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["kml"]
+  },
+  "application/vnd.google-earth.kmz": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["kmz"]
+  },
+  "application/vnd.gov.sk.e-form+xml": {
+    "source": "iana"
+  },
+  "application/vnd.gov.sk.e-form+zip": {
+    "source": "iana"
+  },
+  "application/vnd.gov.sk.xmldatacontainer+xml": {
+    "source": "iana"
+  },
+  "application/vnd.grafeq": {
+    "source": "iana",
+    "extensions": ["gqf","gqs"]
+  },
+  "application/vnd.gridmp": {
+    "source": "iana"
+  },
+  "application/vnd.groove-account": {
+    "source": "iana",
+    "extensions": ["gac"]
+  },
+  "application/vnd.groove-help": {
+    "source": "iana",
+    "extensions": ["ghf"]
+  },
+  "application/vnd.groove-identity-message": {
+    "source": "iana",
+    "extensions": ["gim"]
+  },
+  "application/vnd.groove-injector": {
+    "source": "iana",
+    "extensions": ["grv"]
+  },
+  "application/vnd.groove-tool-message": {
+    "source": "iana",
+    "extensions": ["gtm"]
+  },
+  "application/vnd.groove-tool-template": {
+    "source": "iana",
+    "extensions": ["tpl"]
+  },
+  "application/vnd.groove-vcard": {
+    "source": "iana",
+    "extensions": ["vcg"]
+  },
+  "application/vnd.hal+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.hal+xml": {
+    "source": "iana",
+    "extensions": ["hal"]
+  },
+  "application/vnd.handheld-entertainment+xml": {
+    "source": "iana",
+    "extensions": ["zmm"]
+  },
+  "application/vnd.hbci": {
+    "source": "iana",
+    "extensions": ["hbci"]
+  },
+  "application/vnd.hcl-bireports": {
+    "source": "iana"
+  },
+  "application/vnd.heroku+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.hhe.lesson-player": {
+    "source": "iana",
+    "extensions": ["les"]
+  },
+  "application/vnd.hp-hpgl": {
+    "source": "iana",
+    "extensions": ["hpgl"]
+  },
+  "application/vnd.hp-hpid": {
+    "source": "iana",
+    "extensions": ["hpid"]
+  },
+  "application/vnd.hp-hps": {
+    "source": "iana",
+    "extensions": ["hps"]
+  },
+  "application/vnd.hp-jlyt": {
+    "source": "iana",
+    "extensions": ["jlt"]
+  },
+  "application/vnd.hp-pcl": {
+    "source": "iana",
+    "extensions": ["pcl"]
+  },
+  "application/vnd.hp-pclxl": {
+    "source": "iana",
+    "extensions": ["pclxl"]
+  },
+  "application/vnd.httphone": {
+    "source": "iana"
+  },
+  "application/vnd.hydrostatix.sof-data": {
+    "source": "iana",
+    "extensions": ["sfd-hdstx"]
+  },
+  "application/vnd.hyperdrive+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.hzn-3d-crossword": {
+    "source": "iana"
+  },
+  "application/vnd.ibm.afplinedata": {
+    "source": "iana"
+  },
+  "application/vnd.ibm.electronic-media": {
+    "source": "iana"
+  },
+  "application/vnd.ibm.minipay": {
+    "source": "iana",
+    "extensions": ["mpy"]
+  },
+  "application/vnd.ibm.modcap": {
+    "source": "iana",
+    "extensions": ["afp","listafp","list3820"]
+  },
+  "application/vnd.ibm.rights-management": {
+    "source": "iana",
+    "extensions": ["irm"]
+  },
+  "application/vnd.ibm.secure-container": {
+    "source": "iana",
+    "extensions": ["sc"]
+  },
+  "application/vnd.iccprofile": {
+    "source": "iana",
+    "extensions": ["icc","icm"]
+  },
+  "application/vnd.ieee.1905": {
+    "source": "iana"
+  },
+  "application/vnd.igloader": {
+    "source": "iana",
+    "extensions": ["igl"]
+  },
+  "application/vnd.immervision-ivp": {
+    "source": "iana",
+    "extensions": ["ivp"]
+  },
+  "application/vnd.immervision-ivu": {
+    "source": "iana",
+    "extensions": ["ivu"]
+  },
+  "application/vnd.ims.imsccv1p1": {
+    "source": "iana"
+  },
+  "application/vnd.ims.imsccv1p2": {
+    "source": "iana"
+  },
+  "application/vnd.ims.imsccv1p3": {
+    "source": "iana"
+  },
+  "application/vnd.ims.lis.v2.result+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ims.lti.v2.toolconsumerprofile+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ims.lti.v2.toolproxy+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ims.lti.v2.toolproxy.id+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ims.lti.v2.toolsettings+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.ims.lti.v2.toolsettings.simple+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.informedcontrol.rms+xml": {
+    "source": "iana"
+  },
+  "application/vnd.informix-visionary": {
+    "source": "iana"
+  },
+  "application/vnd.infotech.project": {
+    "source": "iana"
+  },
+  "application/vnd.infotech.project+xml": {
+    "source": "iana"
+  },
+  "application/vnd.innopath.wamp.notification": {
+    "source": "iana"
+  },
+  "application/vnd.insors.igm": {
+    "source": "iana",
+    "extensions": ["igm"]
+  },
+  "application/vnd.intercon.formnet": {
+    "source": "iana",
+    "extensions": ["xpw","xpx"]
+  },
+  "application/vnd.intergeo": {
+    "source": "iana",
+    "extensions": ["i2g"]
+  },
+  "application/vnd.intertrust.digibox": {
+    "source": "iana"
+  },
+  "application/vnd.intertrust.nncp": {
+    "source": "iana"
+  },
+  "application/vnd.intu.qbo": {
+    "source": "iana",
+    "extensions": ["qbo"]
+  },
+  "application/vnd.intu.qfx": {
+    "source": "iana",
+    "extensions": ["qfx"]
+  },
+  "application/vnd.iptc.g2.catalogitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.conceptitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.knowledgeitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.newsitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.newsmessage+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.packageitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.iptc.g2.planningitem+xml": {
+    "source": "iana"
+  },
+  "application/vnd.ipunplugged.rcprofile": {
+    "source": "iana",
+    "extensions": ["rcprofile"]
+  },
+  "application/vnd.irepository.package+xml": {
+    "source": "iana",
+    "extensions": ["irp"]
+  },
+  "application/vnd.is-xpr": {
+    "source": "iana",
+    "extensions": ["xpr"]
+  },
+  "application/vnd.isac.fcs": {
+    "source": "iana",
+    "extensions": ["fcs"]
+  },
+  "application/vnd.jam": {
+    "source": "iana",
+    "extensions": ["jam"]
+  },
+  "application/vnd.japannet-directory-service": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-jpnstore-wakeup": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-payment-wakeup": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-registration": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-registration-wakeup": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-setstore-wakeup": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-verification": {
+    "source": "iana"
+  },
+  "application/vnd.japannet-verification-wakeup": {
+    "source": "iana"
+  },
+  "application/vnd.jcp.javame.midlet-rms": {
+    "source": "iana",
+    "extensions": ["rms"]
+  },
+  "application/vnd.jisp": {
+    "source": "iana",
+    "extensions": ["jisp"]
+  },
+  "application/vnd.joost.joda-archive": {
+    "source": "iana",
+    "extensions": ["joda"]
+  },
+  "application/vnd.jsk.isdn-ngn": {
+    "source": "iana"
+  },
+  "application/vnd.kahootz": {
+    "source": "iana",
+    "extensions": ["ktz","ktr"]
+  },
+  "application/vnd.kde.karbon": {
+    "source": "iana",
+    "extensions": ["karbon"]
+  },
+  "application/vnd.kde.kchart": {
+    "source": "iana",
+    "extensions": ["chrt"]
+  },
+  "application/vnd.kde.kformula": {
+    "source": "iana",
+    "extensions": ["kfo"]
+  },
+  "application/vnd.kde.kivio": {
+    "source": "iana",
+    "extensions": ["flw"]
+  },
+  "application/vnd.kde.kontour": {
+    "source": "iana",
+    "extensions": ["kon"]
+  },
+  "application/vnd.kde.kpresenter": {
+    "source": "iana",
+    "extensions": ["kpr","kpt"]
+  },
+  "application/vnd.kde.kspread": {
+    "source": "iana",
+    "extensions": ["ksp"]
+  },
+  "application/vnd.kde.kword": {
+    "source": "iana",
+    "extensions": ["kwd","kwt"]
+  },
+  "application/vnd.kenameaapp": {
+    "source": "iana",
+    "extensions": ["htke"]
+  },
+  "application/vnd.kidspiration": {
+    "source": "iana",
+    "extensions": ["kia"]
+  },
+  "application/vnd.kinar": {
+    "source": "iana",
+    "extensions": ["kne","knp"]
+  },
+  "application/vnd.koan": {
+    "source": "iana",
+    "extensions": ["skp","skd","skt","skm"]
+  },
+  "application/vnd.kodak-descriptor": {
+    "source": "iana",
+    "extensions": ["sse"]
+  },
+  "application/vnd.las.las+xml": {
+    "source": "iana",
+    "extensions": ["lasxml"]
+  },
+  "application/vnd.liberty-request+xml": {
+    "source": "iana"
+  },
+  "application/vnd.llamagraphics.life-balance.desktop": {
+    "source": "iana",
+    "extensions": ["lbd"]
+  },
+  "application/vnd.llamagraphics.life-balance.exchange+xml": {
+    "source": "iana",
+    "extensions": ["lbe"]
+  },
+  "application/vnd.lotus-1-2-3": {
+    "source": "iana",
+    "extensions": ["123"]
+  },
+  "application/vnd.lotus-approach": {
+    "source": "iana",
+    "extensions": ["apr"]
+  },
+  "application/vnd.lotus-freelance": {
+    "source": "iana",
+    "extensions": ["pre"]
+  },
+  "application/vnd.lotus-notes": {
+    "source": "iana",
+    "extensions": ["nsf"]
+  },
+  "application/vnd.lotus-organizer": {
+    "source": "iana",
+    "extensions": ["org"]
+  },
+  "application/vnd.lotus-screencam": {
+    "source": "iana",
+    "extensions": ["scm"]
+  },
+  "application/vnd.lotus-wordpro": {
+    "source": "iana",
+    "extensions": ["lwp"]
+  },
+  "application/vnd.macports.portpkg": {
+    "source": "iana",
+    "extensions": ["portpkg"]
+  },
+  "application/vnd.mapbox-vector-tile": {
+    "source": "iana"
+  },
+  "application/vnd.marlin.drm.actiontoken+xml": {
+    "source": "iana"
+  },
+  "application/vnd.marlin.drm.conftoken+xml": {
+    "source": "iana"
+  },
+  "application/vnd.marlin.drm.license+xml": {
+    "source": "iana"
+  },
+  "application/vnd.marlin.drm.mdcf": {
+    "source": "iana"
+  },
+  "application/vnd.mason+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.maxmind.maxmind-db": {
+    "source": "iana"
+  },
+  "application/vnd.mcd": {
+    "source": "iana",
+    "extensions": ["mcd"]
+  },
+  "application/vnd.medcalcdata": {
+    "source": "iana",
+    "extensions": ["mc1"]
+  },
+  "application/vnd.mediastation.cdkey": {
+    "source": "iana",
+    "extensions": ["cdkey"]
+  },
+  "application/vnd.meridian-slingshot": {
+    "source": "iana"
+  },
+  "application/vnd.mfer": {
+    "source": "iana",
+    "extensions": ["mwf"]
+  },
+  "application/vnd.mfmp": {
+    "source": "iana",
+    "extensions": ["mfm"]
+  },
+  "application/vnd.micro+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.micrografx.flo": {
+    "source": "iana",
+    "extensions": ["flo"]
+  },
+  "application/vnd.micrografx.igx": {
+    "source": "iana",
+    "extensions": ["igx"]
+  },
+  "application/vnd.microsoft.portable-executable": {
+    "source": "iana"
+  },
+  "application/vnd.miele+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.mif": {
+    "source": "iana",
+    "extensions": ["mif"]
+  },
+  "application/vnd.minisoft-hp3000-save": {
+    "source": "iana"
+  },
+  "application/vnd.mitsubishi.misty-guard.trustweb": {
+    "source": "iana"
+  },
+  "application/vnd.mobius.daf": {
+    "source": "iana",
+    "extensions": ["daf"]
+  },
+  "application/vnd.mobius.dis": {
+    "source": "iana",
+    "extensions": ["dis"]
+  },
+  "application/vnd.mobius.mbk": {
+    "source": "iana",
+    "extensions": ["mbk"]
+  },
+  "application/vnd.mobius.mqy": {
+    "source": "iana",
+    "extensions": ["mqy"]
+  },
+  "application/vnd.mobius.msl": {
+    "source": "iana",
+    "extensions": ["msl"]
+  },
+  "application/vnd.mobius.plc": {
+    "source": "iana",
+    "extensions": ["plc"]
+  },
+  "application/vnd.mobius.txf": {
+    "source": "iana",
+    "extensions": ["txf"]
+  },
+  "application/vnd.mophun.application": {
+    "source": "iana",
+    "extensions": ["mpn"]
+  },
+  "application/vnd.mophun.certificate": {
+    "source": "iana",
+    "extensions": ["mpc"]
+  },
+  "application/vnd.motorola.flexsuite": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.adsi": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.fis": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.gotap": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.kmr": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.ttc": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.flexsuite.wem": {
+    "source": "iana"
+  },
+  "application/vnd.motorola.iprm": {
+    "source": "iana"
+  },
+  "application/vnd.mozilla.xul+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["xul"]
+  },
+  "application/vnd.ms-3mfdocument": {
+    "source": "iana"
+  },
+  "application/vnd.ms-artgalry": {
+    "source": "iana",
+    "extensions": ["cil"]
+  },
+  "application/vnd.ms-asf": {
+    "source": "iana"
+  },
+  "application/vnd.ms-cab-compressed": {
+    "source": "iana",
+    "extensions": ["cab"]
+  },
+  "application/vnd.ms-color.iccprofile": {
+    "source": "apache"
+  },
+  "application/vnd.ms-excel": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["xls","xlm","xla","xlc","xlt","xlw"]
+  },
+  "application/vnd.ms-excel.addin.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["xlam"]
+  },
+  "application/vnd.ms-excel.sheet.binary.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["xlsb"]
+  },
+  "application/vnd.ms-excel.sheet.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["xlsm"]
+  },
+  "application/vnd.ms-excel.template.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["xltm"]
+  },
+  "application/vnd.ms-fontobject": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["eot"]
+  },
+  "application/vnd.ms-htmlhelp": {
+    "source": "iana",
+    "extensions": ["chm"]
+  },
+  "application/vnd.ms-ims": {
+    "source": "iana",
+    "extensions": ["ims"]
+  },
+  "application/vnd.ms-lrm": {
+    "source": "iana",
+    "extensions": ["lrm"]
+  },
+  "application/vnd.ms-office.activex+xml": {
+    "source": "iana"
+  },
+  "application/vnd.ms-officetheme": {
+    "source": "iana",
+    "extensions": ["thmx"]
+  },
+  "application/vnd.ms-opentype": {
+    "source": "apache",
+    "compressible": true
+  },
+  "application/vnd.ms-package.obfuscated-opentype": {
+    "source": "apache"
+  },
+  "application/vnd.ms-pki.seccat": {
+    "source": "apache",
+    "extensions": ["cat"]
+  },
+  "application/vnd.ms-pki.stl": {
+    "source": "apache",
+    "extensions": ["stl"]
+  },
+  "application/vnd.ms-playready.initiator+xml": {
+    "source": "iana"
+  },
+  "application/vnd.ms-powerpoint": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["ppt","pps","pot"]
+  },
+  "application/vnd.ms-powerpoint.addin.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["ppam"]
+  },
+  "application/vnd.ms-powerpoint.presentation.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["pptm"]
+  },
+  "application/vnd.ms-powerpoint.slide.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["sldm"]
+  },
+  "application/vnd.ms-powerpoint.slideshow.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["ppsm"]
+  },
+  "application/vnd.ms-powerpoint.template.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["potm"]
+  },
+  "application/vnd.ms-printdevicecapabilities+xml": {
+    "source": "iana"
+  },
+  "application/vnd.ms-printing.printticket+xml": {
+    "source": "apache"
+  },
+  "application/vnd.ms-project": {
+    "source": "iana",
+    "extensions": ["mpp","mpt"]
+  },
+  "application/vnd.ms-tnef": {
+    "source": "iana"
+  },
+  "application/vnd.ms-windows.devicepairing": {
+    "source": "iana"
+  },
+  "application/vnd.ms-windows.nwprinting.oob": {
+    "source": "iana"
+  },
+  "application/vnd.ms-windows.printerpairing": {
+    "source": "iana"
+  },
+  "application/vnd.ms-windows.wsd.oob": {
+    "source": "iana"
+  },
+  "application/vnd.ms-wmdrm.lic-chlg-req": {
+    "source": "iana"
+  },
+  "application/vnd.ms-wmdrm.lic-resp": {
+    "source": "iana"
+  },
+  "application/vnd.ms-wmdrm.meter-chlg-req": {
+    "source": "iana"
+  },
+  "application/vnd.ms-wmdrm.meter-resp": {
+    "source": "iana"
+  },
+  "application/vnd.ms-word.document.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["docm"]
+  },
+  "application/vnd.ms-word.template.macroenabled.12": {
+    "source": "iana",
+    "extensions": ["dotm"]
+  },
+  "application/vnd.ms-works": {
+    "source": "iana",
+    "extensions": ["wps","wks","wcm","wdb"]
+  },
+  "application/vnd.ms-wpl": {
+    "source": "iana",
+    "extensions": ["wpl"]
+  },
+  "application/vnd.ms-xpsdocument": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["xps"]
+  },
+  "application/vnd.msa-disk-image": {
+    "source": "iana"
+  },
+  "application/vnd.mseq": {
+    "source": "iana",
+    "extensions": ["mseq"]
+  },
+  "application/vnd.msign": {
+    "source": "iana"
+  },
+  "application/vnd.multiad.creator": {
+    "source": "iana"
+  },
+  "application/vnd.multiad.creator.cif": {
+    "source": "iana"
+  },
+  "application/vnd.music-niff": {
+    "source": "iana"
+  },
+  "application/vnd.musician": {
+    "source": "iana",
+    "extensions": ["mus"]
+  },
+  "application/vnd.muvee.style": {
+    "source": "iana",
+    "extensions": ["msty"]
+  },
+  "application/vnd.mynfc": {
+    "source": "iana",
+    "extensions": ["taglet"]
+  },
+  "application/vnd.ncd.control": {
+    "source": "iana"
+  },
+  "application/vnd.ncd.reference": {
+    "source": "iana"
+  },
+  "application/vnd.nervana": {
+    "source": "iana"
+  },
+  "application/vnd.netfpx": {
+    "source": "iana"
+  },
+  "application/vnd.neurolanguage.nlu": {
+    "source": "iana",
+    "extensions": ["nlu"]
+  },
+  "application/vnd.nintendo.nitro.rom": {
+    "source": "iana"
+  },
+  "application/vnd.nintendo.snes.rom": {
+    "source": "iana"
+  },
+  "application/vnd.nitf": {
+    "source": "iana",
+    "extensions": ["ntf","nitf"]
+  },
+  "application/vnd.noblenet-directory": {
+    "source": "iana",
+    "extensions": ["nnd"]
+  },
+  "application/vnd.noblenet-sealer": {
+    "source": "iana",
+    "extensions": ["nns"]
+  },
+  "application/vnd.noblenet-web": {
+    "source": "iana",
+    "extensions": ["nnw"]
+  },
+  "application/vnd.nokia.catalogs": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.conml+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.conml+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.iptv.config+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.isds-radio-presets": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.landmark+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.landmark+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.landmarkcollection+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.n-gage.ac+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.n-gage.data": {
+    "source": "iana",
+    "extensions": ["ngdat"]
+  },
+  "application/vnd.nokia.n-gage.symbian.install": {
+    "source": "iana",
+    "extensions": ["n-gage"]
+  },
+  "application/vnd.nokia.ncd": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.pcd+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.pcd+xml": {
+    "source": "iana"
+  },
+  "application/vnd.nokia.radio-preset": {
+    "source": "iana",
+    "extensions": ["rpst"]
+  },
+  "application/vnd.nokia.radio-presets": {
+    "source": "iana",
+    "extensions": ["rpss"]
+  },
+  "application/vnd.novadigm.edm": {
+    "source": "iana",
+    "extensions": ["edm"]
+  },
+  "application/vnd.novadigm.edx": {
+    "source": "iana",
+    "extensions": ["edx"]
+  },
+  "application/vnd.novadigm.ext": {
+    "source": "iana",
+    "extensions": ["ext"]
+  },
+  "application/vnd.ntt-local.content-share": {
+    "source": "iana"
+  },
+  "application/vnd.ntt-local.file-transfer": {
+    "source": "iana"
+  },
+  "application/vnd.ntt-local.ogw_remote-access": {
+    "source": "iana"
+  },
+  "application/vnd.ntt-local.sip-ta_remote": {
+    "source": "iana"
+  },
+  "application/vnd.ntt-local.sip-ta_tcp_stream": {
+    "source": "iana"
+  },
+  "application/vnd.oasis.opendocument.chart": {
+    "source": "iana",
+    "extensions": ["odc"]
+  },
+  "application/vnd.oasis.opendocument.chart-template": {
+    "source": "iana",
+    "extensions": ["otc"]
+  },
+  "application/vnd.oasis.opendocument.database": {
+    "source": "iana",
+    "extensions": ["odb"]
+  },
+  "application/vnd.oasis.opendocument.formula": {
+    "source": "iana",
+    "extensions": ["odf"]
+  },
+  "application/vnd.oasis.opendocument.formula-template": {
+    "source": "iana",
+    "extensions": ["odft"]
+  },
+  "application/vnd.oasis.opendocument.graphics": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["odg"]
+  },
+  "application/vnd.oasis.opendocument.graphics-template": {
+    "source": "iana",
+    "extensions": ["otg"]
+  },
+  "application/vnd.oasis.opendocument.image": {
+    "source": "iana",
+    "extensions": ["odi"]
+  },
+  "application/vnd.oasis.opendocument.image-template": {
+    "source": "iana",
+    "extensions": ["oti"]
+  },
+  "application/vnd.oasis.opendocument.presentation": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["odp"]
+  },
+  "application/vnd.oasis.opendocument.presentation-template": {
+    "source": "iana",
+    "extensions": ["otp"]
+  },
+  "application/vnd.oasis.opendocument.spreadsheet": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["ods"]
+  },
+  "application/vnd.oasis.opendocument.spreadsheet-template": {
+    "source": "iana",
+    "extensions": ["ots"]
+  },
+  "application/vnd.oasis.opendocument.text": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["odt"]
+  },
+  "application/vnd.oasis.opendocument.text-master": {
+    "source": "iana",
+    "extensions": ["odm"]
+  },
+  "application/vnd.oasis.opendocument.text-template": {
+    "source": "iana",
+    "extensions": ["ott"]
+  },
+  "application/vnd.oasis.opendocument.text-web": {
+    "source": "iana",
+    "extensions": ["oth"]
+  },
+  "application/vnd.obn": {
+    "source": "iana"
+  },
+  "application/vnd.oftn.l10n+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.oipf.contentaccessdownload+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.contentaccessstreaming+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.cspg-hexbinary": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.dae.svg+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.dae.xhtml+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.mippvcontrolmessage+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.pae.gem": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.spdiscovery+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.spdlist+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.ueprofile+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oipf.userprofile+xml": {
+    "source": "iana"
+  },
+  "application/vnd.olpc-sugar": {
+    "source": "iana",
+    "extensions": ["xo"]
+  },
+  "application/vnd.oma-scws-config": {
+    "source": "iana"
+  },
+  "application/vnd.oma-scws-http-request": {
+    "source": "iana"
+  },
+  "application/vnd.oma-scws-http-response": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.associated-procedure-parameter+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.drm-trigger+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.imd+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.ltkm": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.notification+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.provisioningtrigger": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.sgboot": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.sgdd+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.sgdu": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.simple-symbol-container": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.smartcard-trigger+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.sprov+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.bcast.stkm": {
+    "source": "iana"
+  },
+  "application/vnd.oma.cab-address-book+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.cab-feature-handler+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.cab-pcc+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.cab-subs-invite+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.cab-user-prefs+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.dcd": {
+    "source": "iana"
+  },
+  "application/vnd.oma.dcdc": {
+    "source": "iana"
+  },
+  "application/vnd.oma.dd2+xml": {
+    "source": "iana",
+    "extensions": ["dd2"]
+  },
+  "application/vnd.oma.drm.risd+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.group-usage-list+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.pal+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.poc.detailed-progress-report+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.poc.final-report+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.poc.groups+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.poc.invocation-descriptor+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.poc.optimized-progress-report+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.push": {
+    "source": "iana"
+  },
+  "application/vnd.oma.scidm.messages+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oma.xcap-directory+xml": {
+    "source": "iana"
+  },
+  "application/vnd.omads-email+xml": {
+    "source": "iana"
+  },
+  "application/vnd.omads-file+xml": {
+    "source": "iana"
+  },
+  "application/vnd.omads-folder+xml": {
+    "source": "iana"
+  },
+  "application/vnd.omaloc-supl-init": {
+    "source": "iana"
+  },
+  "application/vnd.openblox.game+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openblox.game-binary": {
+    "source": "iana"
+  },
+  "application/vnd.openeye.oeb": {
+    "source": "iana"
+  },
+  "application/vnd.openofficeorg.extension": {
+    "source": "apache",
+    "extensions": ["oxt"]
+  },
+  "application/vnd.openxmlformats-officedocument.custom-properties+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.customxmlproperties+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawing+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.chart+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.diagramcolors+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.diagramdata+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.diagramlayout+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.drawingml.diagramstyle+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.extended-properties+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml-template": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.commentauthors+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.comments+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.handoutmaster+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.notesmaster+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.notesslide+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["pptx"]
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.presprops+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slide": {
+    "source": "iana",
+    "extensions": ["sldx"]
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slide+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slidelayout+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slidemaster+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slideshow": {
+    "source": "iana",
+    "extensions": ["ppsx"]
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.slideupdateinfo+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.tablestyles+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.tags+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.template": {
+    "source": "apache",
+    "extensions": ["potx"]
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.template.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.presentationml.viewprops+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml-template": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.calcchain+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.connections+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.dialogsheet+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.externallink+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcachedefinition+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcacherecords+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.pivottable+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.querytable+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.revisionheaders+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.revisionlog+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedstrings+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["xlsx"]
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheetmetadata+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.tablesinglecells+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.template": {
+    "source": "apache",
+    "extensions": ["xltx"]
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.usernames+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.volatiledependencies+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.theme+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.themeoverride+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.vmldrawing": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml-template": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["docx"]
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document.glossary+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.fonttable+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.template": {
+    "source": "apache",
+    "extensions": ["dotx"]
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.websettings+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-package.core-properties+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml": {
+    "source": "iana"
+  },
+  "application/vnd.openxmlformats-package.relationships+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oracle.resource+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.orange.indata": {
+    "source": "iana"
+  },
+  "application/vnd.osa.netdeploy": {
+    "source": "iana"
+  },
+  "application/vnd.osgeo.mapguide.package": {
+    "source": "iana",
+    "extensions": ["mgp"]
+  },
+  "application/vnd.osgi.bundle": {
+    "source": "iana"
+  },
+  "application/vnd.osgi.dp": {
+    "source": "iana",
+    "extensions": ["dp"]
+  },
+  "application/vnd.osgi.subsystem": {
+    "source": "iana",
+    "extensions": ["esa"]
+  },
+  "application/vnd.otps.ct-kip+xml": {
+    "source": "iana"
+  },
+  "application/vnd.oxli.countgraph": {
+    "source": "iana"
+  },
+  "application/vnd.pagerduty+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.palm": {
+    "source": "iana",
+    "extensions": ["pdb","pqa","oprc"]
+  },
+  "application/vnd.panoply": {
+    "source": "iana"
+  },
+  "application/vnd.paos+xml": {
+    "source": "iana"
+  },
+  "application/vnd.paos.xml": {
+    "source": "apache"
+  },
+  "application/vnd.pawaafile": {
+    "source": "iana",
+    "extensions": ["paw"]
+  },
+  "application/vnd.pcos": {
+    "source": "iana"
+  },
+  "application/vnd.pg.format": {
+    "source": "iana",
+    "extensions": ["str"]
+  },
+  "application/vnd.pg.osasli": {
+    "source": "iana",
+    "extensions": ["ei6"]
+  },
+  "application/vnd.piaccess.application-licence": {
+    "source": "iana"
+  },
+  "application/vnd.picsel": {
+    "source": "iana",
+    "extensions": ["efif"]
+  },
+  "application/vnd.pmi.widget": {
+    "source": "iana",
+    "extensions": ["wg"]
+  },
+  "application/vnd.poc.group-advertisement+xml": {
+    "source": "iana"
+  },
+  "application/vnd.pocketlearn": {
+    "source": "iana",
+    "extensions": ["plf"]
+  },
+  "application/vnd.powerbuilder6": {
+    "source": "iana",
+    "extensions": ["pbd"]
+  },
+  "application/vnd.powerbuilder6-s": {
+    "source": "iana"
+  },
+  "application/vnd.powerbuilder7": {
+    "source": "iana"
+  },
+  "application/vnd.powerbuilder7-s": {
+    "source": "iana"
+  },
+  "application/vnd.powerbuilder75": {
+    "source": "iana"
+  },
+  "application/vnd.powerbuilder75-s": {
+    "source": "iana"
+  },
+  "application/vnd.preminet": {
+    "source": "iana"
+  },
+  "application/vnd.previewsystems.box": {
+    "source": "iana",
+    "extensions": ["box"]
+  },
+  "application/vnd.proteus.magazine": {
+    "source": "iana",
+    "extensions": ["mgz"]
+  },
+  "application/vnd.publishare-delta-tree": {
+    "source": "iana",
+    "extensions": ["qps"]
+  },
+  "application/vnd.pvi.ptid1": {
+    "source": "iana",
+    "extensions": ["ptid"]
+  },
+  "application/vnd.pwg-multiplexed": {
+    "source": "iana"
+  },
+  "application/vnd.pwg-xhtml-print+xml": {
+    "source": "iana"
+  },
+  "application/vnd.qualcomm.brew-app-res": {
+    "source": "iana"
+  },
+  "application/vnd.quark.quarkxpress": {
+    "source": "iana",
+    "extensions": ["qxd","qxt","qwd","qwt","qxl","qxb"]
+  },
+  "application/vnd.quobject-quoxdocument": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.moml+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-audit+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-audit-conf+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-audit-conn+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-audit-dialog+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-audit-stream+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-conf+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-base+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-fax-detect+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-fax-sendrecv+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-group+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-speech+xml": {
+    "source": "iana"
+  },
+  "application/vnd.radisys.msml-dialog-transform+xml": {
+    "source": "iana"
+  },
+  "application/vnd.rainstor.data": {
+    "source": "iana"
+  },
+  "application/vnd.rapid": {
+    "source": "iana"
+  },
+  "application/vnd.realvnc.bed": {
+    "source": "iana",
+    "extensions": ["bed"]
+  },
+  "application/vnd.recordare.musicxml": {
+    "source": "iana",
+    "extensions": ["mxl"]
+  },
+  "application/vnd.recordare.musicxml+xml": {
+    "source": "iana",
+    "extensions": ["musicxml"]
+  },
+  "application/vnd.renlearn.rlprint": {
+    "source": "iana"
+  },
+  "application/vnd.rig.cryptonote": {
+    "source": "iana",
+    "extensions": ["cryptonote"]
+  },
+  "application/vnd.rim.cod": {
+    "source": "apache",
+    "extensions": ["cod"]
+  },
+  "application/vnd.rn-realmedia": {
+    "source": "apache",
+    "extensions": ["rm"]
+  },
+  "application/vnd.rn-realmedia-vbr": {
+    "source": "apache",
+    "extensions": ["rmvb"]
+  },
+  "application/vnd.route66.link66+xml": {
+    "source": "iana",
+    "extensions": ["link66"]
+  },
+  "application/vnd.rs-274x": {
+    "source": "iana"
+  },
+  "application/vnd.ruckus.download": {
+    "source": "iana"
+  },
+  "application/vnd.s3sms": {
+    "source": "iana"
+  },
+  "application/vnd.sailingtracker.track": {
+    "source": "iana",
+    "extensions": ["st"]
+  },
+  "application/vnd.sbm.cid": {
+    "source": "iana"
+  },
+  "application/vnd.sbm.mid2": {
+    "source": "iana"
+  },
+  "application/vnd.scribus": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.3df": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.csf": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.doc": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.eml": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.mht": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.net": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.ppt": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.tiff": {
+    "source": "iana"
+  },
+  "application/vnd.sealed.xls": {
+    "source": "iana"
+  },
+  "application/vnd.sealedmedia.softseal.html": {
+    "source": "iana"
+  },
+  "application/vnd.sealedmedia.softseal.pdf": {
+    "source": "iana"
+  },
+  "application/vnd.seemail": {
+    "source": "iana",
+    "extensions": ["see"]
+  },
+  "application/vnd.sema": {
+    "source": "iana",
+    "extensions": ["sema"]
+  },
+  "application/vnd.semd": {
+    "source": "iana",
+    "extensions": ["semd"]
+  },
+  "application/vnd.semf": {
+    "source": "iana",
+    "extensions": ["semf"]
+  },
+  "application/vnd.shana.informed.formdata": {
+    "source": "iana",
+    "extensions": ["ifm"]
+  },
+  "application/vnd.shana.informed.formtemplate": {
+    "source": "iana",
+    "extensions": ["itp"]
+  },
+  "application/vnd.shana.informed.interchange": {
+    "source": "iana",
+    "extensions": ["iif"]
+  },
+  "application/vnd.shana.informed.package": {
+    "source": "iana",
+    "extensions": ["ipk"]
+  },
+  "application/vnd.simtech-mindmapper": {
+    "source": "iana",
+    "extensions": ["twd","twds"]
+  },
+  "application/vnd.siren+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.smaf": {
+    "source": "iana",
+    "extensions": ["mmf"]
+  },
+  "application/vnd.smart.notebook": {
+    "source": "iana"
+  },
+  "application/vnd.smart.teacher": {
+    "source": "iana",
+    "extensions": ["teacher"]
+  },
+  "application/vnd.software602.filler.form+xml": {
+    "source": "iana"
+  },
+  "application/vnd.software602.filler.form-xml-zip": {
+    "source": "iana"
+  },
+  "application/vnd.solent.sdkm+xml": {
+    "source": "iana",
+    "extensions": ["sdkm","sdkd"]
+  },
+  "application/vnd.spotfire.dxp": {
+    "source": "iana",
+    "extensions": ["dxp"]
+  },
+  "application/vnd.spotfire.sfs": {
+    "source": "iana",
+    "extensions": ["sfs"]
+  },
+  "application/vnd.sss-cod": {
+    "source": "iana"
+  },
+  "application/vnd.sss-dtf": {
+    "source": "iana"
+  },
+  "application/vnd.sss-ntf": {
+    "source": "iana"
+  },
+  "application/vnd.stardivision.calc": {
+    "source": "apache",
+    "extensions": ["sdc"]
+  },
+  "application/vnd.stardivision.draw": {
+    "source": "apache",
+    "extensions": ["sda"]
+  },
+  "application/vnd.stardivision.impress": {
+    "source": "apache",
+    "extensions": ["sdd"]
+  },
+  "application/vnd.stardivision.math": {
+    "source": "apache",
+    "extensions": ["smf"]
+  },
+  "application/vnd.stardivision.writer": {
+    "source": "apache",
+    "extensions": ["sdw","vor"]
+  },
+  "application/vnd.stardivision.writer-global": {
+    "source": "apache",
+    "extensions": ["sgl"]
+  },
+  "application/vnd.stepmania.package": {
+    "source": "iana",
+    "extensions": ["smzip"]
+  },
+  "application/vnd.stepmania.stepchart": {
+    "source": "iana",
+    "extensions": ["sm"]
+  },
+  "application/vnd.street-stream": {
+    "source": "iana"
+  },
+  "application/vnd.sun.wadl+xml": {
+    "source": "iana"
+  },
+  "application/vnd.sun.xml.calc": {
+    "source": "apache",
+    "extensions": ["sxc"]
+  },
+  "application/vnd.sun.xml.calc.template": {
+    "source": "apache",
+    "extensions": ["stc"]
+  },
+  "application/vnd.sun.xml.draw": {
+    "source": "apache",
+    "extensions": ["sxd"]
+  },
+  "application/vnd.sun.xml.draw.template": {
+    "source": "apache",
+    "extensions": ["std"]
+  },
+  "application/vnd.sun.xml.impress": {
+    "source": "apache",
+    "extensions": ["sxi"]
+  },
+  "application/vnd.sun.xml.impress.template": {
+    "source": "apache",
+    "extensions": ["sti"]
+  },
+  "application/vnd.sun.xml.math": {
+    "source": "apache",
+    "extensions": ["sxm"]
+  },
+  "application/vnd.sun.xml.writer": {
+    "source": "apache",
+    "extensions": ["sxw"]
+  },
+  "application/vnd.sun.xml.writer.global": {
+    "source": "apache",
+    "extensions": ["sxg"]
+  },
+  "application/vnd.sun.xml.writer.template": {
+    "source": "apache",
+    "extensions": ["stw"]
+  },
+  "application/vnd.sus-calendar": {
+    "source": "iana",
+    "extensions": ["sus","susp"]
+  },
+  "application/vnd.svd": {
+    "source": "iana",
+    "extensions": ["svd"]
+  },
+  "application/vnd.swiftview-ics": {
+    "source": "iana"
+  },
+  "application/vnd.symbian.install": {
+    "source": "apache",
+    "extensions": ["sis","sisx"]
+  },
+  "application/vnd.syncml+xml": {
+    "source": "iana",
+    "extensions": ["xsm"]
+  },
+  "application/vnd.syncml.dm+wbxml": {
+    "source": "iana",
+    "extensions": ["bdm"]
+  },
+  "application/vnd.syncml.dm+xml": {
+    "source": "iana",
+    "extensions": ["xdm"]
+  },
+  "application/vnd.syncml.dm.notification": {
+    "source": "iana"
+  },
+  "application/vnd.syncml.dmddf+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.syncml.dmddf+xml": {
+    "source": "iana"
+  },
+  "application/vnd.syncml.dmtnds+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.syncml.dmtnds+xml": {
+    "source": "iana"
+  },
+  "application/vnd.syncml.ds.notification": {
+    "source": "iana"
+  },
+  "application/vnd.tao.intent-module-archive": {
+    "source": "iana",
+    "extensions": ["tao"]
+  },
+  "application/vnd.tcpdump.pcap": {
+    "source": "iana",
+    "extensions": ["pcap","cap","dmp"]
+  },
+  "application/vnd.tmd.mediaflex.api+xml": {
+    "source": "iana"
+  },
+  "application/vnd.tml": {
+    "source": "iana"
+  },
+  "application/vnd.tmobile-livetv": {
+    "source": "iana",
+    "extensions": ["tmo"]
+  },
+  "application/vnd.trid.tpt": {
+    "source": "iana",
+    "extensions": ["tpt"]
+  },
+  "application/vnd.triscape.mxs": {
+    "source": "iana",
+    "extensions": ["mxs"]
+  },
+  "application/vnd.trueapp": {
+    "source": "iana",
+    "extensions": ["tra"]
+  },
+  "application/vnd.truedoc": {
+    "source": "iana"
+  },
+  "application/vnd.ubisoft.webplayer": {
+    "source": "iana"
+  },
+  "application/vnd.ufdl": {
+    "source": "iana",
+    "extensions": ["ufd","ufdl"]
+  },
+  "application/vnd.uiq.theme": {
+    "source": "iana",
+    "extensions": ["utz"]
+  },
+  "application/vnd.umajin": {
+    "source": "iana",
+    "extensions": ["umj"]
+  },
+  "application/vnd.unity": {
+    "source": "iana",
+    "extensions": ["unityweb"]
+  },
+  "application/vnd.uoml+xml": {
+    "source": "iana",
+    "extensions": ["uoml"]
+  },
+  "application/vnd.uplanet.alert": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.alert-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.bearer-choice": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.bearer-choice-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.cacheop": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.cacheop-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.channel": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.channel-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.list": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.list-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.listcmd": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.listcmd-wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.uplanet.signal": {
+    "source": "iana"
+  },
+  "application/vnd.uri-map": {
+    "source": "iana"
+  },
+  "application/vnd.valve.source.material": {
+    "source": "iana"
+  },
+  "application/vnd.vcx": {
+    "source": "iana",
+    "extensions": ["vcx"]
+  },
+  "application/vnd.vd-study": {
+    "source": "iana"
+  },
+  "application/vnd.vectorworks": {
+    "source": "iana"
+  },
+  "application/vnd.verimatrix.vcas": {
+    "source": "iana"
+  },
+  "application/vnd.vidsoft.vidconference": {
+    "source": "iana"
+  },
+  "application/vnd.visio": {
+    "source": "iana",
+    "extensions": ["vsd","vst","vss","vsw"]
+  },
+  "application/vnd.visionary": {
+    "source": "iana",
+    "extensions": ["vis"]
+  },
+  "application/vnd.vividence.scriptfile": {
+    "source": "iana"
+  },
+  "application/vnd.vsf": {
+    "source": "iana",
+    "extensions": ["vsf"]
+  },
+  "application/vnd.wap.sic": {
+    "source": "iana"
+  },
+  "application/vnd.wap.slc": {
+    "source": "iana"
+  },
+  "application/vnd.wap.wbxml": {
+    "source": "iana",
+    "extensions": ["wbxml"]
+  },
+  "application/vnd.wap.wmlc": {
+    "source": "iana",
+    "extensions": ["wmlc"]
+  },
+  "application/vnd.wap.wmlscriptc": {
+    "source": "iana",
+    "extensions": ["wmlsc"]
+  },
+  "application/vnd.webturbo": {
+    "source": "iana",
+    "extensions": ["wtb"]
+  },
+  "application/vnd.wfa.p2p": {
+    "source": "iana"
+  },
+  "application/vnd.wfa.wsc": {
+    "source": "iana"
+  },
+  "application/vnd.windows.devicepairing": {
+    "source": "iana"
+  },
+  "application/vnd.wmc": {
+    "source": "iana"
+  },
+  "application/vnd.wmf.bootstrap": {
+    "source": "iana"
+  },
+  "application/vnd.wolfram.mathematica": {
+    "source": "iana"
+  },
+  "application/vnd.wolfram.mathematica.package": {
+    "source": "iana"
+  },
+  "application/vnd.wolfram.player": {
+    "source": "iana",
+    "extensions": ["nbp"]
+  },
+  "application/vnd.wordperfect": {
+    "source": "iana",
+    "extensions": ["wpd"]
+  },
+  "application/vnd.wqd": {
+    "source": "iana",
+    "extensions": ["wqd"]
+  },
+  "application/vnd.wrq-hp3000-labelled": {
+    "source": "iana"
+  },
+  "application/vnd.wt.stf": {
+    "source": "iana",
+    "extensions": ["stf"]
+  },
+  "application/vnd.wv.csp+wbxml": {
+    "source": "iana"
+  },
+  "application/vnd.wv.csp+xml": {
+    "source": "iana"
+  },
+  "application/vnd.wv.ssp+xml": {
+    "source": "iana"
+  },
+  "application/vnd.xacml+json": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/vnd.xara": {
+    "source": "iana",
+    "extensions": ["xar"]
+  },
+  "application/vnd.xfdl": {
+    "source": "iana",
+    "extensions": ["xfdl"]
+  },
+  "application/vnd.xfdl.webform": {
+    "source": "iana"
+  },
+  "application/vnd.xmi+xml": {
+    "source": "iana"
+  },
+  "application/vnd.xmpie.cpkg": {
+    "source": "iana"
+  },
+  "application/vnd.xmpie.dpkg": {
+    "source": "iana"
+  },
+  "application/vnd.xmpie.plan": {
+    "source": "iana"
+  },
+  "application/vnd.xmpie.ppkg": {
+    "source": "iana"
+  },
+  "application/vnd.xmpie.xlim": {
+    "source": "iana"
+  },
+  "application/vnd.yamaha.hv-dic": {
+    "source": "iana",
+    "extensions": ["hvd"]
+  },
+  "application/vnd.yamaha.hv-script": {
+    "source": "iana",
+    "extensions": ["hvs"]
+  },
+  "application/vnd.yamaha.hv-voice": {
+    "source": "iana",
+    "extensions": ["hvp"]
+  },
+  "application/vnd.yamaha.openscoreformat": {
+    "source": "iana",
+    "extensions": ["osf"]
+  },
+  "application/vnd.yamaha.openscoreformat.osfpvg+xml": {
+    "source": "iana",
+    "extensions": ["osfpvg"]
+  },
+  "application/vnd.yamaha.remote-setup": {
+    "source": "iana"
+  },
+  "application/vnd.yamaha.smaf-audio": {
+    "source": "iana",
+    "extensions": ["saf"]
+  },
+  "application/vnd.yamaha.smaf-phrase": {
+    "source": "iana",
+    "extensions": ["spf"]
+  },
+  "application/vnd.yamaha.through-ngn": {
+    "source": "iana"
+  },
+  "application/vnd.yamaha.tunnel-udpencap": {
+    "source": "iana"
+  },
+  "application/vnd.yaoweme": {
+    "source": "iana"
+  },
+  "application/vnd.yellowriver-custom-menu": {
+    "source": "iana",
+    "extensions": ["cmp"]
+  },
+  "application/vnd.zul": {
+    "source": "iana",
+    "extensions": ["zir","zirz"]
+  },
+  "application/vnd.zzazz.deck+xml": {
+    "source": "iana",
+    "extensions": ["zaz"]
+  },
+  "application/voicexml+xml": {
+    "source": "iana",
+    "extensions": ["vxml"]
+  },
+  "application/vq-rtcpxr": {
+    "source": "iana"
+  },
+  "application/watcherinfo+xml": {
+    "source": "iana"
+  },
+  "application/whoispp-query": {
+    "source": "iana"
+  },
+  "application/whoispp-response": {
+    "source": "iana"
+  },
+  "application/widget": {
+    "source": "iana",
+    "extensions": ["wgt"]
+  },
+  "application/winhlp": {
+    "source": "apache",
+    "extensions": ["hlp"]
+  },
+  "application/wita": {
+    "source": "iana"
+  },
+  "application/wordperfect5.1": {
+    "source": "iana"
+  },
+  "application/wsdl+xml": {
+    "source": "iana",
+    "extensions": ["wsdl"]
+  },
+  "application/wspolicy+xml": {
+    "source": "iana",
+    "extensions": ["wspolicy"]
+  },
+  "application/x-7z-compressed": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["7z"]
+  },
+  "application/x-abiword": {
+    "source": "apache",
+    "extensions": ["abw"]
+  },
+  "application/x-ace-compressed": {
+    "source": "apache",
+    "extensions": ["ace"]
+  },
+  "application/x-amf": {
+    "source": "apache"
+  },
+  "application/x-apple-diskimage": {
+    "source": "apache",
+    "extensions": ["dmg"]
+  },
+  "application/x-authorware-bin": {
+    "source": "apache",
+    "extensions": ["aab","x32","u32","vox"]
+  },
+  "application/x-authorware-map": {
+    "source": "apache",
+    "extensions": ["aam"]
+  },
+  "application/x-authorware-seg": {
+    "source": "apache",
+    "extensions": ["aas"]
+  },
+  "application/x-bcpio": {
+    "source": "apache",
+    "extensions": ["bcpio"]
+  },
+  "application/x-bdoc": {
+    "compressible": false,
+    "extensions": ["bdoc"]
+  },
+  "application/x-bittorrent": {
+    "source": "apache",
+    "extensions": ["torrent"]
+  },
+  "application/x-blorb": {
+    "source": "apache",
+    "extensions": ["blb","blorb"]
+  },
+  "application/x-bzip": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["bz"]
+  },
+  "application/x-bzip2": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["bz2","boz"]
+  },
+  "application/x-cbr": {
+    "source": "apache",
+    "extensions": ["cbr","cba","cbt","cbz","cb7"]
+  },
+  "application/x-cdlink": {
+    "source": "apache",
+    "extensions": ["vcd"]
+  },
+  "application/x-cfs-compressed": {
+    "source": "apache",
+    "extensions": ["cfs"]
+  },
+  "application/x-chat": {
+    "source": "apache",
+    "extensions": ["chat"]
+  },
+  "application/x-chess-pgn": {
+    "source": "apache",
+    "extensions": ["pgn"]
+  },
+  "application/x-chrome-extension": {
+    "extensions": ["crx"]
+  },
+  "application/x-cocoa": {
+    "source": "nginx",
+    "extensions": ["cco"]
+  },
+  "application/x-compress": {
+    "source": "apache"
+  },
+  "application/x-conference": {
+    "source": "apache",
+    "extensions": ["nsc"]
+  },
+  "application/x-cpio": {
+    "source": "apache",
+    "extensions": ["cpio"]
+  },
+  "application/x-csh": {
+    "source": "apache",
+    "extensions": ["csh"]
+  },
+  "application/x-deb": {
+    "compressible": false
+  },
+  "application/x-debian-package": {
+    "source": "apache",
+    "extensions": ["deb","udeb"]
+  },
+  "application/x-dgc-compressed": {
+    "source": "apache",
+    "extensions": ["dgc"]
+  },
+  "application/x-director": {
+    "source": "apache",
+    "extensions": ["dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa"]
+  },
+  "application/x-doom": {
+    "source": "apache",
+    "extensions": ["wad"]
+  },
+  "application/x-dtbncx+xml": {
+    "source": "apache",
+    "extensions": ["ncx"]
+  },
+  "application/x-dtbook+xml": {
+    "source": "apache",
+    "extensions": ["dtb"]
+  },
+  "application/x-dtbresource+xml": {
+    "source": "apache",
+    "extensions": ["res"]
+  },
+  "application/x-dvi": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["dvi"]
+  },
+  "application/x-envoy": {
+    "source": "apache",
+    "extensions": ["evy"]
+  },
+  "application/x-eva": {
+    "source": "apache",
+    "extensions": ["eva"]
+  },
+  "application/x-font-bdf": {
+    "source": "apache",
+    "extensions": ["bdf"]
+  },
+  "application/x-font-dos": {
+    "source": "apache"
+  },
+  "application/x-font-framemaker": {
+    "source": "apache"
+  },
+  "application/x-font-ghostscript": {
+    "source": "apache",
+    "extensions": ["gsf"]
+  },
+  "application/x-font-libgrx": {
+    "source": "apache"
+  },
+  "application/x-font-linux-psf": {
+    "source": "apache",
+    "extensions": ["psf"]
+  },
+  "application/x-font-otf": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["otf"]
+  },
+  "application/x-font-pcf": {
+    "source": "apache",
+    "extensions": ["pcf"]
+  },
+  "application/x-font-snf": {
+    "source": "apache",
+    "extensions": ["snf"]
+  },
+  "application/x-font-speedo": {
+    "source": "apache"
+  },
+  "application/x-font-sunos-news": {
+    "source": "apache"
+  },
+  "application/x-font-ttf": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["ttf","ttc"]
+  },
+  "application/x-font-type1": {
+    "source": "apache",
+    "extensions": ["pfa","pfb","pfm","afm"]
+  },
+  "application/x-font-vfont": {
+    "source": "apache"
+  },
+  "application/x-freearc": {
+    "source": "apache",
+    "extensions": ["arc"]
+  },
+  "application/x-futuresplash": {
+    "source": "apache",
+    "extensions": ["spl"]
+  },
+  "application/x-gca-compressed": {
+    "source": "apache",
+    "extensions": ["gca"]
+  },
+  "application/x-glulx": {
+    "source": "apache",
+    "extensions": ["ulx"]
+  },
+  "application/x-gnumeric": {
+    "source": "apache",
+    "extensions": ["gnumeric"]
+  },
+  "application/x-gramps-xml": {
+    "source": "apache",
+    "extensions": ["gramps"]
+  },
+  "application/x-gtar": {
+    "source": "apache",
+    "extensions": ["gtar"]
+  },
+  "application/x-gzip": {
+    "source": "apache"
+  },
+  "application/x-hdf": {
+    "source": "apache",
+    "extensions": ["hdf"]
+  },
+  "application/x-httpd-php": {
+    "compressible": true,
+    "extensions": ["php"]
+  },
+  "application/x-install-instructions": {
+    "source": "apache",
+    "extensions": ["install"]
+  },
+  "application/x-iso9660-image": {
+    "source": "apache",
+    "extensions": ["iso"]
+  },
+  "application/x-java-archive-diff": {
+    "source": "nginx",
+    "extensions": ["jardiff"]
+  },
+  "application/x-java-jnlp-file": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["jnlp"]
+  },
+  "application/x-javascript": {
+    "compressible": true
+  },
+  "application/x-latex": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["latex"]
+  },
+  "application/x-lua-bytecode": {
+    "extensions": ["luac"]
+  },
+  "application/x-lzh-compressed": {
+    "source": "apache",
+    "extensions": ["lzh","lha"]
+  },
+  "application/x-makeself": {
+    "source": "nginx",
+    "extensions": ["run"]
+  },
+  "application/x-mie": {
+    "source": "apache",
+    "extensions": ["mie"]
+  },
+  "application/x-mobipocket-ebook": {
+    "source": "apache",
+    "extensions": ["prc","mobi"]
+  },
+  "application/x-mpegurl": {
+    "compressible": false
+  },
+  "application/x-ms-application": {
+    "source": "apache",
+    "extensions": ["application"]
+  },
+  "application/x-ms-shortcut": {
+    "source": "apache",
+    "extensions": ["lnk"]
+  },
+  "application/x-ms-wmd": {
+    "source": "apache",
+    "extensions": ["wmd"]
+  },
+  "application/x-ms-wmz": {
+    "source": "apache",
+    "extensions": ["wmz"]
+  },
+  "application/x-ms-xbap": {
+    "source": "apache",
+    "extensions": ["xbap"]
+  },
+  "application/x-msaccess": {
+    "source": "apache",
+    "extensions": ["mdb"]
+  },
+  "application/x-msbinder": {
+    "source": "apache",
+    "extensions": ["obd"]
+  },
+  "application/x-mscardfile": {
+    "source": "apache",
+    "extensions": ["crd"]
+  },
+  "application/x-msclip": {
+    "source": "apache",
+    "extensions": ["clp"]
+  },
+  "application/x-msdos-program": {
+    "extensions": ["exe"]
+  },
+  "application/x-msdownload": {
+    "source": "apache",
+    "extensions": ["exe","dll","com","bat","msi"]
+  },
+  "application/x-msmediaview": {
+    "source": "apache",
+    "extensions": ["mvb","m13","m14"]
+  },
+  "application/x-msmetafile": {
+    "source": "apache",
+    "extensions": ["wmf","wmz","emf","emz"]
+  },
+  "application/x-msmoney": {
+    "source": "apache",
+    "extensions": ["mny"]
+  },
+  "application/x-mspublisher": {
+    "source": "apache",
+    "extensions": ["pub"]
+  },
+  "application/x-msschedule": {
+    "source": "apache",
+    "extensions": ["scd"]
+  },
+  "application/x-msterminal": {
+    "source": "apache",
+    "extensions": ["trm"]
+  },
+  "application/x-mswrite": {
+    "source": "apache",
+    "extensions": ["wri"]
+  },
+  "application/x-netcdf": {
+    "source": "apache",
+    "extensions": ["nc","cdf"]
+  },
+  "application/x-ns-proxy-autoconfig": {
+    "compressible": true,
+    "extensions": ["pac"]
+  },
+  "application/x-nzb": {
+    "source": "apache",
+    "extensions": ["nzb"]
+  },
+  "application/x-perl": {
+    "source": "nginx",
+    "extensions": ["pl","pm"]
+  },
+  "application/x-pilot": {
+    "source": "nginx",
+    "extensions": ["prc","pdb"]
+  },
+  "application/x-pkcs12": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["p12","pfx"]
+  },
+  "application/x-pkcs7-certificates": {
+    "source": "apache",
+    "extensions": ["p7b","spc"]
+  },
+  "application/x-pkcs7-certreqresp": {
+    "source": "apache",
+    "extensions": ["p7r"]
+  },
+  "application/x-rar-compressed": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["rar"]
+  },
+  "application/x-redhat-package-manager": {
+    "source": "nginx",
+    "extensions": ["rpm"]
+  },
+  "application/x-research-info-systems": {
+    "source": "apache",
+    "extensions": ["ris"]
+  },
+  "application/x-sea": {
+    "source": "nginx",
+    "extensions": ["sea"]
+  },
+  "application/x-sh": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["sh"]
+  },
+  "application/x-shar": {
+    "source": "apache",
+    "extensions": ["shar"]
+  },
+  "application/x-shockwave-flash": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["swf"]
+  },
+  "application/x-silverlight-app": {
+    "source": "apache",
+    "extensions": ["xap"]
+  },
+  "application/x-sql": {
+    "source": "apache",
+    "extensions": ["sql"]
+  },
+  "application/x-stuffit": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["sit"]
+  },
+  "application/x-stuffitx": {
+    "source": "apache",
+    "extensions": ["sitx"]
+  },
+  "application/x-subrip": {
+    "source": "apache",
+    "extensions": ["srt"]
+  },
+  "application/x-sv4cpio": {
+    "source": "apache",
+    "extensions": ["sv4cpio"]
+  },
+  "application/x-sv4crc": {
+    "source": "apache",
+    "extensions": ["sv4crc"]
+  },
+  "application/x-t3vm-image": {
+    "source": "apache",
+    "extensions": ["t3"]
+  },
+  "application/x-tads": {
+    "source": "apache",
+    "extensions": ["gam"]
+  },
+  "application/x-tar": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["tar"]
+  },
+  "application/x-tcl": {
+    "source": "apache",
+    "extensions": ["tcl","tk"]
+  },
+  "application/x-tex": {
+    "source": "apache",
+    "extensions": ["tex"]
+  },
+  "application/x-tex-tfm": {
+    "source": "apache",
+    "extensions": ["tfm"]
+  },
+  "application/x-texinfo": {
+    "source": "apache",
+    "extensions": ["texinfo","texi"]
+  },
+  "application/x-tgif": {
+    "source": "apache",
+    "extensions": ["obj"]
+  },
+  "application/x-ustar": {
+    "source": "apache",
+    "extensions": ["ustar"]
+  },
+  "application/x-wais-source": {
+    "source": "apache",
+    "extensions": ["src"]
+  },
+  "application/x-web-app-manifest+json": {
+    "compressible": true,
+    "extensions": ["webapp"]
+  },
+  "application/x-www-form-urlencoded": {
+    "source": "iana",
+    "compressible": true
+  },
+  "application/x-x509-ca-cert": {
+    "source": "apache",
+    "extensions": ["der","crt","pem"]
+  },
+  "application/x-xfig": {
+    "source": "apache",
+    "extensions": ["fig"]
+  },
+  "application/x-xliff+xml": {
+    "source": "apache",
+    "extensions": ["xlf"]
+  },
+  "application/x-xpinstall": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["xpi"]
+  },
+  "application/x-xz": {
+    "source": "apache",
+    "extensions": ["xz"]
+  },
+  "application/x-zmachine": {
+    "source": "apache",
+    "extensions": ["z1","z2","z3","z4","z5","z6","z7","z8"]
+  },
+  "application/x400-bp": {
+    "source": "iana"
+  },
+  "application/xacml+xml": {
+    "source": "iana"
+  },
+  "application/xaml+xml": {
+    "source": "apache",
+    "extensions": ["xaml"]
+  },
+  "application/xcap-att+xml": {
+    "source": "iana"
+  },
+  "application/xcap-caps+xml": {
+    "source": "iana"
+  },
+  "application/xcap-diff+xml": {
+    "source": "iana",
+    "extensions": ["xdf"]
+  },
+  "application/xcap-el+xml": {
+    "source": "iana"
+  },
+  "application/xcap-error+xml": {
+    "source": "iana"
+  },
+  "application/xcap-ns+xml": {
+    "source": "iana"
+  },
+  "application/xcon-conference-info+xml": {
+    "source": "iana"
+  },
+  "application/xcon-conference-info-diff+xml": {
+    "source": "iana"
+  },
+  "application/xenc+xml": {
+    "source": "iana",
+    "extensions": ["xenc"]
+  },
+  "application/xhtml+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["xhtml","xht"]
+  },
+  "application/xhtml-voice+xml": {
+    "source": "apache"
+  },
+  "application/xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["xml","xsl","xsd"]
+  },
+  "application/xml-dtd": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["dtd"]
+  },
+  "application/xml-external-parsed-entity": {
+    "source": "iana"
+  },
+  "application/xml-patch+xml": {
+    "source": "iana"
+  },
+  "application/xmpp+xml": {
+    "source": "iana"
+  },
+  "application/xop+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["xop"]
+  },
+  "application/xproc+xml": {
+    "source": "apache",
+    "extensions": ["xpl"]
+  },
+  "application/xslt+xml": {
+    "source": "iana",
+    "extensions": ["xslt"]
+  },
+  "application/xspf+xml": {
+    "source": "apache",
+    "extensions": ["xspf"]
+  },
+  "application/xv+xml": {
+    "source": "iana",
+    "extensions": ["mxml","xhvml","xvml","xvm"]
+  },
+  "application/yang": {
+    "source": "iana",
+    "extensions": ["yang"]
+  },
+  "application/yin+xml": {
+    "source": "iana",
+    "extensions": ["yin"]
+  },
+  "application/zip": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["zip"]
+  },
+  "application/zlib": {
+    "source": "iana"
+  },
+  "audio/1d-interleaved-parityfec": {
+    "source": "iana"
+  },
+  "audio/32kadpcm": {
+    "source": "iana"
+  },
+  "audio/3gpp": {
+    "source": "iana"
+  },
+  "audio/3gpp2": {
+    "source": "iana"
+  },
+  "audio/ac3": {
+    "source": "iana"
+  },
+  "audio/adpcm": {
+    "source": "apache",
+    "extensions": ["adp"]
+  },
+  "audio/amr": {
+    "source": "iana"
+  },
+  "audio/amr-wb": {
+    "source": "iana"
+  },
+  "audio/amr-wb+": {
+    "source": "iana"
+  },
+  "audio/aptx": {
+    "source": "iana"
+  },
+  "audio/asc": {
+    "source": "iana"
+  },
+  "audio/atrac-advanced-lossless": {
+    "source": "iana"
+  },
+  "audio/atrac-x": {
+    "source": "iana"
+  },
+  "audio/atrac3": {
+    "source": "iana"
+  },
+  "audio/basic": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["au","snd"]
+  },
+  "audio/bv16": {
+    "source": "iana"
+  },
+  "audio/bv32": {
+    "source": "iana"
+  },
+  "audio/clearmode": {
+    "source": "iana"
+  },
+  "audio/cn": {
+    "source": "iana"
+  },
+  "audio/dat12": {
+    "source": "iana"
+  },
+  "audio/dls": {
+    "source": "iana"
+  },
+  "audio/dsr-es201108": {
+    "source": "iana"
+  },
+  "audio/dsr-es202050": {
+    "source": "iana"
+  },
+  "audio/dsr-es202211": {
+    "source": "iana"
+  },
+  "audio/dsr-es202212": {
+    "source": "iana"
+  },
+  "audio/dv": {
+    "source": "iana"
+  },
+  "audio/dvi4": {
+    "source": "iana"
+  },
+  "audio/eac3": {
+    "source": "iana"
+  },
+  "audio/encaprtp": {
+    "source": "iana"
+  },
+  "audio/evrc": {
+    "source": "iana"
+  },
+  "audio/evrc-qcp": {
+    "source": "iana"
+  },
+  "audio/evrc0": {
+    "source": "iana"
+  },
+  "audio/evrc1": {
+    "source": "iana"
+  },
+  "audio/evrcb": {
+    "source": "iana"
+  },
+  "audio/evrcb0": {
+    "source": "iana"
+  },
+  "audio/evrcb1": {
+    "source": "iana"
+  },
+  "audio/evrcnw": {
+    "source": "iana"
+  },
+  "audio/evrcnw0": {
+    "source": "iana"
+  },
+  "audio/evrcnw1": {
+    "source": "iana"
+  },
+  "audio/evrcwb": {
+    "source": "iana"
+  },
+  "audio/evrcwb0": {
+    "source": "iana"
+  },
+  "audio/evrcwb1": {
+    "source": "iana"
+  },
+  "audio/evs": {
+    "source": "iana"
+  },
+  "audio/fwdred": {
+    "source": "iana"
+  },
+  "audio/g711-0": {
+    "source": "iana"
+  },
+  "audio/g719": {
+    "source": "iana"
+  },
+  "audio/g722": {
+    "source": "iana"
+  },
+  "audio/g7221": {
+    "source": "iana"
+  },
+  "audio/g723": {
+    "source": "iana"
+  },
+  "audio/g726-16": {
+    "source": "iana"
+  },
+  "audio/g726-24": {
+    "source": "iana"
+  },
+  "audio/g726-32": {
+    "source": "iana"
+  },
+  "audio/g726-40": {
+    "source": "iana"
+  },
+  "audio/g728": {
+    "source": "iana"
+  },
+  "audio/g729": {
+    "source": "iana"
+  },
+  "audio/g7291": {
+    "source": "iana"
+  },
+  "audio/g729d": {
+    "source": "iana"
+  },
+  "audio/g729e": {
+    "source": "iana"
+  },
+  "audio/gsm": {
+    "source": "iana"
+  },
+  "audio/gsm-efr": {
+    "source": "iana"
+  },
+  "audio/gsm-hr-08": {
+    "source": "iana"
+  },
+  "audio/ilbc": {
+    "source": "iana"
+  },
+  "audio/ip-mr_v2.5": {
+    "source": "iana"
+  },
+  "audio/isac": {
+    "source": "apache"
+  },
+  "audio/l16": {
+    "source": "iana"
+  },
+  "audio/l20": {
+    "source": "iana"
+  },
+  "audio/l24": {
+    "source": "iana",
+    "compressible": false
+  },
+  "audio/l8": {
+    "source": "iana"
+  },
+  "audio/lpc": {
+    "source": "iana"
+  },
+  "audio/midi": {
+    "source": "apache",
+    "extensions": ["mid","midi","kar","rmi"]
+  },
+  "audio/mobile-xmf": {
+    "source": "iana"
+  },
+  "audio/mp4": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["mp4a","m4a"]
+  },
+  "audio/mp4a-latm": {
+    "source": "iana"
+  },
+  "audio/mpa": {
+    "source": "iana"
+  },
+  "audio/mpa-robust": {
+    "source": "iana"
+  },
+  "audio/mpeg": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["mpga","mp2","mp2a","mp3","m2a","m3a"]
+  },
+  "audio/mpeg4-generic": {
+    "source": "iana"
+  },
+  "audio/musepack": {
+    "source": "apache"
+  },
+  "audio/ogg": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["oga","ogg","spx"]
+  },
+  "audio/opus": {
+    "source": "iana"
+  },
+  "audio/parityfec": {
+    "source": "iana"
+  },
+  "audio/pcma": {
+    "source": "iana"
+  },
+  "audio/pcma-wb": {
+    "source": "iana"
+  },
+  "audio/pcmu": {
+    "source": "iana"
+  },
+  "audio/pcmu-wb": {
+    "source": "iana"
+  },
+  "audio/prs.sid": {
+    "source": "iana"
+  },
+  "audio/qcelp": {
+    "source": "iana"
+  },
+  "audio/raptorfec": {
+    "source": "iana"
+  },
+  "audio/red": {
+    "source": "iana"
+  },
+  "audio/rtp-enc-aescm128": {
+    "source": "iana"
+  },
+  "audio/rtp-midi": {
+    "source": "iana"
+  },
+  "audio/rtploopback": {
+    "source": "iana"
+  },
+  "audio/rtx": {
+    "source": "iana"
+  },
+  "audio/s3m": {
+    "source": "apache",
+    "extensions": ["s3m"]
+  },
+  "audio/silk": {
+    "source": "apache",
+    "extensions": ["sil"]
+  },
+  "audio/smv": {
+    "source": "iana"
+  },
+  "audio/smv-qcp": {
+    "source": "iana"
+  },
+  "audio/smv0": {
+    "source": "iana"
+  },
+  "audio/sp-midi": {
+    "source": "iana"
+  },
+  "audio/speex": {
+    "source": "iana"
+  },
+  "audio/t140c": {
+    "source": "iana"
+  },
+  "audio/t38": {
+    "source": "iana"
+  },
+  "audio/telephone-event": {
+    "source": "iana"
+  },
+  "audio/tone": {
+    "source": "iana"
+  },
+  "audio/uemclip": {
+    "source": "iana"
+  },
+  "audio/ulpfec": {
+    "source": "iana"
+  },
+  "audio/vdvi": {
+    "source": "iana"
+  },
+  "audio/vmr-wb": {
+    "source": "iana"
+  },
+  "audio/vnd.3gpp.iufp": {
+    "source": "iana"
+  },
+  "audio/vnd.4sb": {
+    "source": "iana"
+  },
+  "audio/vnd.audiokoz": {
+    "source": "iana"
+  },
+  "audio/vnd.celp": {
+    "source": "iana"
+  },
+  "audio/vnd.cisco.nse": {
+    "source": "iana"
+  },
+  "audio/vnd.cmles.radio-events": {
+    "source": "iana"
+  },
+  "audio/vnd.cns.anp1": {
+    "source": "iana"
+  },
+  "audio/vnd.cns.inf1": {
+    "source": "iana"
+  },
+  "audio/vnd.dece.audio": {
+    "source": "iana",
+    "extensions": ["uva","uvva"]
+  },
+  "audio/vnd.digital-winds": {
+    "source": "iana",
+    "extensions": ["eol"]
+  },
+  "audio/vnd.dlna.adts": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.heaac.1": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.heaac.2": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.mlp": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.mps": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.pl2": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.pl2x": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.pl2z": {
+    "source": "iana"
+  },
+  "audio/vnd.dolby.pulse.1": {
+    "source": "iana"
+  },
+  "audio/vnd.dra": {
+    "source": "iana",
+    "extensions": ["dra"]
+  },
+  "audio/vnd.dts": {
+    "source": "iana",
+    "extensions": ["dts"]
+  },
+  "audio/vnd.dts.hd": {
+    "source": "iana",
+    "extensions": ["dtshd"]
+  },
+  "audio/vnd.dvb.file": {
+    "source": "iana"
+  },
+  "audio/vnd.everad.plj": {
+    "source": "iana"
+  },
+  "audio/vnd.hns.audio": {
+    "source": "iana"
+  },
+  "audio/vnd.lucent.voice": {
+    "source": "iana",
+    "extensions": ["lvp"]
+  },
+  "audio/vnd.ms-playready.media.pya": {
+    "source": "iana",
+    "extensions": ["pya"]
+  },
+  "audio/vnd.nokia.mobile-xmf": {
+    "source": "iana"
+  },
+  "audio/vnd.nortel.vbk": {
+    "source": "iana"
+  },
+  "audio/vnd.nuera.ecelp4800": {
+    "source": "iana",
+    "extensions": ["ecelp4800"]
+  },
+  "audio/vnd.nuera.ecelp7470": {
+    "source": "iana",
+    "extensions": ["ecelp7470"]
+  },
+  "audio/vnd.nuera.ecelp9600": {
+    "source": "iana",
+    "extensions": ["ecelp9600"]
+  },
+  "audio/vnd.octel.sbc": {
+    "source": "iana"
+  },
+  "audio/vnd.qcelp": {
+    "source": "iana"
+  },
+  "audio/vnd.rhetorex.32kadpcm": {
+    "source": "iana"
+  },
+  "audio/vnd.rip": {
+    "source": "iana",
+    "extensions": ["rip"]
+  },
+  "audio/vnd.rn-realaudio": {
+    "compressible": false
+  },
+  "audio/vnd.sealedmedia.softseal.mpeg": {
+    "source": "iana"
+  },
+  "audio/vnd.vmx.cvsd": {
+    "source": "iana"
+  },
+  "audio/vnd.wave": {
+    "compressible": false
+  },
+  "audio/vorbis": {
+    "source": "iana",
+    "compressible": false
+  },
+  "audio/vorbis-config": {
+    "source": "iana"
+  },
+  "audio/wav": {
+    "compressible": false,
+    "extensions": ["wav"]
+  },
+  "audio/wave": {
+    "compressible": false,
+    "extensions": ["wav"]
+  },
+  "audio/webm": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["weba"]
+  },
+  "audio/x-aac": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["aac"]
+  },
+  "audio/x-aiff": {
+    "source": "apache",
+    "extensions": ["aif","aiff","aifc"]
+  },
+  "audio/x-caf": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["caf"]
+  },
+  "audio/x-flac": {
+    "source": "apache",
+    "extensions": ["flac"]
+  },
+  "audio/x-m4a": {
+    "source": "nginx",
+    "extensions": ["m4a"]
+  },
+  "audio/x-matroska": {
+    "source": "apache",
+    "extensions": ["mka"]
+  },
+  "audio/x-mpegurl": {
+    "source": "apache",
+    "extensions": ["m3u"]
+  },
+  "audio/x-ms-wax": {
+    "source": "apache",
+    "extensions": ["wax"]
+  },
+  "audio/x-ms-wma": {
+    "source": "apache",
+    "extensions": ["wma"]
+  },
+  "audio/x-pn-realaudio": {
+    "source": "apache",
+    "extensions": ["ram","ra"]
+  },
+  "audio/x-pn-realaudio-plugin": {
+    "source": "apache",
+    "extensions": ["rmp"]
+  },
+  "audio/x-realaudio": {
+    "source": "nginx",
+    "extensions": ["ra"]
+  },
+  "audio/x-tta": {
+    "source": "apache"
+  },
+  "audio/x-wav": {
+    "source": "apache",
+    "extensions": ["wav"]
+  },
+  "audio/xm": {
+    "source": "apache",
+    "extensions": ["xm"]
+  },
+  "chemical/x-cdx": {
+    "source": "apache",
+    "extensions": ["cdx"]
+  },
+  "chemical/x-cif": {
+    "source": "apache",
+    "extensions": ["cif"]
+  },
+  "chemical/x-cmdf": {
+    "source": "apache",
+    "extensions": ["cmdf"]
+  },
+  "chemical/x-cml": {
+    "source": "apache",
+    "extensions": ["cml"]
+  },
+  "chemical/x-csml": {
+    "source": "apache",
+    "extensions": ["csml"]
+  },
+  "chemical/x-pdb": {
+    "source": "apache"
+  },
+  "chemical/x-xyz": {
+    "source": "apache",
+    "extensions": ["xyz"]
+  },
+  "font/opentype": {
+    "compressible": true,
+    "extensions": ["otf"]
+  },
+  "image/bmp": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["bmp"]
+  },
+  "image/cgm": {
+    "source": "iana",
+    "extensions": ["cgm"]
+  },
+  "image/fits": {
+    "source": "iana"
+  },
+  "image/g3fax": {
+    "source": "iana",
+    "extensions": ["g3"]
+  },
+  "image/gif": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["gif"]
+  },
+  "image/ief": {
+    "source": "iana",
+    "extensions": ["ief"]
+  },
+  "image/jp2": {
+    "source": "iana"
+  },
+  "image/jpeg": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["jpeg","jpg","jpe"]
+  },
+  "image/jpm": {
+    "source": "iana"
+  },
+  "image/jpx": {
+    "source": "iana"
+  },
+  "image/ktx": {
+    "source": "iana",
+    "extensions": ["ktx"]
+  },
+  "image/naplps": {
+    "source": "iana"
+  },
+  "image/pjpeg": {
+    "compressible": false
+  },
+  "image/png": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["png"]
+  },
+  "image/prs.btif": {
+    "source": "iana",
+    "extensions": ["btif"]
+  },
+  "image/prs.pti": {
+    "source": "iana"
+  },
+  "image/pwg-raster": {
+    "source": "iana"
+  },
+  "image/sgi": {
+    "source": "apache",
+    "extensions": ["sgi"]
+  },
+  "image/svg+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["svg","svgz"]
+  },
+  "image/t38": {
+    "source": "iana"
+  },
+  "image/tiff": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["tiff","tif"]
+  },
+  "image/tiff-fx": {
+    "source": "iana"
+  },
+  "image/vnd.adobe.photoshop": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["psd"]
+  },
+  "image/vnd.airzip.accelerator.azv": {
+    "source": "iana"
+  },
+  "image/vnd.cns.inf2": {
+    "source": "iana"
+  },
+  "image/vnd.dece.graphic": {
+    "source": "iana",
+    "extensions": ["uvi","uvvi","uvg","uvvg"]
+  },
+  "image/vnd.djvu": {
+    "source": "iana",
+    "extensions": ["djvu","djv"]
+  },
+  "image/vnd.dvb.subtitle": {
+    "source": "iana",
+    "extensions": ["sub"]
+  },
+  "image/vnd.dwg": {
+    "source": "iana",
+    "extensions": ["dwg"]
+  },
+  "image/vnd.dxf": {
+    "source": "iana",
+    "extensions": ["dxf"]
+  },
+  "image/vnd.fastbidsheet": {
+    "source": "iana",
+    "extensions": ["fbs"]
+  },
+  "image/vnd.fpx": {
+    "source": "iana",
+    "extensions": ["fpx"]
+  },
+  "image/vnd.fst": {
+    "source": "iana",
+    "extensions": ["fst"]
+  },
+  "image/vnd.fujixerox.edmics-mmr": {
+    "source": "iana",
+    "extensions": ["mmr"]
+  },
+  "image/vnd.fujixerox.edmics-rlc": {
+    "source": "iana",
+    "extensions": ["rlc"]
+  },
+  "image/vnd.globalgraphics.pgb": {
+    "source": "iana"
+  },
+  "image/vnd.microsoft.icon": {
+    "source": "iana"
+  },
+  "image/vnd.mix": {
+    "source": "iana"
+  },
+  "image/vnd.mozilla.apng": {
+    "source": "iana"
+  },
+  "image/vnd.ms-modi": {
+    "source": "iana",
+    "extensions": ["mdi"]
+  },
+  "image/vnd.ms-photo": {
+    "source": "apache",
+    "extensions": ["wdp"]
+  },
+  "image/vnd.net-fpx": {
+    "source": "iana",
+    "extensions": ["npx"]
+  },
+  "image/vnd.radiance": {
+    "source": "iana"
+  },
+  "image/vnd.sealed.png": {
+    "source": "iana"
+  },
+  "image/vnd.sealedmedia.softseal.gif": {
+    "source": "iana"
+  },
+  "image/vnd.sealedmedia.softseal.jpg": {
+    "source": "iana"
+  },
+  "image/vnd.svf": {
+    "source": "iana"
+  },
+  "image/vnd.tencent.tap": {
+    "source": "iana"
+  },
+  "image/vnd.valve.source.texture": {
+    "source": "iana"
+  },
+  "image/vnd.wap.wbmp": {
+    "source": "iana",
+    "extensions": ["wbmp"]
+  },
+  "image/vnd.xiff": {
+    "source": "iana",
+    "extensions": ["xif"]
+  },
+  "image/vnd.zbrush.pcx": {
+    "source": "iana"
+  },
+  "image/webp": {
+    "source": "apache",
+    "extensions": ["webp"]
+  },
+  "image/x-3ds": {
+    "source": "apache",
+    "extensions": ["3ds"]
+  },
+  "image/x-cmu-raster": {
+    "source": "apache",
+    "extensions": ["ras"]
+  },
+  "image/x-cmx": {
+    "source": "apache",
+    "extensions": ["cmx"]
+  },
+  "image/x-freehand": {
+    "source": "apache",
+    "extensions": ["fh","fhc","fh4","fh5","fh7"]
+  },
+  "image/x-icon": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["ico"]
+  },
+  "image/x-jng": {
+    "source": "nginx",
+    "extensions": ["jng"]
+  },
+  "image/x-mrsid-image": {
+    "source": "apache",
+    "extensions": ["sid"]
+  },
+  "image/x-ms-bmp": {
+    "source": "nginx",
+    "compressible": true,
+    "extensions": ["bmp"]
+  },
+  "image/x-pcx": {
+    "source": "apache",
+    "extensions": ["pcx"]
+  },
+  "image/x-pict": {
+    "source": "apache",
+    "extensions": ["pic","pct"]
+  },
+  "image/x-portable-anymap": {
+    "source": "apache",
+    "extensions": ["pnm"]
+  },
+  "image/x-portable-bitmap": {
+    "source": "apache",
+    "extensions": ["pbm"]
+  },
+  "image/x-portable-graymap": {
+    "source": "apache",
+    "extensions": ["pgm"]
+  },
+  "image/x-portable-pixmap": {
+    "source": "apache",
+    "extensions": ["ppm"]
+  },
+  "image/x-rgb": {
+    "source": "apache",
+    "extensions": ["rgb"]
+  },
+  "image/x-tga": {
+    "source": "apache",
+    "extensions": ["tga"]
+  },
+  "image/x-xbitmap": {
+    "source": "apache",
+    "extensions": ["xbm"]
+  },
+  "image/x-xcf": {
+    "compressible": false
+  },
+  "image/x-xpixmap": {
+    "source": "apache",
+    "extensions": ["xpm"]
+  },
+  "image/x-xwindowdump": {
+    "source": "apache",
+    "extensions": ["xwd"]
+  },
+  "message/cpim": {
+    "source": "iana"
+  },
+  "message/delivery-status": {
+    "source": "iana"
+  },
+  "message/disposition-notification": {
+    "source": "iana"
+  },
+  "message/external-body": {
+    "source": "iana"
+  },
+  "message/feedback-report": {
+    "source": "iana"
+  },
+  "message/global": {
+    "source": "iana"
+  },
+  "message/global-delivery-status": {
+    "source": "iana"
+  },
+  "message/global-disposition-notification": {
+    "source": "iana"
+  },
+  "message/global-headers": {
+    "source": "iana"
+  },
+  "message/http": {
+    "source": "iana",
+    "compressible": false
+  },
+  "message/imdn+xml": {
+    "source": "iana",
+    "compressible": true
+  },
+  "message/news": {
+    "source": "iana"
+  },
+  "message/partial": {
+    "source": "iana",
+    "compressible": false
+  },
+  "message/rfc822": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["eml","mime"]
+  },
+  "message/s-http": {
+    "source": "iana"
+  },
+  "message/sip": {
+    "source": "iana"
+  },
+  "message/sipfrag": {
+    "source": "iana"
+  },
+  "message/tracking-status": {
+    "source": "iana"
+  },
+  "message/vnd.si.simp": {
+    "source": "iana"
+  },
+  "message/vnd.wfa.wsc": {
+    "source": "iana"
+  },
+  "model/iges": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["igs","iges"]
+  },
+  "model/mesh": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["msh","mesh","silo"]
+  },
+  "model/vnd.collada+xml": {
+    "source": "iana",
+    "extensions": ["dae"]
+  },
+  "model/vnd.dwf": {
+    "source": "iana",
+    "extensions": ["dwf"]
+  },
+  "model/vnd.flatland.3dml": {
+    "source": "iana"
+  },
+  "model/vnd.gdl": {
+    "source": "iana",
+    "extensions": ["gdl"]
+  },
+  "model/vnd.gs-gdl": {
+    "source": "apache"
+  },
+  "model/vnd.gs.gdl": {
+    "source": "iana"
+  },
+  "model/vnd.gtw": {
+    "source": "iana",
+    "extensions": ["gtw"]
+  },
+  "model/vnd.moml+xml": {
+    "source": "iana"
+  },
+  "model/vnd.mts": {
+    "source": "iana",
+    "extensions": ["mts"]
+  },
+  "model/vnd.opengex": {
+    "source": "iana"
+  },
+  "model/vnd.parasolid.transmit.binary": {
+    "source": "iana"
+  },
+  "model/vnd.parasolid.transmit.text": {
+    "source": "iana"
+  },
+  "model/vnd.valve.source.compiled-map": {
+    "source": "iana"
+  },
+  "model/vnd.vtu": {
+    "source": "iana",
+    "extensions": ["vtu"]
+  },
+  "model/vrml": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["wrl","vrml"]
+  },
+  "model/x3d+binary": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["x3db","x3dbz"]
+  },
+  "model/x3d+fastinfoset": {
+    "source": "iana"
+  },
+  "model/x3d+vrml": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["x3dv","x3dvz"]
+  },
+  "model/x3d+xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["x3d","x3dz"]
+  },
+  "model/x3d-vrml": {
+    "source": "iana"
+  },
+  "multipart/alternative": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/appledouble": {
+    "source": "iana"
+  },
+  "multipart/byteranges": {
+    "source": "iana"
+  },
+  "multipart/digest": {
+    "source": "iana"
+  },
+  "multipart/encrypted": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/form-data": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/header-set": {
+    "source": "iana"
+  },
+  "multipart/mixed": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/parallel": {
+    "source": "iana"
+  },
+  "multipart/related": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/report": {
+    "source": "iana"
+  },
+  "multipart/signed": {
+    "source": "iana",
+    "compressible": false
+  },
+  "multipart/voice-message": {
+    "source": "iana"
+  },
+  "multipart/x-mixed-replace": {
+    "source": "iana"
+  },
+  "text/1d-interleaved-parityfec": {
+    "source": "iana"
+  },
+  "text/cache-manifest": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["appcache","manifest"]
+  },
+  "text/calendar": {
+    "source": "iana",
+    "extensions": ["ics","ifb"]
+  },
+  "text/calender": {
+    "compressible": true
+  },
+  "text/cmd": {
+    "compressible": true
+  },
+  "text/coffeescript": {
+    "extensions": ["coffee","litcoffee"]
+  },
+  "text/css": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["css"]
+  },
+  "text/csv": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["csv"]
+  },
+  "text/csv-schema": {
+    "source": "iana"
+  },
+  "text/directory": {
+    "source": "iana"
+  },
+  "text/dns": {
+    "source": "iana"
+  },
+  "text/ecmascript": {
+    "source": "iana"
+  },
+  "text/encaprtp": {
+    "source": "iana"
+  },
+  "text/enriched": {
+    "source": "iana"
+  },
+  "text/fwdred": {
+    "source": "iana"
+  },
+  "text/grammar-ref-list": {
+    "source": "iana"
+  },
+  "text/hjson": {
+    "extensions": ["hjson"]
+  },
+  "text/html": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["html","htm","shtml"]
+  },
+  "text/jade": {
+    "extensions": ["jade"]
+  },
+  "text/javascript": {
+    "source": "iana",
+    "compressible": true
+  },
+  "text/jcr-cnd": {
+    "source": "iana"
+  },
+  "text/jsx": {
+    "compressible": true,
+    "extensions": ["jsx"]
+  },
+  "text/less": {
+    "extensions": ["less"]
+  },
+  "text/markdown": {
+    "source": "iana"
+  },
+  "text/mathml": {
+    "source": "nginx",
+    "extensions": ["mml"]
+  },
+  "text/mizar": {
+    "source": "iana"
+  },
+  "text/n3": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["n3"]
+  },
+  "text/parameters": {
+    "source": "iana"
+  },
+  "text/parityfec": {
+    "source": "iana"
+  },
+  "text/plain": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["txt","text","conf","def","list","log","in","ini"]
+  },
+  "text/provenance-notation": {
+    "source": "iana"
+  },
+  "text/prs.fallenstein.rst": {
+    "source": "iana"
+  },
+  "text/prs.lines.tag": {
+    "source": "iana",
+    "extensions": ["dsc"]
+  },
+  "text/raptorfec": {
+    "source": "iana"
+  },
+  "text/red": {
+    "source": "iana"
+  },
+  "text/rfc822-headers": {
+    "source": "iana"
+  },
+  "text/richtext": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["rtx"]
+  },
+  "text/rtf": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["rtf"]
+  },
+  "text/rtp-enc-aescm128": {
+    "source": "iana"
+  },
+  "text/rtploopback": {
+    "source": "iana"
+  },
+  "text/rtx": {
+    "source": "iana"
+  },
+  "text/sgml": {
+    "source": "iana",
+    "extensions": ["sgml","sgm"]
+  },
+  "text/stylus": {
+    "extensions": ["stylus","styl"]
+  },
+  "text/t140": {
+    "source": "iana"
+  },
+  "text/tab-separated-values": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["tsv"]
+  },
+  "text/troff": {
+    "source": "iana",
+    "extensions": ["t","tr","roff","man","me","ms"]
+  },
+  "text/turtle": {
+    "source": "iana",
+    "extensions": ["ttl"]
+  },
+  "text/ulpfec": {
+    "source": "iana"
+  },
+  "text/uri-list": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["uri","uris","urls"]
+  },
+  "text/vcard": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["vcard"]
+  },
+  "text/vnd.a": {
+    "source": "iana"
+  },
+  "text/vnd.abc": {
+    "source": "iana"
+  },
+  "text/vnd.curl": {
+    "source": "iana",
+    "extensions": ["curl"]
+  },
+  "text/vnd.curl.dcurl": {
+    "source": "apache",
+    "extensions": ["dcurl"]
+  },
+  "text/vnd.curl.mcurl": {
+    "source": "apache",
+    "extensions": ["mcurl"]
+  },
+  "text/vnd.curl.scurl": {
+    "source": "apache",
+    "extensions": ["scurl"]
+  },
+  "text/vnd.debian.copyright": {
+    "source": "iana"
+  },
+  "text/vnd.dmclientscript": {
+    "source": "iana"
+  },
+  "text/vnd.dvb.subtitle": {
+    "source": "iana",
+    "extensions": ["sub"]
+  },
+  "text/vnd.esmertec.theme-descriptor": {
+    "source": "iana"
+  },
+  "text/vnd.fly": {
+    "source": "iana",
+    "extensions": ["fly"]
+  },
+  "text/vnd.fmi.flexstor": {
+    "source": "iana",
+    "extensions": ["flx"]
+  },
+  "text/vnd.graphviz": {
+    "source": "iana",
+    "extensions": ["gv"]
+  },
+  "text/vnd.in3d.3dml": {
+    "source": "iana",
+    "extensions": ["3dml"]
+  },
+  "text/vnd.in3d.spot": {
+    "source": "iana",
+    "extensions": ["spot"]
+  },
+  "text/vnd.iptc.newsml": {
+    "source": "iana"
+  },
+  "text/vnd.iptc.nitf": {
+    "source": "iana"
+  },
+  "text/vnd.latex-z": {
+    "source": "iana"
+  },
+  "text/vnd.motorola.reflex": {
+    "source": "iana"
+  },
+  "text/vnd.ms-mediapackage": {
+    "source": "iana"
+  },
+  "text/vnd.net2phone.commcenter.command": {
+    "source": "iana"
+  },
+  "text/vnd.radisys.msml-basic-layout": {
+    "source": "iana"
+  },
+  "text/vnd.si.uricatalogue": {
+    "source": "iana"
+  },
+  "text/vnd.sun.j2me.app-descriptor": {
+    "source": "iana",
+    "extensions": ["jad"]
+  },
+  "text/vnd.trolltech.linguist": {
+    "source": "iana"
+  },
+  "text/vnd.wap.si": {
+    "source": "iana"
+  },
+  "text/vnd.wap.sl": {
+    "source": "iana"
+  },
+  "text/vnd.wap.wml": {
+    "source": "iana",
+    "extensions": ["wml"]
+  },
+  "text/vnd.wap.wmlscript": {
+    "source": "iana",
+    "extensions": ["wmls"]
+  },
+  "text/vtt": {
+    "charset": "UTF-8",
+    "compressible": true,
+    "extensions": ["vtt"]
+  },
+  "text/x-asm": {
+    "source": "apache",
+    "extensions": ["s","asm"]
+  },
+  "text/x-c": {
+    "source": "apache",
+    "extensions": ["c","cc","cxx","cpp","h","hh","dic"]
+  },
+  "text/x-component": {
+    "source": "nginx",
+    "extensions": ["htc"]
+  },
+  "text/x-fortran": {
+    "source": "apache",
+    "extensions": ["f","for","f77","f90"]
+  },
+  "text/x-gwt-rpc": {
+    "compressible": true
+  },
+  "text/x-handlebars-template": {
+    "extensions": ["hbs"]
+  },
+  "text/x-java-source": {
+    "source": "apache",
+    "extensions": ["java"]
+  },
+  "text/x-jquery-tmpl": {
+    "compressible": true
+  },
+  "text/x-lua": {
+    "extensions": ["lua"]
+  },
+  "text/x-markdown": {
+    "compressible": true,
+    "extensions": ["markdown","md","mkd"]
+  },
+  "text/x-nfo": {
+    "source": "apache",
+    "extensions": ["nfo"]
+  },
+  "text/x-opml": {
+    "source": "apache",
+    "extensions": ["opml"]
+  },
+  "text/x-pascal": {
+    "source": "apache",
+    "extensions": ["p","pas"]
+  },
+  "text/x-processing": {
+    "compressible": true,
+    "extensions": ["pde"]
+  },
+  "text/x-sass": {
+    "extensions": ["sass"]
+  },
+  "text/x-scss": {
+    "extensions": ["scss"]
+  },
+  "text/x-setext": {
+    "source": "apache",
+    "extensions": ["etx"]
+  },
+  "text/x-sfv": {
+    "source": "apache",
+    "extensions": ["sfv"]
+  },
+  "text/x-suse-ymp": {
+    "compressible": true,
+    "extensions": ["ymp"]
+  },
+  "text/x-uuencode": {
+    "source": "apache",
+    "extensions": ["uu"]
+  },
+  "text/x-vcalendar": {
+    "source": "apache",
+    "extensions": ["vcs"]
+  },
+  "text/x-vcard": {
+    "source": "apache",
+    "extensions": ["vcf"]
+  },
+  "text/xml": {
+    "source": "iana",
+    "compressible": true,
+    "extensions": ["xml"]
+  },
+  "text/xml-external-parsed-entity": {
+    "source": "iana"
+  },
+  "text/yaml": {
+    "extensions": ["yaml","yml"]
+  },
+  "video/1d-interleaved-parityfec": {
+    "source": "apache"
+  },
+  "video/3gpp": {
+    "source": "apache",
+    "extensions": ["3gp","3gpp"]
+  },
+  "video/3gpp-tt": {
+    "source": "apache"
+  },
+  "video/3gpp2": {
+    "source": "apache",
+    "extensions": ["3g2"]
+  },
+  "video/bmpeg": {
+    "source": "apache"
+  },
+  "video/bt656": {
+    "source": "apache"
+  },
+  "video/celb": {
+    "source": "apache"
+  },
+  "video/dv": {
+    "source": "apache"
+  },
+  "video/h261": {
+    "source": "apache",
+    "extensions": ["h261"]
+  },
+  "video/h263": {
+    "source": "apache",
+    "extensions": ["h263"]
+  },
+  "video/h263-1998": {
+    "source": "apache"
+  },
+  "video/h263-2000": {
+    "source": "apache"
+  },
+  "video/h264": {
+    "source": "apache",
+    "extensions": ["h264"]
+  },
+  "video/h264-rcdo": {
+    "source": "apache"
+  },
+  "video/h264-svc": {
+    "source": "apache"
+  },
+  "video/jpeg": {
+    "source": "apache",
+    "extensions": ["jpgv"]
+  },
+  "video/jpeg2000": {
+    "source": "apache"
+  },
+  "video/jpm": {
+    "source": "apache",
+    "extensions": ["jpm","jpgm"]
+  },
+  "video/mj2": {
+    "source": "apache",
+    "extensions": ["mj2","mjp2"]
+  },
+  "video/mp1s": {
+    "source": "apache"
+  },
+  "video/mp2p": {
+    "source": "apache"
+  },
+  "video/mp2t": {
+    "source": "apache",
+    "extensions": ["ts"]
+  },
+  "video/mp4": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["mp4","mp4v","mpg4"]
+  },
+  "video/mp4v-es": {
+    "source": "apache"
+  },
+  "video/mpeg": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["mpeg","mpg","mpe","m1v","m2v"]
+  },
+  "video/mpeg4-generic": {
+    "source": "apache"
+  },
+  "video/mpv": {
+    "source": "apache"
+  },
+  "video/nv": {
+    "source": "apache"
+  },
+  "video/ogg": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["ogv"]
+  },
+  "video/parityfec": {
+    "source": "apache"
+  },
+  "video/pointer": {
+    "source": "apache"
+  },
+  "video/quicktime": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["qt","mov"]
+  },
+  "video/raw": {
+    "source": "apache"
+  },
+  "video/rtp-enc-aescm128": {
+    "source": "apache"
+  },
+  "video/rtx": {
+    "source": "apache"
+  },
+  "video/smpte292m": {
+    "source": "apache"
+  },
+  "video/ulpfec": {
+    "source": "apache"
+  },
+  "video/vc1": {
+    "source": "apache"
+  },
+  "video/vnd.cctv": {
+    "source": "apache"
+  },
+  "video/vnd.dece.hd": {
+    "source": "apache",
+    "extensions": ["uvh","uvvh"]
+  },
+  "video/vnd.dece.mobile": {
+    "source": "apache",
+    "extensions": ["uvm","uvvm"]
+  },
+  "video/vnd.dece.mp4": {
+    "source": "apache"
+  },
+  "video/vnd.dece.pd": {
+    "source": "apache",
+    "extensions": ["uvp","uvvp"]
+  },
+  "video/vnd.dece.sd": {
+    "source": "apache",
+    "extensions": ["uvs","uvvs"]
+  },
+  "video/vnd.dece.video": {
+    "source": "apache",
+    "extensions": ["uvv","uvvv"]
+  },
+  "video/vnd.directv.mpeg": {
+    "source": "apache"
+  },
+  "video/vnd.directv.mpeg-tts": {
+    "source": "apache"
+  },
+  "video/vnd.dlna.mpeg-tts": {
+    "source": "apache"
+  },
+  "video/vnd.dvb.file": {
+    "source": "apache",
+    "extensions": ["dvb"]
+  },
+  "video/vnd.fvt": {
+    "source": "apache",
+    "extensions": ["fvt"]
+  },
+  "video/vnd.hns.video": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.1dparityfec-1010": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.1dparityfec-2005": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.2dparityfec-1010": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.2dparityfec-2005": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.ttsavc": {
+    "source": "apache"
+  },
+  "video/vnd.iptvforum.ttsmpeg2": {
+    "source": "apache"
+  },
+  "video/vnd.motorola.video": {
+    "source": "apache"
+  },
+  "video/vnd.motorola.videop": {
+    "source": "apache"
+  },
+  "video/vnd.mpegurl": {
+    "source": "apache",
+    "extensions": ["mxu","m4u"]
+  },
+  "video/vnd.ms-playready.media.pyv": {
+    "source": "apache",
+    "extensions": ["pyv"]
+  },
+  "video/vnd.nokia.interleaved-multimedia": {
+    "source": "apache"
+  },
+  "video/vnd.nokia.videovoip": {
+    "source": "apache"
+  },
+  "video/vnd.objectvideo": {
+    "source": "apache"
+  },
+  "video/vnd.sealed.mpeg1": {
+    "source": "apache"
+  },
+  "video/vnd.sealed.mpeg4": {
+    "source": "apache"
+  },
+  "video/vnd.sealed.swf": {
+    "source": "apache"
+  },
+  "video/vnd.sealedmedia.softseal.mov": {
+    "source": "apache"
+  },
+  "video/vnd.uvvu.mp4": {
+    "source": "apache",
+    "extensions": ["uvu","uvvu"]
+  },
+  "video/vnd.vivo": {
+    "source": "apache",
+    "extensions": ["viv"]
+  },
+  "video/webm": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["webm"]
+  },
+  "video/x-f4v": {
+    "source": "apache",
+    "extensions": ["f4v"]
+  },
+  "video/x-fli": {
+    "source": "apache",
+    "extensions": ["fli"]
+  },
+  "video/x-flv": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["flv"]
+  },
+  "video/x-m4v": {
+    "source": "apache",
+    "extensions": ["m4v"]
+  },
+  "video/x-matroska": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["mkv","mk3d","mks"]
+  },
+  "video/x-mng": {
+    "source": "apache",
+    "extensions": ["mng"]
+  },
+  "video/x-ms-asf": {
+    "source": "apache",
+    "extensions": ["asf","asx"]
+  },
+  "video/x-ms-vob": {
+    "source": "apache",
+    "extensions": ["vob"]
+  },
+  "video/x-ms-wm": {
+    "source": "apache",
+    "extensions": ["wm"]
+  },
+  "video/x-ms-wmv": {
+    "source": "apache",
+    "compressible": false,
+    "extensions": ["wmv"]
+  },
+  "video/x-ms-wmx": {
+    "source": "apache",
+    "extensions": ["wmx"]
+  },
+  "video/x-ms-wvx": {
+    "source": "apache",
+    "extensions": ["wvx"]
+  },
+  "video/x-msvideo": {
+    "source": "apache",
+    "extensions": ["avi"]
+  },
+  "video/x-sgi-movie": {
+    "source": "apache",
+    "extensions": ["movie"]
+  },
+  "video/x-smv": {
+    "source": "apache",
+    "extensions": ["smv"]
+  },
+  "x-conference/x-cooltalk": {
+    "source": "apache",
+    "extensions": ["ice"]
+  },
+  "x-shader/x-fragment": {
+    "compressible": true
+  },
+  "x-shader/x-vertex": {
+    "compressible": true
+  }
+}
+},{}],181:[function(require,module,exports){
 module["exports"] = [
   "ants",
   "bats",
@@ -14978,30 +23130,30 @@ module["exports"] = [
   "druids"
 ];
 
-},{}],171:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.creature = require("./creature");
 team.name = require("./name");
 
-},{"./creature":170,"./name":172}],172:[function(require,module,exports){
+},{"./creature":181,"./name":183}],183:[function(require,module,exports){
 module["exports"] = [
   "#{Address.state} #{creature}"
 ];
 
-},{}],173:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
   "##"
 ];
 
-},{}],174:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 module["exports"] = [
   "Australia"
 ];
 
-},{}],175:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state_abbr = require("./state_abbr");
@@ -15011,7 +23163,7 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":173,"./default_country":174,"./postcode":176,"./state":177,"./state_abbr":178,"./street_suffix":179}],176:[function(require,module,exports){
+},{"./building_number":184,"./default_country":185,"./postcode":187,"./state":188,"./state_abbr":189,"./street_suffix":190}],187:[function(require,module,exports){
 module["exports"] = [
   "0###",
   "2###",
@@ -15022,7 +23174,7 @@ module["exports"] = [
   "7###"
 ];
 
-},{}],177:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 module["exports"] = [
   "New South Wales",
   "Queensland",
@@ -15034,7 +23186,7 @@ module["exports"] = [
   "Victoria"
 ];
 
-},{}],178:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 module["exports"] = [
   "NSW",
   "QLD",
@@ -15046,7 +23198,7 @@ module["exports"] = [
   "VIC"
 ];
 
-},{}],179:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 module["exports"] = [
   "Avenue",
   "Boulevard",
@@ -15087,12 +23239,12 @@ module["exports"] = [
   "Way"
 ];
 
-},{}],180:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 
-},{"./suffix":181}],181:[function(require,module,exports){
+},{"./suffix":192}],192:[function(require,module,exports){
 module["exports"] = [
   "Pty Ltd",
   "and Sons",
@@ -15102,7 +23254,7 @@ module["exports"] = [
   "Partners"
 ];
 
-},{}],182:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 var en_AU = {};
 module['exports'] = en_AU;
 en_AU.title = "Australia (English)";
@@ -15112,7 +23264,7 @@ en_AU.internet = require("./internet");
 en_AU.address = require("./address");
 en_AU.phone_number = require("./phone_number");
 
-},{"./address":175,"./company":180,"./internet":184,"./name":186,"./phone_number":189}],183:[function(require,module,exports){
+},{"./address":186,"./company":191,"./internet":195,"./name":197,"./phone_number":200}],194:[function(require,module,exports){
 module["exports"] = [
   "com.au",
   "com",
@@ -15122,9 +23274,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],184:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":183,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],185:[function(require,module,exports){
+},{"./domain_suffix":194,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],196:[function(require,module,exports){
 module["exports"] = [
   "William",
   "Jack",
@@ -15328,13 +23480,13 @@ module["exports"] = [
   "Kiara"
 ];
 
-},{}],186:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 
-},{"./first_name":185,"./last_name":187}],187:[function(require,module,exports){
+},{"./first_name":196,"./last_name":198}],198:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -15624,7 +23776,7 @@ module["exports"] = [
   "Wolf"
 ];
 
-},{}],188:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 module["exports"] = [
   "0# #### ####",
   "+61 # #### ####",
@@ -15632,17 +23784,17 @@ module["exports"] = [
   "+61 4## ### ###"
 ];
 
-},{}],189:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":188,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],190:[function(require,module,exports){
+},{"./formats":199,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],201:[function(require,module,exports){
 var en_BORK = {};
 module['exports'] = en_BORK;
 en_BORK.title = "Bork (English)";
 en_BORK.lorem = require("./lorem");
 
-},{"./lorem":191}],191:[function(require,module,exports){
+},{"./lorem":202}],202:[function(require,module,exports){
 arguments[4][38][0].apply(exports,arguments)
-},{"./words":192,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],192:[function(require,module,exports){
+},{"./words":203,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],203:[function(require,module,exports){
 module["exports"] = [
   "Boot",
   "I",
@@ -15749,12 +23901,12 @@ module["exports"] = [
   "zeere-a"
 ];
 
-},{}],193:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 module["exports"] = [
   "Canada"
 ];
 
-},{}],194:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state = require("./state");
@@ -15762,12 +23914,12 @@ address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 address.postcode = require('./postcode.js');
 
-},{"./default_country":193,"./postcode.js":195,"./state":196,"./state_abbr":197}],195:[function(require,module,exports){
+},{"./default_country":204,"./postcode.js":206,"./state":207,"./state_abbr":208}],206:[function(require,module,exports){
 module["exports"] = [
   "?#? #?#"
 ];
 
-},{}],196:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "British Columbia",
@@ -15784,7 +23936,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],197:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -15801,7 +23953,7 @@ module["exports"] = [
   "YT"
 ];
 
-},{}],198:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 var en_CA = {};
 module['exports'] = en_CA;
 en_CA.title = "Canada (English)";
@@ -15809,7 +23961,7 @@ en_CA.address = require("./address");
 en_CA.internet = require("./internet");
 en_CA.phone_number = require("./phone_number");
 
-},{"./address":194,"./internet":201,"./phone_number":203}],199:[function(require,module,exports){
+},{"./address":205,"./internet":212,"./phone_number":214}],210:[function(require,module,exports){
 module["exports"] = [
   "ca",
   "com",
@@ -15820,16 +23972,16 @@ module["exports"] = [
   "org"
 ];
 
-},{}],200:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.ca",
   "hotmail.com"
 ];
 
-},{}],201:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":199,"./free_email":200,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],202:[function(require,module,exports){
+},{"./domain_suffix":210,"./free_email":211,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],213:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###)###-####",
@@ -15849,9 +24001,9 @@ module["exports"] = [
   "###.###.#### x#####"
 ];
 
-},{}],203:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":202,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],204:[function(require,module,exports){
+},{"./formats":213,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],215:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -15925,7 +24077,7 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],205:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 module["exports"] = [
   "England",
   "Scotland",
@@ -15933,16 +24085,23 @@ module["exports"] = [
   "Northern Ireland"
 ];
 
-},{}],206:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
 address.uk_country = require("./uk_country");
 address.default_country = require("./default_country");
+address.postcode = require("./postcode");
 
-},{"./county":204,"./default_country":205,"./uk_country":207}],207:[function(require,module,exports){
-module.exports=require(205)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/address/default_country.js":205}],208:[function(require,module,exports){
+},{"./county":215,"./default_country":216,"./postcode":218,"./uk_country":219}],218:[function(require,module,exports){
+module["exports"] = [
+  "??# #??",
+  "??## #??",
+];
+
+},{}],219:[function(require,module,exports){
+module.exports=require(216)
+},{"/Users/a/dev/faker.js/lib/locales/en_GB/address/default_country.js":216}],220:[function(require,module,exports){
 module["exports"] = [
   "074## ######",
   "075## ######",
@@ -15952,9 +24111,9 @@ module["exports"] = [
   "079## ######"
 ];
 
-},{}],209:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":208,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],210:[function(require,module,exports){
+},{"./formats":220,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],222:[function(require,module,exports){
 var en_GB = {};
 module['exports'] = en_GB;
 en_GB.title = "Great Britain (English)";
@@ -15963,7 +24122,7 @@ en_GB.internet = require("./internet");
 en_GB.phone_number = require("./phone_number");
 en_GB.cell_phone = require("./cell_phone");
 
-},{"./address":206,"./cell_phone":209,"./internet":212,"./phone_number":214}],211:[function(require,module,exports){
+},{"./address":217,"./cell_phone":221,"./internet":224,"./phone_number":226}],223:[function(require,module,exports){
 module["exports"] = [
   "co.uk",
   "com",
@@ -15972,9 +24131,9 @@ module["exports"] = [
   "name"
 ];
 
-},{}],212:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":211,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],213:[function(require,module,exports){
+},{"./domain_suffix":223,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],225:[function(require,module,exports){
 module["exports"] = [
   "01#### #####",
   "01### ######",
@@ -15993,9 +24152,9 @@ module["exports"] = [
   "0800 ######"
 ];
 
-},{}],214:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":213,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],215:[function(require,module,exports){
+},{"./formats":225,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],227:[function(require,module,exports){
 module["exports"] = [
   "Carlow",
   "Cavan",
@@ -16025,18 +24184,18 @@ module["exports"] = [
   "Wicklow"
 ];
 
-},{}],216:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 module["exports"] = [
   "Ireland"
 ];
 
-},{}],217:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./county":215,"./default_country":216}],218:[function(require,module,exports){
+},{"./county":227,"./default_country":228}],230:[function(require,module,exports){
 module["exports"] = [
   "082 ### ####",
   "083 ### ####",
@@ -16046,9 +24205,9 @@ module["exports"] = [
   "089 ### ####"
 ];
 
-},{}],219:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":218,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],220:[function(require,module,exports){
+},{"./formats":230,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],232:[function(require,module,exports){
 var en_IE = {};
 module['exports'] = en_IE;
 en_IE.title = "Ireland (English)";
@@ -16057,7 +24216,7 @@ en_IE.internet = require("./internet");
 en_IE.phone_number = require("./phone_number");
 en_IE.cell_phone = require("./cell_phone");
 
-},{"./address":217,"./cell_phone":219,"./internet":222,"./phone_number":224}],221:[function(require,module,exports){
+},{"./address":229,"./cell_phone":231,"./internet":234,"./phone_number":236}],233:[function(require,module,exports){
 module["exports"] = [
   "ie",
   "com",
@@ -16066,9 +24225,9 @@ module["exports"] = [
   "eu"
 ];
 
-},{}],222:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":221,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],223:[function(require,module,exports){
+},{"./domain_suffix":233,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],235:[function(require,module,exports){
 module["exports"] = [
   "01 #######",
   "021 #######",
@@ -16121,9 +24280,9 @@ module["exports"] = [
   "099 #######"
 ];
 
-},{}],224:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":223,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],225:[function(require,module,exports){
+},{"./formats":235,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],237:[function(require,module,exports){
 module["exports"] = [
   "India",
   "Indian Republic",
@@ -16131,7 +24290,7 @@ module["exports"] = [
   "Hindustan"
 ];
 
-},{}],226:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -16139,9 +24298,9 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./default_country":225,"./postcode":227,"./state":228,"./state_abbr":229}],227:[function(require,module,exports){
-module.exports=require(195)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":195}],228:[function(require,module,exports){
+},{"./default_country":237,"./postcode":239,"./state":240,"./state_abbr":241}],239:[function(require,module,exports){
+module.exports=require(206)
+},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":206}],240:[function(require,module,exports){
 module["exports"] = [
   "Andra Pradesh",
   "Arunachal Pradesh",
@@ -16180,7 +24339,7 @@ module["exports"] = [
   "Pondicherry"
 ];
 
-},{}],229:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 module["exports"] = [
   "AP",
   "AR",
@@ -16219,9 +24378,9 @@ module["exports"] = [
   "PY"
 ];
 
-},{}],230:[function(require,module,exports){
-arguments[4][180][0].apply(exports,arguments)
-},{"./suffix":231,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":180}],231:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
+arguments[4][191][0].apply(exports,arguments)
+},{"./suffix":243,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":191}],243:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Limited",
@@ -16232,7 +24391,7 @@ module["exports"] = [
   "Brothers"
 ];
 
-},{}],232:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 var en_IND = {};
 module['exports'] = en_IND;
 en_IND.title = "India (English)";
@@ -16242,7 +24401,7 @@ en_IND.internet = require("./internet");
 en_IND.company = require("./company");
 en_IND.phone_number = require("./phone_number");
 
-},{"./address":226,"./company":230,"./internet":235,"./name":237,"./phone_number":240}],233:[function(require,module,exports){
+},{"./address":238,"./company":242,"./internet":247,"./name":249,"./phone_number":252}],245:[function(require,module,exports){
 module["exports"] = [
   "in",
   "com",
@@ -16254,16 +24413,16 @@ module["exports"] = [
   "co.in"
 ];
 
-},{}],234:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.in",
   "hotmail.com"
 ];
 
-},{}],235:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":233,"./free_email":234,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],236:[function(require,module,exports){
+},{"./domain_suffix":245,"./free_email":246,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],248:[function(require,module,exports){
 module["exports"] = [
   "Aadrika",
   "Aanandinii",
@@ -17029,9 +25188,9 @@ module["exports"] = [
   "Yogesh"
 ];
 
-},{}],237:[function(require,module,exports){
-arguments[4][186][0].apply(exports,arguments)
-},{"./first_name":236,"./last_name":238,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":186}],238:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"./first_name":248,"./last_name":250,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":197}],250:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Achari",
@@ -17124,29 +25283,29 @@ module["exports"] = [
   "Verma"
 ];
 
-},{}],239:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 module["exports"] = [
   "+91###-###-####",
   "+91##########",
   "+91-###-#######"
 ];
 
-},{}],240:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":239,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],241:[function(require,module,exports){
+},{"./formats":251,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],253:[function(require,module,exports){
 module["exports"] = [
   "United States",
   "United States of America",
   "USA"
 ];
 
-},{}],242:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.default_country = require("./default_country");
 address.postcode_by_state = require("./postcode_by_state");
 
-},{"./default_country":241,"./postcode_by_state":243}],243:[function(require,module,exports){
+},{"./default_country":253,"./postcode_by_state":255}],255:[function(require,module,exports){
 module["exports"] = {
   "AL": "350##",
   "AK": "995##",
@@ -17202,7 +25361,7 @@ module["exports"] = {
   "WY": "831##"
 };
 
-},{}],244:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 var en_US = {};
 module['exports'] = en_US;
 en_US.title = "United States (English)";
@@ -17210,7 +25369,7 @@ en_US.internet = require("./internet");
 en_US.address = require("./address");
 en_US.phone_number = require("./phone_number");
 
-},{"./address":242,"./internet":246,"./phone_number":249}],245:[function(require,module,exports){
+},{"./address":254,"./internet":258,"./phone_number":261}],257:[function(require,module,exports){
 module["exports"] = [
   "com",
   "us",
@@ -17221,9 +25380,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],246:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":245,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],247:[function(require,module,exports){
+},{"./domain_suffix":257,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],259:[function(require,module,exports){
 module["exports"] = [
   "201",
   "202",
@@ -17510,22 +25669,22 @@ module["exports"] = [
   "989"
 ];
 
-},{}],248:[function(require,module,exports){
-module.exports=require(247)
-},{"/Users/a/dev/faker.js/lib/locales/en_US/phone_number/area_code.js":247}],249:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
+module.exports=require(259)
+},{"/Users/a/dev/faker.js/lib/locales/en_US/phone_number/area_code.js":259}],261:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.exchange_code = require("./exchange_code");
 
-},{"./area_code":247,"./exchange_code":248}],250:[function(require,module,exports){
-module.exports=require(173)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/building_number.js":173}],251:[function(require,module,exports){
+},{"./area_code":259,"./exchange_code":260}],262:[function(require,module,exports){
+module.exports=require(184)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/building_number.js":184}],263:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}"
 ];
 
-},{}],252:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 module["exports"] = [
   "Bondi",
   "Burleigh Heads",
@@ -17541,9 +25700,9 @@ module["exports"] = [
   "Yarra Valley"
 ];
 
-},{}],253:[function(require,module,exports){
-module.exports=require(174)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/default_country.js":174}],254:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
+module.exports=require(185)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/default_country.js":185}],266:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.street_root = require("./street_root");
@@ -17558,9 +25717,9 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":250,"./city":251,"./city_prefix":252,"./default_country":253,"./postcode":255,"./region":256,"./state":257,"./state_abbr":258,"./street_name":259,"./street_root":260,"./street_suffix":261}],255:[function(require,module,exports){
-module.exports=require(176)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/postcode.js":176}],256:[function(require,module,exports){
+},{"./building_number":262,"./city":263,"./city_prefix":264,"./default_country":265,"./postcode":267,"./region":268,"./state":269,"./state_abbr":270,"./street_name":271,"./street_root":272,"./street_suffix":273}],267:[function(require,module,exports){
+module.exports=require(187)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/postcode.js":187}],268:[function(require,module,exports){
 module["exports"] = [
   "South East Queensland",
   "Wide Bay Burnett",
@@ -17571,13 +25730,13 @@ module["exports"] = [
   "Barossa"
 ];
 
-},{}],257:[function(require,module,exports){
-module.exports=require(177)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state.js":177}],258:[function(require,module,exports){
-module.exports=require(178)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state_abbr.js":178}],259:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
+module.exports=require(188)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state.js":188}],270:[function(require,module,exports){
+module.exports=require(189)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/state_abbr.js":189}],271:[function(require,module,exports){
 module.exports=require(26)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":26}],260:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":26}],272:[function(require,module,exports){
 module["exports"] = [
   "Ramsay Street",
   "Bonnie Doon",
@@ -17585,13 +25744,13 @@ module["exports"] = [
   "Queen Street"
 ];
 
-},{}],261:[function(require,module,exports){
-module.exports=require(179)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/street_suffix.js":179}],262:[function(require,module,exports){
-module.exports=require(180)
-},{"./suffix":263,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":180}],263:[function(require,module,exports){
-module.exports=require(181)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/company/suffix.js":181}],264:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
+module.exports=require(190)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/address/street_suffix.js":190}],274:[function(require,module,exports){
+module.exports=require(191)
+},{"./suffix":275,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":191}],275:[function(require,module,exports){
+module.exports=require(192)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/company/suffix.js":192}],276:[function(require,module,exports){
 var en_au_ocker = {};
 module['exports'] = en_au_ocker;
 en_au_ocker.title = "Australia Ocker (English)";
@@ -17601,11 +25760,11 @@ en_au_ocker.internet = require("./internet");
 en_au_ocker.address = require("./address");
 en_au_ocker.phone_number = require("./phone_number");
 
-},{"./address":254,"./company":262,"./internet":266,"./name":268,"./phone_number":272}],265:[function(require,module,exports){
-module.exports=require(183)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/internet/domain_suffix.js":183}],266:[function(require,module,exports){
+},{"./address":266,"./company":274,"./internet":278,"./name":280,"./phone_number":284}],277:[function(require,module,exports){
+module.exports=require(194)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/internet/domain_suffix.js":194}],278:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":265,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],267:[function(require,module,exports){
+},{"./domain_suffix":277,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],279:[function(require,module,exports){
 module["exports"] = [
   "Charlotte",
   "Ava",
@@ -17713,14 +25872,14 @@ module["exports"] = [
   "Sean"
 ];
 
-},{}],268:[function(require,module,exports){
+},{}],280:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.ocker_first_name = require("./ocker_first_name");
 
-},{"./first_name":267,"./last_name":269,"./ocker_first_name":270}],269:[function(require,module,exports){
+},{"./first_name":279,"./last_name":281,"./ocker_first_name":282}],281:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -17748,7 +25907,7 @@ module["exports"] = [
   "LeQuesne"
 ];
 
-},{}],270:[function(require,module,exports){
+},{}],282:[function(require,module,exports){
 module["exports"] = [
   "Bazza",
   "Bluey",
@@ -17758,11 +25917,11 @@ module["exports"] = [
   "Shazza"
 ];
 
-},{}],271:[function(require,module,exports){
-module.exports=require(188)
-},{"/Users/a/dev/faker.js/lib/locales/en_AU/phone_number/formats.js":188}],272:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
+module.exports=require(199)
+},{"/Users/a/dev/faker.js/lib/locales/en_AU/phone_number/formats.js":199}],284:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":271,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],273:[function(require,module,exports){
+},{"./formats":283,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],285:[function(require,module,exports){
 module["exports"] = [
   " s/n.",
   ", #",
@@ -17771,9 +25930,9 @@ module["exports"] = [
   " ##"
 ];
 
-},{}],274:[function(require,module,exports){
-module.exports=require(251)
-},{"/Users/a/dev/faker.js/lib/locales/en_au_ocker/address/city.js":251}],275:[function(require,module,exports){
+},{}],286:[function(require,module,exports){
+module.exports=require(263)
+},{"/Users/a/dev/faker.js/lib/locales/en_au_ocker/address/city.js":263}],287:[function(require,module,exports){
 module["exports"] = [
   "Parla",
   "Telde",
@@ -17906,7 +26065,7 @@ module["exports"] = [
   "Inca"
 ];
 
-},{}],276:[function(require,module,exports){
+},{}],288:[function(require,module,exports){
 module["exports"] = [
   "Afganistán",
   "Albania",
@@ -18090,12 +26249,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],277:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 module["exports"] = [
   "España"
 ];
 
-},{}],278:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -18113,12 +26272,12 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":273,"./city":274,"./city_prefix":275,"./country":276,"./default_country":277,"./postcode":279,"./province":280,"./secondary_address":281,"./state":282,"./state_abbr":283,"./street_address":284,"./street_name":285,"./street_suffix":286,"./time_zone":287}],279:[function(require,module,exports){
+},{"./building_number":285,"./city":286,"./city_prefix":287,"./country":288,"./default_country":289,"./postcode":291,"./province":292,"./secondary_address":293,"./state":294,"./state_abbr":295,"./street_address":296,"./street_name":297,"./street_suffix":298,"./time_zone":299}],291:[function(require,module,exports){
 module["exports"] = [
   "#####"
 ];
 
-},{}],280:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 module["exports"] = [
   "Álava",
   "Albacete",
@@ -18172,13 +26331,13 @@ module["exports"] = [
   "Zaragoza"
 ];
 
-},{}],281:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 module["exports"] = [
   "Esc. ###",
   "Puerta ###"
 ];
 
-},{}],282:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 module["exports"] = [
   "Andalucía",
   "Aragón",
@@ -18199,7 +26358,7 @@ module["exports"] = [
   "Región de Murcia"
 ];
 
-},{}],283:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 module["exports"] = [
   "And",
   "Ara",
@@ -18220,19 +26379,19 @@ module["exports"] = [
   "Mur"
 ];
 
-},{}],284:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}",
   "#{street_name}#{building_number} #{secondary_address}"
 ];
 
-},{}],285:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.first_name} #{Name.last_name}"
 ];
 
-},{}],286:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 module["exports"] = [
   "Aldea",
   "Apartamento",
@@ -18306,7 +26465,7 @@ module["exports"] = [
   "Vía Pública"
 ];
 
-},{}],287:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 module["exports"] = [
   "Pacífico/Midway",
   "Pacífico/Pago_Pago",
@@ -18453,7 +26612,7 @@ module["exports"] = [
   "Pacífico/Apia"
 ];
 
-},{}],288:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 module["exports"] = [
   "6##-###-###",
   "6##.###.###",
@@ -18461,9 +26620,9 @@ module["exports"] = [
   "6########"
 ];
 
-},{}],289:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":288,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],290:[function(require,module,exports){
+},{"./formats":300,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],302:[function(require,module,exports){
 module["exports"] = [
   "Adaptativo",
   "Avanzado",
@@ -18552,7 +26711,7 @@ module["exports"] = [
   "Visionario"
 ];
 
-},{}],291:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 module["exports"] = [
   "24 horas",
   "24/7",
@@ -18637,7 +26796,7 @@ module["exports"] = [
   "tolerancia cero"
 ];
 
-},{}],292:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -18646,7 +26805,7 @@ company.descriptor = require("./descriptor");
 company.adjective = require("./adjective");
 company.name = require("./name");
 
-},{"./adjective":290,"./descriptor":291,"./name":293,"./noun":294,"./suffix":295}],293:[function(require,module,exports){
+},{"./adjective":302,"./descriptor":303,"./name":305,"./noun":306,"./suffix":307}],305:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} y #{Name.last_name}",
@@ -18654,7 +26813,7 @@ module["exports"] = [
   "#{Name.last_name}, #{Name.last_name} y #{Name.last_name} Asociados"
 ];
 
-},{}],294:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 module["exports"] = [
   "habilidad",
   "acceso",
@@ -18751,7 +26910,7 @@ module["exports"] = [
   "fuerza de trabajo"
 ];
 
-},{}],295:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 module["exports"] = [
   "S.L.",
   "e Hijos",
@@ -18759,7 +26918,7 @@ module["exports"] = [
   "Hermanos"
 ];
 
-},{}],296:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 var es = {};
 module['exports'] = es;
 es.title = "Spanish";
@@ -18770,7 +26929,7 @@ es.name = require("./name");
 es.phone_number = require("./phone_number");
 es.cell_phone = require("./cell_phone");
 
-},{"./address":278,"./cell_phone":289,"./company":292,"./internet":299,"./name":301,"./phone_number":308}],297:[function(require,module,exports){
+},{"./address":290,"./cell_phone":301,"./company":304,"./internet":311,"./name":313,"./phone_number":320}],309:[function(require,module,exports){
 module["exports"] = [
   "com",
   "es",
@@ -18779,11 +26938,11 @@ module["exports"] = [
   "org"
 ];
 
-},{}],298:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 module.exports=require(36)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],299:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],311:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":297,"./free_email":298,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],300:[function(require,module,exports){
+},{"./domain_suffix":309,"./free_email":310,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],312:[function(require,module,exports){
 module["exports"] = [
   "Adán",
   "Agustín",
@@ -18999,9 +27158,9 @@ module["exports"] = [
   "Yolanda"
 ];
 
-},{}],301:[function(require,module,exports){
-arguments[4][162][0].apply(exports,arguments)
-},{"./first_name":300,"./last_name":302,"./name":303,"./prefix":304,"./suffix":305,"./title":306,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":162}],302:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
+arguments[4][171][0].apply(exports,arguments)
+},{"./first_name":312,"./last_name":314,"./name":315,"./prefix":316,"./suffix":317,"./title":318,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":171}],314:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
   "Abrego",
@@ -19643,7 +27802,7 @@ module["exports"] = [
   "Zúñiga"
 ];
 
-},{}],303:[function(require,module,exports){
+},{}],315:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
@@ -19652,16 +27811,16 @@ module["exports"] = [
   "#{first_name} #{last_name} #{last_name}"
 ];
 
-},{}],304:[function(require,module,exports){
+},{}],316:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
   "Sta."
 ];
 
-},{}],305:[function(require,module,exports){
-module.exports=require(166)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/suffix.js":166}],306:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
+module.exports=require(175)
+},{"/Users/a/dev/faker.js/lib/locales/en/name/suffix.js":175}],318:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -19753,7 +27912,7 @@ module["exports"] = {
   ]
 };
 
-},{}],307:[function(require,module,exports){
+},{}],319:[function(require,module,exports){
 module["exports"] = [
   "9##-###-###",
   "9##.###.###",
@@ -19761,15 +27920,2514 @@ module["exports"] = [
   "9########"
 ];
 
-},{}],308:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":307,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],309:[function(require,module,exports){
+},{"./formats":319,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],321:[function(require,module,exports){
+module["exports"] = [
+  " s/n.",
+  ", #",
+  ", ##",
+  " #",
+  " ##",
+  " ###",
+  " ####"
+];
+
+},{}],322:[function(require,module,exports){
+module.exports=require(263)
+},{"/Users/a/dev/faker.js/lib/locales/en_au_ocker/address/city.js":263}],323:[function(require,module,exports){
+module["exports"] = [
+  "Aguascalientes",
+  "Apodaca",
+  "Buenavista",
+  "Campeche",
+  "Cancún",
+  "Cárdenas",
+  "Celaya",
+  "Chalco",
+  "Chetumal",
+  "Chicoloapan",
+  "Chignahuapan",
+  "Chihuahua",
+  "Chilpancingo",
+  "Chimalhuacán",
+  "Ciudad Acuña",
+  "Ciudad de México",
+  "Ciudad del Carmen",
+  "Ciudad López Mateos",
+  "Ciudad Madero",
+  "Ciudad Obregón",
+  "Ciudad Valles",
+  "Ciudad Victoria",
+  "Coatzacoalcos",
+  "Colima-Villa de Álvarez",
+  "Comitán de Dominguez",
+  "Córdoba",
+  "Cuautitlán Izcalli",
+  "Cuautla",
+  "Cuernavaca",
+  "Culiacán",
+  "Delicias",
+  "Durango",
+  "Ensenada",
+  "Fresnillo",
+  "General Escobedo",
+  "Gómez Palacio",
+  "Guadalajara",
+  "Guadalupe",
+  "Guanajuato",
+  "Guaymas",
+  "Hermosillo",
+  "Hidalgo del Parral",
+  "Iguala",
+  "Irapuato",
+  "Ixtapaluca",
+  "Jiutepec",
+  "Juárez",
+  "La Laguna",
+  "La Paz",
+  "La Piedad-Pénjamo",
+  "León",
+  "Los Cabos",
+  "Los Mochis",
+  "Manzanillo",
+  "Matamoros",
+  "Mazatlán",
+  "Mérida",
+  "Mexicali",
+  "Minatitlán",
+  "Miramar",
+  "Monclova",
+  "Monclova-Frontera",
+  "Monterrey",
+  "Morelia",
+  "Naucalpan de Juárez",
+  "Navojoa",
+  "Nezahualcóyotl",
+  "Nogales",
+  "Nuevo Laredo",
+  "Oaxaca",
+  "Ocotlán",
+  "Ojo de agua",
+  "Orizaba",
+  "Pachuca",
+  "Piedras Negras",
+  "Poza Rica",
+  "Puebla",
+  "Puerto Vallarta",
+  "Querétaro",
+  "Reynosa-Río Bravo",
+  "Rioverde-Ciudad Fernández",
+  "Salamanca",
+  "Saltillo",
+  "San Cristobal de las Casas",
+  "San Francisco Coacalco",
+  "San Francisco del Rincón",
+  "San Juan Bautista Tuxtepec",
+  "San Juan del Río",
+  "San Luis Potosí-Soledad",
+  "San Luis Río Colorado",
+  "San Nicolás de los Garza",
+  "San Pablo de las Salinas",
+  "San Pedro Garza García",
+  "Santa Catarina",
+  "Soledad de Graciano Sánchez",
+  "Tampico-Pánuco",
+  "Tapachula",
+  "Tecomán",
+  "Tehuacán",
+  "Tehuacán",
+  "Tehuantepec-Salina Cruz",
+  "Tepexpan",
+  "Tepic",
+  "Tetela de Ocampo",
+  "Texcoco de Mora",
+  "Tijuana",
+  "Tlalnepantla",
+  "Tlaquepaque",
+  "Tlaxcala-Apizaco",
+  "Toluca",
+  "Tonalá",
+  "Torreón",
+  "Tula",
+  "Tulancingo",
+  "Tulancingo de Bravo",
+  "Tuxtla Gutiérrez",
+  "Uruapan",
+  "Uruapan del Progreso",
+  "Valle de México",
+  "Veracruz",
+  "Villa de Álvarez",
+  "Villa Nicolás Romero",
+  "Villahermosa",
+  "Xalapa",
+  "Zacatecas-Guadalupe",
+  "Zacatlan",
+  "Zacatzingo",
+  "Zamora-Jacona",
+  "Zapopan",
+  "Zitacuaro"
+];
+
+},{}],324:[function(require,module,exports){
+module.exports=require(99)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/city_suffix.js":99}],325:[function(require,module,exports){
+module["exports"] = [
+  "Afganistán",
+  "Albania",
+  "Argelia",
+  "Andorra",
+  "Angola",
+  "Argentina",
+  "Armenia",
+  "Aruba",
+  "Australia",
+  "Austria",
+  "Azerbayán",
+  "Bahamas",
+  "Barein",
+  "Bangladesh",
+  "Barbados",
+  "Bielorusia",
+  "Bélgica",
+  "Belice",
+  "Bermuda",
+  "Bután",
+  "Bolivia",
+  "Bosnia Herzegovina",
+  "Botswana",
+  "Brasil",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Camboya",
+  "Camerún",
+  "Canada",
+  "Cabo Verde",
+  "Islas Caimán",
+  "Chad",
+  "Chile",
+  "China",
+  "Isla de Navidad",
+  "Colombia",
+  "Comodos",
+  "Congo",
+  "Costa Rica",
+  "Costa de Marfil",
+  "Croacia",
+  "Cuba",
+  "Chipre",
+  "República Checa",
+  "Dinamarca",
+  "Dominica",
+  "República Dominicana",
+  "Ecuador",
+  "Egipto",
+  "El Salvador",
+  "Guinea Ecuatorial",
+  "Eritrea",
+  "Estonia",
+  "Etiopía",
+  "Islas Faro",
+  "Fiji",
+  "Finlandia",
+  "Francia",
+  "Gabón",
+  "Gambia",
+  "Georgia",
+  "Alemania",
+  "Ghana",
+  "Grecia",
+  "Groenlandia",
+  "Granada",
+  "Guadalupe",
+  "Guam",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bisau",
+  "Guayana",
+  "Haiti",
+  "Honduras",
+  "Hong Kong",
+  "Hungria",
+  "Islandia",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Irak",
+  "Irlanda",
+  "Italia",
+  "Jamaica",
+  "Japón",
+  "Jordania",
+  "Kazajistan",
+  "Kenia",
+  "Kiribati",
+  "Corea",
+  "Kuwait",
+  "Letonia",
+  "Líbano",
+  "Liberia",
+  "Liechtenstein",
+  "Lituania",
+  "Luxemburgo",
+  "Macao",
+  "Macedonia",
+  "Madagascar",
+  "Malawi",
+  "Malasia",
+  "Maldivas",
+  "Mali",
+  "Malta",
+  "Martinica",
+  "Mauritania",
+  "México",
+  "Micronesia",
+  "Moldavia",
+  "Mónaco",
+  "Mongolia",
+  "Montenegro",
+  "Montserrat",
+  "Marruecos",
+  "Mozambique",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Holanda",
+  "Nueva Zelanda",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "Noruega",
+  "Omán",
+  "Pakistan",
+  "Panamá",
+  "Papúa Nueva Guinea",
+  "Paraguay",
+  "Perú",
+  "Filipinas",
+  "Poland",
+  "Portugal",
+  "Puerto Rico",
+  "Rusia",
+  "Ruanda",
+  "Samoa",
+  "San Marino",
+  "Santo Tomé y Principe",
+  "Arabia Saudí",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leona",
+  "Singapur",
+  "Eslovaquia",
+  "Eslovenia",
+  "Somalia",
+  "España",
+  "Sri Lanka",
+  "Sudán",
+  "Suriname",
+  "Suecia",
+  "Suiza",
+  "Siria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Tailandia",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad y Tobago",
+  "Tunez",
+  "Turquia",
+  "Uganda",
+  "Ucrania",
+  "Emiratos Árabes Unidos",
+  "Reino Unido",
+  "Estados Unidos de América",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe"
+];
+
+},{}],326:[function(require,module,exports){
+module["exports"] = [
+  "México"
+];
+
+},{}],327:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.city_prefix = require("./city_prefix");
+address.city_suffix = require("./city_suffix");
+address.country = require("./country");
+address.building_number = require("./building_number");
+address.street_suffix = require("./street_suffix");
+address.secondary_address = require("./secondary_address");
+address.postcode = require("./postcode");
+address.state = require("./state");
+address.state_abbr = require("./state_abbr");
+address.time_zone = require("./time_zone");
+address.city = require("./city");
+address.street = require("./street");
+address.street_name = require("./street_name");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+},{"./building_number":321,"./city":322,"./city_prefix":323,"./city_suffix":324,"./country":325,"./default_country":326,"./postcode":328,"./secondary_address":329,"./state":330,"./state_abbr":331,"./street":332,"./street_address":333,"./street_name":334,"./street_suffix":335,"./time_zone":336}],328:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],329:[function(require,module,exports){
+module["exports"] = [
+  "Esc. ###",
+  "Puerta ###",
+  "Edificio #"
+];
+
+},{}],330:[function(require,module,exports){
+module["exports"] = [
+  "Aguascalientes",
+  "Baja California Norte",
+  "Baja California Sur",
+  'Estado de México',
+  "Campeche",
+  "Chiapas",
+  "Chihuahua",
+  "Coahuila",
+  "Colima",
+  "Durango",
+  "Guanajuato",
+  "Guerrero",
+  "Hidalgo",
+  "Jalisco",
+  "Michoacan",
+  "Morelos",
+  "Nayarit",
+  'Nuevo León',
+  "Oaxaca",
+  "Puebla",
+  "Querétaro",
+  "Quintana Roo",
+  "San Luis Potosí",
+  "Sinaloa",
+  "Sonora",
+  "Tabasco",
+  "Tamaulipas",
+  "Tlaxcala",
+  "Veracruz",
+  "Yucatán",
+  "Zacatecas"
+];
+
+},{}],331:[function(require,module,exports){
+module["exports"] = [
+  "AS",
+  "BC",
+  "BS",
+  "CC",
+  "CS",
+  "CH",
+  "CL",
+  "CM",
+  "DF",
+  "DG",
+  "GT",
+  "GR",
+  "HG",
+  "JC",
+  "MC",
+  "MN",
+  "MS",
+  "NT",
+  "NL",
+  "OC",
+  "PL",
+  "QT",
+  "QR",
+  "SP",
+  "SL",
+  "SR",
+  "TC",
+  "TS",
+  "TL",
+  "VZ",
+  "YN",
+  "ZS"
+];
+
+},{}],332:[function(require,module,exports){
+module["exports"] = [
+	"20 de Noviembre",
+	"Cinco de Mayo",
+	"Cuahutemoc",
+	"Manzanares",
+	"Donceles",
+	"Francisco I. Madero",
+	"Juárez",
+	"Repúplica de Cuba",
+	"Repúplica de Chile",
+	"Repúplica de Argentina",
+	"Repúplica de Uruguay",
+	"Isabel la Católica",
+	"Izazaga",
+	"Eje Central",
+	"Eje 6",
+	"Eje 5",
+	"La viga",
+	"Aniceto Ortega",
+	"Miguel Ángel de Quevedo",
+	"Amores",
+	"Coyoacán",
+	"Coruña",
+	"Batalla de Naco",
+	"La otra banda",
+	"Piedra del Comal",
+	"Balcón de los edecanes",
+	"Barrio la Lonja",
+	"Jicolapa",
+	"Zacatlán",
+	"Zapata",
+	"Polotitlan",
+	"Calimaya",
+	"Flor Marina",
+	"Flor Solvestre",
+	"San Miguel",
+	"Naranjo",
+	"Cedro",
+	"Jalisco",
+	"Avena"
+];
+},{}],333:[function(require,module,exports){
+module.exports=require(296)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/street_address.js":296}],334:[function(require,module,exports){
+module["exports"] = [
+  "#{street_suffix} #{Name.first_name}",
+  "#{street_suffix} #{Name.first_name} #{Name.last_name}",
+  "#{street_suffix} #{street}",
+  "#{street_suffix} #{street}",
+  "#{street_suffix} #{street}",
+  "#{street_suffix} #{street}"
+
+];
+
+},{}],335:[function(require,module,exports){
+module.exports=require(298)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/street_suffix.js":298}],336:[function(require,module,exports){
+module["exports"] = [
+  "Pacífico/Midway",
+  "Pacífico/Pago_Pago",
+  "Pacífico/Honolulu",
+  "America/Juneau",
+  "America/Los_Angeles",
+  "America/Tijuana",
+  "America/Denver",
+  "America/Phoenix",
+  "America/Chihuahua",
+  "America/Mazatlan",
+  "America/Chicago",
+  "America/Regina",
+  "America/Mexico_City",
+  "America/Monterrey",
+  "America/Guatemala",
+  "America/New_York",
+  "America/Indiana/Indianapolis",
+  "America/Bogota",
+  "America/Lima",
+  "America/Lima",
+  "America/Halifax",
+  "America/Caracas",
+  "America/La_Paz",
+  "America/Santiago",
+  "America/St_Johns",
+  "America/Sao_Paulo",
+  "America/Argentina/Buenos_Aires",
+  "America/Guyana",
+  "America/Godthab",
+  "Atlantic/South_Georgia",
+  "Atlantic/Azores",
+  "Atlantic/Cape_Verde",
+  "Europa/Dublin",
+  "Europa/London",
+  "Europa/Lisbon",
+  "Europa/London",
+  "Africa/Casablanca",
+  "Africa/Monrovia",
+  "Etc/UTC",
+  "Europa/Belgrade",
+  "Europa/Bratislava",
+  "Europa/Budapest",
+  "Europa/Ljubljana",
+  "Europa/Prague",
+  "Europa/Sarajevo",
+  "Europa/Skopje",
+  "Europa/Warsaw",
+  "Europa/Zagreb",
+  "Europa/Brussels",
+  "Europa/Copenhagen",
+  "Europa/Madrid",
+  "Europa/Paris",
+  "Europa/Amsterdam",
+  "Europa/Berlin",
+  "Europa/Berlin",
+  "Europa/Rome",
+  "Europa/Stockholm",
+  "Europa/Vienna",
+  "Africa/Algiers",
+  "Europa/Bucharest",
+  "Africa/Cairo",
+  "Europa/Helsinki",
+  "Europa/Kiev",
+  "Europa/Riga",
+  "Europa/Sofia",
+  "Europa/Tallinn",
+  "Europa/Vilnius",
+  "Europa/Athens",
+  "Europa/Istanbul",
+  "Europa/Minsk",
+  "Asia/Jerusalen",
+  "Africa/Harare",
+  "Africa/Johannesburg",
+  "Europa/Moscú",
+  "Europa/Moscú",
+  "Europa/Moscú",
+  "Asia/Kuwait",
+  "Asia/Riyadh",
+  "Africa/Nairobi",
+  "Asia/Baghdad",
+  "Asia/Tehran",
+  "Asia/Muscat",
+  "Asia/Muscat",
+  "Asia/Baku",
+  "Asia/Tbilisi",
+  "Asia/Yerevan",
+  "Asia/Kabul",
+  "Asia/Yekaterinburg",
+  "Asia/Karachi",
+  "Asia/Karachi",
+  "Asia/Tashkent",
+  "Asia/Kolkata",
+  "Asia/Kolkata",
+  "Asia/Kolkata",
+  "Asia/Kolkata",
+  "Asia/Kathmandu",
+  "Asia/Dhaka",
+  "Asia/Dhaka",
+  "Asia/Colombo",
+  "Asia/Almaty",
+  "Asia/Novosibirsk",
+  "Asia/Rangoon",
+  "Asia/Bangkok",
+  "Asia/Bangkok",
+  "Asia/Jakarta",
+  "Asia/Krasnoyarsk",
+  "Asia/Shanghai",
+  "Asia/Chongqing",
+  "Asia/Hong_Kong",
+  "Asia/Urumqi",
+  "Asia/Kuala_Lumpur",
+  "Asia/Singapore",
+  "Asia/Taipei",
+  "Australia/Perth",
+  "Asia/Irkutsk",
+  "Asia/Ulaanbaatar",
+  "Asia/Seoul",
+  "Asia/Tokyo",
+  "Asia/Tokyo",
+  "Asia/Tokyo",
+  "Asia/Yakutsk",
+  "Australia/Darwin",
+  "Australia/Adelaide",
+  "Australia/Melbourne",
+  "Australia/Melbourne",
+  "Australia/Sydney",
+  "Australia/Brisbane",
+  "Australia/Hobart",
+  "Asia/Vladivostok",
+  "Pacífico/Guam",
+  "Pacífico/Port_Moresby",
+  "Asia/Magadan",
+  "Asia/Magadan",
+  "Pacífico/Noumea",
+  "Pacífico/Fiji",
+  "Asia/Kamchatka",
+  "Pacífico/Majuro",
+  "Pacífico/Auckland",
+  "Pacífico/Auckland",
+  "Pacífico/Tongatapu",
+  "Pacífico/Fakaofo",
+  "Pacífico/Apia"
+];
+
+},{}],337:[function(require,module,exports){
+module["exports"] = [
+  "5##-###-###",
+  "5##.###.###",
+  "5## ### ###",
+  "5########"
+];
+
+},{}],338:[function(require,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"./formats":337,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],339:[function(require,module,exports){
+module["exports"] = [
+   "rojo",
+   "verde",
+   "azul",
+   "amarillo",
+   "morado",
+   "Menta verde",
+   "teal",
+   "blanco",
+   "negro",
+   "Naranja",
+   "Rosa",
+   "gris",
+   "marrón",
+   "violeta",
+   "turquesa",
+   "tan",
+   "cielo azul",
+   "salmón",
+   "ciruela",
+   "orquídea",
+   "aceituna",
+   "magenta",
+   "Lima",
+   "marfil",
+   "índigo",
+   "oro",
+   "fucsia",
+   "cian",
+   "azul",
+   "lavanda",
+   "plata"
+];
+
+},{}],340:[function(require,module,exports){
+module["exports"] = [
+   "Libros",
+   "Películas",
+   "Música",
+   "Juegos",
+   "Electrónica",
+   "Ordenadores",
+   "Hogar",
+   "Jardín",
+   "Herramientas",
+   "Ultramarinos",
+   "Salud",
+   "Belleza",
+   "Juguetes",
+   "Kids",
+   "Baby",
+   "Ropa",
+   "Zapatos",
+   "Joyería",
+   "Deportes",
+   "Aire libre",
+   "Automoción",
+   "Industrial"
+];
+
+},{}],341:[function(require,module,exports){
+arguments[4][126][0].apply(exports,arguments)
+},{"./color":339,"./department":340,"./product_name":342,"/Users/a/dev/faker.js/lib/locales/en/commerce/index.js":126}],342:[function(require,module,exports){
+module["exports"] = {
+"adjective": [
+     "Pequeño",
+     "Ergonómico",
+     "Rústico",
+     "Inteligente",
+     "Gorgeous",
+     "Increíble",
+     "Fantástico",
+     "Práctica",
+     "Elegante",
+     "Increíble",
+     "Genérica",
+     "Artesanal",
+     "Hecho a mano",
+     "Licencia",
+     "Refinado",
+     "Sin marca",
+     "Sabrosa"
+   ],
+"material": [
+     "Acero",
+     "Madera",
+     "Hormigón",
+     "Plástico",
+     "Cotton",
+     "Granito",
+     "Caucho",
+     "Metal",
+     "Soft",
+     "Fresco",
+     "Frozen"
+   ],
+"product": [
+     "Presidente",
+     "Auto",
+     "Computadora",
+     "Teclado",
+     "Ratón",
+     "Bike",
+     "Pelota",
+     "Guantes",
+     "Pantalones",
+     "Camisa",
+     "Mesa",
+     "Zapatos",
+     "Sombrero",
+     "Toallas",
+     "Jabón",
+     "Tuna",
+     "Pollo",
+     "Pescado",
+     "Queso",
+     "Tocino",
+     "Pizza",
+     "Ensalada",
+     "Embutidos"
+  ]
+};
+
+},{}],343:[function(require,module,exports){
+module.exports=require(302)
+},{"/Users/a/dev/faker.js/lib/locales/es/company/adjective.js":302}],344:[function(require,module,exports){
+module["exports"] = [
+  "Clics y mortero",
+  "Valor añadido",
+  "Vertical",
+  "Proactivo",
+  "Robusto",
+  "Revolucionario",
+  "Escalable",
+  "De vanguardia",
+  "Innovador",
+  "Intuitivo",
+  "Estratégico",
+  "E-business",
+  "Misión crítica",
+  "Pegajosa",
+  "Doce y cincuenta y nueve de la noche",
+  "24/7",
+  "De extremo a extremo",
+  "Global",
+  "B2B",
+  "B2C",
+  "Granular",
+  "Fricción",
+  "Virtual",
+  "Viral",
+  "Dinámico",
+  "24/365",
+  "Mejor de su clase",
+  "Asesino",
+  "Magnética",
+  "Filo sangriento",
+  "Habilitado web",
+  "Interactiva",
+  "Punto com",
+  "Sexy",
+  "Back-end",
+  "Tiempo real",
+  "Eficiente",
+  "Frontal",
+  "Distribuida",
+  "Sin costura",
+  "Extensible",
+  "Llave en mano",
+  "Clase mundial",
+  "Código abierto",
+  "Multiplataforma",
+  "Cross-media",
+  "Sinérgico",
+  "ladrillos y clics",
+  "Fuera de la caja",
+  "Empresa",
+  "Integrado",
+  "Impactante",
+  "Inalámbrico",
+  "Transparente",
+  "Próxima generación",
+  "Innovador",
+  "User-centric",
+  "Visionario",
+  "A medida",
+  "Ubicua",
+  "Enchufa y juega",
+  "Colaboración",
+  "Convincente",
+  "Holístico",
+  "Ricos"
+];
+
+},{}],345:[function(require,module,exports){
+module["exports"] = [
+   "sinergias",
+   "web-readiness",
+   "paradigmas",
+   "mercados",
+   "asociaciones",
+   "infraestructuras",
+   "plataformas",
+   "iniciativas",
+   "canales",
+   "ojos",
+   "comunidades",
+   "ROI",
+   "soluciones",
+   "minoristas electrónicos",
+   "e-servicios",
+   "elementos de acción",
+   "portales",
+   "nichos",
+   "tecnologías",
+   "contenido",
+   "vortales",
+   "cadenas de suministro",
+   "convergencia",
+   "relaciones",
+   "arquitecturas",
+   "interfaces",
+   "mercados electrónicos",
+   "e-commerce",
+   "sistemas",
+   "ancho de banda",
+   "infomediarios",
+   "modelos",
+   "Mindshare",
+   "entregables",
+   "usuarios",
+   "esquemas",
+   "redes",
+   "aplicaciones",
+   "métricas",
+   "e-business",
+   "funcionalidades",
+   "experiencias",
+   "servicios web",
+   "metodologías"
+];
+
+},{}],346:[function(require,module,exports){
+module["exports"] = [
+   "poner en práctica",
+   "utilizar",
+   "integrar",
+   "racionalizar",
+   "optimizar",
+   "evolucionar",
+   "transformar",
+   "abrazar",
+   "habilitar",
+   "orquestar",
+   "apalancamiento",
+   "reinventar",
+   "agregado",
+   "arquitecto",
+   "mejorar",
+   "incentivar",
+   "transformarse",
+   "empoderar",
+   "Envisioneer",
+   "monetizar",
+   "arnés",
+   "facilitar",
+   "aprovechar",
+   "desintermediar",
+   "sinergia",
+   "estrategias",
+   "desplegar",
+   "marca",
+   "crecer",
+   "objetivo",
+   "sindicato",
+   "sintetizar",
+   "entregue",
+   "malla",
+   "incubar",
+   "enganchar",
+   "maximizar",
+   "punto de referencia",
+   "acelerar",
+   "reintermediate",
+   "pizarra",
+   "visualizar",
+   "reutilizar",
+   "innovar",
+   "escala",
+   "desatar",
+   "conducir",
+   "extender",
+   "ingeniero",
+   "revolucionar",
+   "generar",
+   "explotar",
+   "transición",
+   "e-enable",
+   "repetir",
+   "cultivar",
+   "matriz",
+   "productize",
+   "redefinir",
+   "recontextualizar"
+]
+
+},{}],347:[function(require,module,exports){
+module.exports=require(303)
+},{"/Users/a/dev/faker.js/lib/locales/es/company/descriptor.js":303}],348:[function(require,module,exports){
+var company = {};
+module['exports'] = company;
+company.suffix = require("./suffix");
+company.adjective = require("./adjective");
+company.descriptor = require("./descriptor");
+company.noun = require("./noun");
+company.bs_verb = require("./bs_verb");
+company.name = require("./name");
+company.bs_adjective = require("./bs_adjective");
+company.bs_noun = require("./bs_noun");
+
+},{"./adjective":343,"./bs_adjective":344,"./bs_noun":345,"./bs_verb":346,"./descriptor":347,"./name":349,"./noun":350,"./suffix":351}],349:[function(require,module,exports){
+module.exports=require(305)
+},{"/Users/a/dev/faker.js/lib/locales/es/company/name.js":305}],350:[function(require,module,exports){
+module.exports=require(306)
+},{"/Users/a/dev/faker.js/lib/locales/es/company/noun.js":306}],351:[function(require,module,exports){
+module.exports=require(307)
+},{"/Users/a/dev/faker.js/lib/locales/es/company/suffix.js":307}],352:[function(require,module,exports){
+var es_MX = {};
+module['exports'] = es_MX;
+es_MX.title = "Spanish Mexico";
+es_MX.separator = " & ";
+es_MX.name = require("./name");
+es_MX.address = require("./address");
+es_MX.company = require("./company");
+es_MX.internet = require("./internet");
+es_MX.phone_number = require("./phone_number");
+es_MX.cell_phone = require("./cell_phone");
+es_MX.lorem = require("./lorem");
+es_MX.commerce = require("./commerce");
+es_MX.team = require("./team");
+},{"./address":327,"./cell_phone":338,"./commerce":341,"./company":348,"./internet":355,"./lorem":356,"./name":360,"./phone_number":367,"./team":369}],353:[function(require,module,exports){
+module["exports"] = [
+  "com",
+  "mx",
+  "info",
+  "com.mx",
+  "org",
+  "gob.mx"
+];
+
+},{}],354:[function(require,module,exports){
+module["exports"] = [
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+  "nearbpo.com",
+  "corpfolder.com"
+];
+
+},{}],355:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./domain_suffix":353,"./free_email":354,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],356:[function(require,module,exports){
+arguments[4][167][0].apply(exports,arguments)
+},{"./supplemental":357,"./words":358,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":167}],357:[function(require,module,exports){
+module.exports=require(168)
+},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":168}],358:[function(require,module,exports){
+module["exports"] = [
+"Abacalero",
+"Abacería",
+"Abacero",
+"Abacial",
+"Abaco",
+"Abacora",
+"Abacorar",
+"Abad",
+"Abada",
+"Abadejo",
+"Abadengo",
+"Abadernar",
+"Abadesa",
+"Abadí",
+"Abadía",
+"Abadiado",
+"Abadiato",
+"Abajadero",
+"Abajamiento",
+"Abajar",
+"Abajeño",
+"Abajera",
+"Abajo",
+"Abalada",
+"Abalanzar",
+"Abalar",
+"Abalaustrado",
+"Abaldonadamente",
+"Abaldonamiento",
+"Bastonada",
+"Bastonazo",
+"Bastoncillo",
+"Bastonear",
+"Bastonero",
+"Bástulo",
+"Basura",
+"Basural",
+"Basurear",
+"Basurero",
+"Bata",
+"Batacazo",
+"Batahola",
+"Batalán",
+"Batalla",
+"Batallador",
+"Batallar",
+"Batallaroso",
+"Batallola",
+"Batallón",
+"Batallona",
+"Batalloso",
+"Batán",
+"Batanar",
+"Batanear",
+"Batanero",
+"Batanga",
+"Bataola",
+"Batata",
+"Batatazo",
+"Batato",
+"Batavia",
+"Bátavo",
+"Batayola",
+"Batazo",
+"Bate",
+"Batea",
+"Bateador",
+"Bateaguas",
+"Cenagar",
+"Cenagoso",
+"Cenal",
+"Cenaoscuras",
+"Ceñar",
+"Cenata",
+"Cenca",
+"Cencapa",
+"Cencellada",
+"Cenceñada",
+"Cenceño",
+"Cencero",
+"Cencerra",
+"Cencerrada",
+"Cencerrado",
+"Cencerrear",
+"Cencerreo",
+"Cencerril",
+"Cencerrillas",
+"Cencerro",
+"Cencerrón",
+"Cencha",
+"Cencido",
+"Cencío",
+"Cencivera",
+"Cenco",
+"Cencuate",
+"Cendal",
+"Cendalí",
+"Céndea",
+"Cendolilla",
+"Cendra",
+"Cendrada",
+"Cendradilla",
+"Cendrado",
+"Cendrar",
+"Cendrazo",
+"Cenefa",
+"Cenegar",
+"Ceneque",
+"Cenero",
+"Cenestesia",
+"Desceñir",
+"Descensión",
+"Descenso",
+"Descentrado",
+"Descentralización",
+"Descentralizador",
+"Descentralizar",
+"Descentrar",
+"Descepar",
+"Descerar",
+"Descercado",
+"Descercador",
+"Descercar",
+"Descerco",
+"Descerebración",
+"Descerebrado",
+"Descerebrar",
+"Descerezar",
+"Descerrajado",
+"Descerrajadura",
+"Descerrajar",
+"Descerrar",
+"Descerrumarse",
+"Descervigamiento",
+"Descervigar",
+"Deschapar",
+"Descharchar",
+"Deschavetado",
+"Deschavetarse",
+"Deschuponar",
+"Descifrable",
+"Descifrador",
+"Desciframiento",
+"Descifrar",
+"Descifre",
+"Descimbramiento",
+"Descimbrar",
+"Engarbarse",
+"Engarberar",
+"Engarbullar",
+"Engarce",
+"Engarfiar",
+"Engargantadura",
+"Engargantar",
+"Engargante",
+"Engargolado",
+"Engargolar",
+"Engaritar",
+"Engarmarse",
+"Engarnio",
+"Engarrafador",
+"Engarrafar",
+"Engarrar",
+"Engarro",
+"Engarronar",
+"Engarrotar",
+"Engarzador",
+"Engarzadura",
+"Engarzar",
+"Engasgarse",
+"Engastador",
+"Engastadura",
+"Engastar",
+"Engaste",
+"Ficción",
+"Fice",
+"Ficha",
+"Fichaje",
+"Fichar",
+"Fichero",
+"Ficoideo",
+"Ficticio",
+"Fidalgo",
+"Fidecomiso",
+"Fidedigno",
+"Fideero",
+"Fideicomisario",
+"Fideicomiso",
+"Fideicomitente",
+"Fideísmo",
+"Fidelidad",
+"Fidelísimo",
+"Fideo",
+"Fido",
+"Fiducia",
+"Geminación",
+"Geminado",
+"Geminar",
+"Géminis",
+"Gémino",
+"Gemíparo",
+"Gemiquear",
+"Gemiqueo",
+"Gemir",
+"Gemología",
+"Gemológico",
+"Gemólogo",
+"Gemonias",
+"Gemoso",
+"Gemoterapia",
+"Gen",
+"Genciana",
+"Gencianáceo",
+"Gencianeo",
+"Gendarme",
+"Gendarmería",
+"Genealogía",
+"Genealógico",
+"Genealogista",
+"Genearca",
+"Geneático",
+"Generable",
+"Generación",
+"Generacional",
+"Generador",
+"General",
+"Generala",
+"Generalato",
+"Generalidad",
+"Generalísimo",
+"Incordio",
+"Incorporación",
+"Incorporal",
+"Incorporalmente",
+"Incorporar",
+"Incorporeidad",
+"Incorpóreo",
+"Incorporo",
+"Incorrección",
+"Incorrectamente",
+"Incorrecto",
+"Incorregibilidad",
+"Incorregible",
+"Incorregiblemente",
+"Incorrupción",
+"Incorruptamente",
+"Incorruptibilidad",
+"Incorruptible",
+"Incorrupto",
+"Incrasar",
+"Increado",
+"Incredibilidad",
+"Incrédulamente",
+"Incredulidad",
+"Incrédulo",
+"Increíble",
+"Increíblemente",
+"Incrementar",
+"Incremento",
+"Increpación",
+"Increpador",
+"Increpar",
+"Incriminación",
+"Incriminar",
+"Incristalizable",
+"Incruentamente",
+"Incruento",
+"Incrustación"
+];
+
+},{}],359:[function(require,module,exports){
+module["exports"] = [
+"Aarón",
+"Abraham",
+"Adán",
+"Agustín",
+"Alan",
+"Alberto",
+"Alejandro",
+"Alexander",
+"Alexis",
+"Alfonso",
+"Alfredo",
+"Andrés",
+"Ángel Daniel",
+"Ángel Gabriel",
+"Antonio",
+"Armando",
+"Arturo",
+"Axel",
+"Benito",
+"Benjamín",
+"Bernardo",
+"Brandon",
+"Brayan",
+"Carlos",
+"César",
+"Claudio",
+"Clemente",
+"Cristian",
+"Cristobal",
+"Damián",
+"Daniel",
+"David",
+"Diego",
+"Eduardo",
+"Elías",
+"Emiliano",
+"Emilio",
+"Emilio",
+"Emmanuel",
+"Enrique",
+"Erick",
+"Ernesto",
+"Esteban",
+"Federico",
+"Felipe",
+"Fernando",
+"Fernando Javier",
+"Francisco",
+"Francisco Javier",
+"Gabriel",
+"Gael",
+"Gerardo",
+"Germán",
+"Gilberto",
+"Gonzalo",
+"Gregorio",
+"Guillermo",
+"Gustavo",
+"Hernán",
+"Homero",
+"Horacio",
+"Hugo",
+"Ignacio",
+"Iker",
+"Isaac",
+"Isaias",
+"Israel",
+"Ivan",
+"Jacobo",
+"Jaime",
+"Javier",
+"Jerónimo",
+"Jesús",
+"Joaquín",
+"Jorge",
+"Jorge Luis",
+"José",
+"José Antonio",
+"Jose Daniel",
+"José Eduardo",
+"José Emilio",
+"José Luis",
+"José María",
+"José Miguel",
+"Juan",
+"Juan Carlos",
+"Juan Manuel",
+"Juan Pablo",
+"Julio",
+"Julio César",
+"Kevin",
+"Leonardo",
+"Lorenzo",
+"Lucas",
+"Luis",
+"Luis Ángel",
+"Luis Fernando",
+"Luis Gabino",
+"Luis Miguel",
+"Manuel",
+"Marco Antonio",
+"Marcos",
+"Mariano",
+"Mario",
+"Martín",
+"Mateo",
+"Matías",
+"Mauricio",
+"Maximiliano",
+"Miguel",
+"Miguel Ángel",
+"Nicolás",
+"Octavio",
+"Óscar",
+"Pablo",
+"Patricio",
+"Pedro",
+"Rafael",
+"Ramiro",
+"Ramón",
+"Raúl",
+"Ricardo",
+"Roberto",
+"Rodrigo",
+"Rubén",
+"Salvador",
+"Samuel",
+"Sancho",
+"Santiago",
+"Saúl",
+"Sebastian",
+"Sergio",
+"Tadeo",
+"Teodoro",
+"Timoteo",
+"Tomás",
+"Uriel",
+"Vicente",
+"Víctor",
+"Victor Manuel",
+"Adriana",
+"Alejandra",
+"Alicia",
+"Amalia",
+"Ana",
+"Ana Luisa",
+"Ana María",
+"Andrea",
+"Ángela",
+"Anita",
+"Antonia",
+"Araceli",
+"Ariadna",
+"Barbara",
+"Beatriz",
+"Berta",
+"Blanca",
+"Caridad",
+"Carla",
+"Carlota",
+"Carmen",
+"Carolina",
+"Catalina",
+"Cecilia",
+"Clara",
+"Claudia",
+"Concepción",
+"Conchita",
+"Cristina",
+"Daniela",
+"Débora",
+"Diana",
+"Dolores",
+"Dorotea",
+"Elena",
+"Elisa",
+"Elizabeth",
+"Eloisa",
+"Elsa",
+"Elvira",
+"Emilia",
+"Esperanza",
+"Estela",
+"Ester",
+"Eva",
+"Florencia",
+"Francisca",
+"Gabriela",
+"Gloria",
+"Graciela",
+"Guadalupe",
+"Guillermina",
+"Inés",
+"Irene",
+"Isabel",
+"Isabela",
+"Josefina",
+"Juana",
+"Julia",
+"Laura",
+"Leonor",
+"Leticia",
+"Lilia",
+"Lola",
+"Lorena",
+"Lourdes",
+"Lucia",
+"Luisa",
+"Luz",
+"Magdalena",
+"Manuela",
+"Marcela",
+"Margarita",
+"María",
+"María Cristina",
+"María de Jesús",
+"María de los Ángeles",
+"María del Carmen",
+"María Elena",
+"María Eugenia",
+"María Guadalupe",
+"María José",
+"María Luisa",
+"María Soledad",
+"María Teresa",
+"Mariana",
+"Maricarmen",
+"Marilu",
+"Marisol",
+"Marta",
+"Mayte",
+"Mercedes",
+"Micaela",
+"Mónica",
+"Natalia",
+"Norma",
+"Olivia",
+"Patricia",
+"Pilar",
+"Ramona",
+"Raquel",
+"Rebeca",
+"Reina",
+"Rocio",
+"Rosa",
+"Rosa María",
+"Rosalia",
+"Rosario",
+"Sara",
+"Silvia",
+"Sofia",
+"Soledad",
+"Sonia",
+"Susana",
+"Teresa",
+"Verónica",
+"Victoria",
+"Virginia",
+"Xochitl",
+"Yolanda",
+"Abigail",
+"Abril",
+"Adela",
+"Alexa",
+"Alondra Romina",
+"Ana Sofía",
+"Ana Victoria",
+"Camila",
+"Carolina",
+"Daniela",
+"Dulce María",
+"Emily",
+"Esmeralda",
+"Estefanía",
+"Evelyn",
+"Fatima",
+"Ivanna",
+"Jazmin",
+"Jennifer",
+"Jimena",
+"Julieta",
+"Kimberly",
+"Liliana",
+"Lizbeth",
+"María Fernanda",
+"Melany",
+"Melissa",
+"Miranda",
+"Monserrat",
+"Naomi",
+"Natalia",
+"Nicole",
+"Paola",
+"Paulina",
+"Regina",
+"Renata",
+"Valentina",
+"Valeria",
+"Vanessa",
+"Ximena",
+"Ximena Guadalupe",
+"Yamileth",
+"Yaretzi",
+"Zoe"
+]
+},{}],360:[function(require,module,exports){
+arguments[4][171][0].apply(exports,arguments)
+},{"./first_name":359,"./last_name":361,"./name":362,"./prefix":363,"./suffix":364,"./title":365,"/Users/a/dev/faker.js/lib/locales/en/name/index.js":171}],361:[function(require,module,exports){
+module["exports"] = [
+  "Abeyta",
+"Abrego",
+"Abreu",
+"Acevedo",
+"Acosta",
+"Acuña",
+"Adame",
+"Adorno",
+"Agosto",
+"Aguayo",
+"Águilar",
+"Aguilera",
+"Aguirre",
+"Alanis",
+"Alaniz",
+"Alarcón",
+"Alba",
+"Alcala",
+"Alcántar",
+"Alcaraz",
+"Alejandro",
+"Alemán",
+"Alfaro",
+"Alicea",
+"Almanza",
+"Almaraz",
+"Almonte",
+"Alonso",
+"Alonzo",
+"Altamirano",
+"Alva",
+"Alvarado",
+"Alvarez",
+"Amador",
+"Amaya",
+"Anaya",
+"Anguiano",
+"Angulo",
+"Aparicio",
+"Apodaca",
+"Aponte",
+"Aragón",
+"Aranda",
+"Araña",
+"Arce",
+"Archuleta",
+"Arellano",
+"Arenas",
+"Arevalo",
+"Arguello",
+"Arias",
+"Armas",
+"Armendáriz",
+"Armenta",
+"Armijo",
+"Arredondo",
+"Arreola",
+"Arriaga",
+"Arroyo",
+"Arteaga",
+"Atencio",
+"Ávalos",
+"Ávila",
+"Avilés",
+"Ayala",
+"Baca",
+"Badillo",
+"Báez",
+"Baeza",
+"Bahena",
+"Balderas",
+"Ballesteros",
+"Banda",
+"Bañuelos",
+"Barajas",
+"Barela",
+"Barragán",
+"Barraza",
+"Barrera",
+"Barreto",
+"Barrientos",
+"Barrios",
+"Batista",
+"Becerra",
+"Beltrán",
+"Benavides",
+"Benavídez",
+"Benítez",
+"Bermúdez",
+"Bernal",
+"Berríos",
+"Bétancourt",
+"Blanco",
+"Bonilla",
+"Borrego",
+"Botello",
+"Bravo",
+"Briones",
+"Briseño",
+"Brito",
+"Bueno",
+"Burgos",
+"Bustamante",
+"Bustos",
+"Caballero",
+"Cabán",
+"Cabrera",
+"Cadena",
+"Caldera",
+"Calderón",
+"Calvillo",
+"Camacho",
+"Camarillo",
+"Campos",
+"Canales",
+"Candelaria",
+"Cano",
+"Cantú",
+"Caraballo",
+"Carbajal",
+"Cardenas",
+"Cardona",
+"Carmona",
+"Carranza",
+"Carrasco",
+"Carrasquillo",
+"Carreón",
+"Carrera",
+"Carrero",
+"Carrillo",
+"Carrion",
+"Carvajal",
+"Casanova",
+"Casares",
+"Casárez",
+"Casas",
+"Casillas",
+"Castañeda",
+"Castellanos",
+"Castillo",
+"Castro",
+"Cavazos",
+"Cazares",
+"Ceballos",
+"Cedillo",
+"Ceja",
+"Centeno",
+"Cepeda",
+"Cerda",
+"Cervantes",
+"Cervántez",
+"Chacón",
+"Chapa",
+"Chavarría",
+"Chávez",
+"Cintrón",
+"Cisneros",
+"Collado",
+"Collazo",
+"Colón",
+"Colunga",
+"Concepción",
+"Contreras",
+"Cordero",
+"Córdova",
+"Cornejo",
+"Corona",
+"Coronado",
+"Corral",
+"Corrales",
+"Correa",
+"Cortés",
+"Cortez",
+"Cotto",
+"Covarrubias",
+"Crespo",
+"Cruz",
+"Cuellar",
+"Curiel",
+"Dávila",
+"de Anda",
+"de Jesús",
+"Delacrúz",
+"Delafuente",
+"Delagarza",
+"Delao",
+"Delapaz",
+"Delarosa",
+"Delatorre",
+"Deleón",
+"Delgadillo",
+"Delgado",
+"Delrío",
+"Delvalle",
+"Díaz",
+"Domínguez",
+"Domínquez",
+"Duarte",
+"Dueñas",
+"Duran",
+"Echevarría",
+"Elizondo",
+"Enríquez",
+"Escalante",
+"Escamilla",
+"Escobar",
+"Escobedo",
+"Esparza",
+"Espinal",
+"Espino",
+"Espinosa",
+"Espinoza",
+"Esquibel",
+"Esquivel",
+"Estévez",
+"Estrada",
+"Fajardo",
+"Farías",
+"Feliciano",
+"Fernández",
+"Ferrer",
+"Fierro",
+"Figueroa",
+"Flores",
+"Flórez",
+"Fonseca",
+"Franco",
+"Frías",
+"Fuentes",
+"Gaitán",
+"Galarza",
+"Galindo",
+"Gallardo",
+"Gallegos",
+"Galván",
+"Gálvez",
+"Gamboa",
+"Gamez",
+"Gaona",
+"Garay",
+"García",
+"Garibay",
+"Garica",
+"Garrido",
+"Garza",
+"Gastélum",
+"Gaytán",
+"Gil",
+"Girón",
+"Godínez",
+"Godoy",
+"Gollum",
+"Gómez",
+"Gonzales",
+"González",
+"Gracia",
+"Granado",
+"Granados",
+"Griego",
+"Grijalva",
+"Guajardo",
+"Guardado",
+"Guerra",
+"Guerrero",
+"Guevara",
+"Guillen",
+"Gurule",
+"Gutiérrez",
+"Guzmán",
+"Haro",
+"Henríquez",
+"Heredia",
+"Hernádez",
+"Hernandes",
+"Hernández",
+"Herrera",
+"Hidalgo",
+"Hinojosa",
+"Holguín",
+"Huerta",
+"Huixtlacatl",
+"Hurtado",
+"Ibarra",
+"Iglesias",
+"Irizarry",
+"Jaime",
+"Jaimes",
+"Jáquez",
+"Jaramillo",
+"Jasso",
+"Jiménez",
+"Jimínez",
+"Juárez",
+"Jurado",
+"Kadar rodriguez",
+"Kamal",
+"Kamat",
+"Kanaria",
+"Kanea",
+"Kanimal",
+"Kano",
+"Kanzaki",
+"Kaplan",
+"Kara",
+"Karam",
+"Karan",
+"Kardache soto",
+"Karem",
+"Karen",
+"Khalid",
+"Kindelan",
+"Koenig",
+"Korta",
+"Korta hernandez",
+"Kortajarena",
+"Kranz sans",
+"Krasnova",
+"Krauel natera",
+"Kuzmina",
+"Kyra",
+"Laboy",
+"Lara",
+"Laureano",
+"Leal",
+"Lebrón",
+"Ledesma",
+"Leiva",
+"Lemus",
+"León",
+"Lerma",
+"Leyva",
+"Limón",
+"Linares",
+"Lira",
+"Llamas",
+"Loera",
+"Lomeli",
+"Longoria",
+"López",
+"Lovato",
+"Loya",
+"Lozada",
+"Lozano",
+"Lucero",
+"Lucio",
+"Luevano",
+"Lugo",
+"Luna",
+"Macías",
+"Madera",
+"Madrid",
+"Madrigal",
+"Maestas",
+"Magaña",
+"Malave",
+"Maldonado",
+"Manzanares",
+"Mares",
+"Marín",
+"Márquez",
+"Marrero",
+"Marroquín",
+"Martínez",
+"Mascareñas",
+"Mata",
+"Mateo",
+"Matías",
+"Matos",
+"Maya",
+"Mayorga",
+"Medina",
+"Medrano",
+"Mejía",
+"Meléndez",
+"Melgar",
+"Mena",
+"Menchaca",
+"Méndez",
+"Mendoza",
+"Menéndez",
+"Meraz",
+"Mercado",
+"Merino",
+"Mesa",
+"Meza",
+"Miramontes",
+"Miranda",
+"Mireles",
+"Mojica",
+"Molina",
+"Mondragón",
+"Monroy",
+"Montalvo",
+"Montañez",
+"Montaño",
+"Montemayor",
+"Montenegro",
+"Montero",
+"Montes",
+"Montez",
+"Montoya",
+"Mora",
+"Morales",
+"Moreno",
+"Mota",
+"Moya",
+"Munguía",
+"Muñiz",
+"Muñoz",
+"Murillo",
+"Muro",
+"Nájera",
+"Naranjo",
+"Narváez",
+"Nava",
+"Navarrete",
+"Navarro",
+"Nazario",
+"Negrete",
+"Negrón",
+"Nevárez",
+"Nieto",
+"Nieves",
+"Niño",
+"Noriega",
+"Núñez",
+"Ñañez",
+"Ocampo",
+"Ocasio",
+"Ochoa",
+"Ojeda",
+"Olivares",
+"Olivárez",
+"Olivas",
+"Olivera",
+"Olivo",
+"Olmos",
+"Olvera",
+"Ontiveros",
+"Oquendo",
+"Ordóñez",
+"Orellana",
+"Ornelas",
+"Orosco",
+"Orozco",
+"Orta",
+"Ortega",
+"Ortiz",
+"Osorio",
+"Otero",
+"Ozuna",
+"Pabón",
+"Pacheco",
+"Padilla",
+"Padrón",
+"Páez",
+"Pagan",
+"Palacios",
+"Palomino",
+"Palomo",
+"Pantoja",
+"Paredes",
+"Parra",
+"Partida",
+"Patiño",
+"Paz",
+"Pedraza",
+"Pedroza",
+"Pelayo",
+"Peña",
+"Perales",
+"Peralta",
+"Perea",
+"Peres",
+"Pérez",
+"Pichardo",
+"Pineda",
+"Piña",
+"Pizarro",
+"Polanco",
+"Ponce",
+"Porras",
+"Portillo",
+"Posada",
+"Prado",
+"Preciado",
+"Prieto",
+"Puente",
+"Puga",
+"Pulido",
+"Quesada",
+"Quevedo",
+"Quezada",
+"Quinta",
+"Quintairos",
+"Quintana",
+"Quintanilla",
+"Quintero",
+"Quintero cruz",
+"Quintero de la cruz",
+"Quiñones",
+"Quiñónez",
+"Quiros",
+"Quiroz",
+"Rael",
+"Ramírez",
+"Ramón",
+"Ramos",
+"Rangel",
+"Rascón",
+"Raya",
+"Razo",
+"Regalado",
+"Rendón",
+"Rentería",
+"Reséndez",
+"Reyes",
+"Reyna",
+"Reynoso",
+"Rico",
+"Rincón",
+"Riojas",
+"Ríos",
+"Rivas",
+"Rivera",
+"Rivero",
+"Robledo",
+"Robles",
+"Rocha",
+"Rodarte",
+"Rodrígez",
+"Rodríguez",
+"Rodríquez",
+"Rojas",
+"Rojo",
+"Roldán",
+"Rolón",
+"Romero",
+"Romo",
+"Roque",
+"Rosado",
+"Rosales",
+"Rosario",
+"Rosas",
+"Roybal",
+"Rubio",
+"Ruelas",
+"Ruiz",
+"Saavedra",
+"Sáenz",
+"Saiz",
+"Salas",
+"Salazar",
+"Salcedo",
+"Salcido",
+"Saldaña",
+"Saldivar",
+"Salgado",
+"Salinas",
+"Samaniego",
+"Sanabria",
+"Sanches",
+"Sánchez",
+"Sandoval",
+"Santacruz",
+"Santana",
+"Santiago",
+"Santillán",
+"Sarabia",
+"Sauceda",
+"Saucedo",
+"Sedillo",
+"Segovia",
+"Segura",
+"Sepúlveda",
+"Serna",
+"Serrano",
+"Serrato",
+"Sevilla",
+"Sierra",
+"Sisneros",
+"Solano",
+"Solís",
+"Soliz",
+"Solorio",
+"Solorzano",
+"Soria",
+"Sosa",
+"Sotelo",
+"Soto",
+"Suárez",
+"Tafoya",
+"Tamayo",
+"Tamez",
+"Tapia",
+"Tejada",
+"Tejeda",
+"Téllez",
+"Tello",
+"Terán",
+"Terrazas",
+"Tijerina",
+"Tirado",
+"Toledo",
+"Toro",
+"Torres",
+"Tórrez",
+"Tovar",
+"Trejo",
+"Treviño",
+"Trujillo",
+"Ulibarri",
+"Ulloa",
+"Urbina",
+"Ureña",
+"Urías",
+"Uribe",
+"Urrutia",
+"Vaca",
+"Valadez",
+"Valdés",
+"Valdez",
+"Valdivia",
+"Valencia",
+"Valentín",
+"Valenzuela",
+"Valladares",
+"Valle",
+"Vallejo",
+"Valles",
+"Valverde",
+"Vanegas",
+"Varela",
+"Vargas",
+"Vásquez",
+"Vázquez",
+"Vega",
+"Vela",
+"Velasco",
+"Velásquez",
+"Velázquez",
+"Vélez",
+"Véliz",
+"Venegas",
+"Vera",
+"Verdugo",
+"Verduzco",
+"Vergara",
+"Viera",
+"Vigil",
+"Villa",
+"Villagómez",
+"Villalobos",
+"Villalpando",
+"Villanueva",
+"Villareal",
+"Villarreal",
+"Villaseñor",
+"Villegas",
+"Xacon",
+"Xairo Belmonte",
+"Xana",
+"Xenia",
+"Xiana",
+"Xicoy",
+"Yago",
+"Yami",
+"Yanes",
+"Yáñez",
+"Ybarra",
+"Yebra",
+"Yunta",
+"Zabaleta",
+"Zamarreno",
+"Zamarripa",
+"Zambrana",
+"Zambrano",
+"Zamora",
+"Zamudio",
+"Zapata",
+"Zaragoza",
+"Zarate",
+"Zavala",
+"Zayas",
+"Zelaya",
+"Zepeda",
+"Zúñiga"
+];
+
+},{}],362:[function(require,module,exports){
+module["exports"] = [
+  "#{prefix} #{first_name} #{last_name} #{last_name}",
+  "#{first_name} #{last_name} de #{last_name}",
+  "#{suffix} #{first_name} #{last_name} #{last_name}",
+  "#{first_name} #{last_name} #{last_name}",
+  "#{first_name} #{last_name} #{last_name}"
+];
+
+},{}],363:[function(require,module,exports){
+module.exports=require(316)
+},{"/Users/a/dev/faker.js/lib/locales/es/name/prefix.js":316}],364:[function(require,module,exports){
+module["exports"] = [
+  "Jr.",
+  "Sr.",
+  "I",
+  "II",
+  "III",
+  "IV",
+  "V",
+  "MD",
+  "DDS",
+  "PhD",
+  "DVM",
+  "Ing.",
+  "Lic.",
+  "Dr.",
+  "Mtro."
+];
+
+},{}],365:[function(require,module,exports){
+ module["exports"] = {
+  "descriptor": [
+    "Jefe",
+    "Senior",
+    "Directo",
+    "Corporativo",
+    "Dinánmico",
+    "Futuro",
+    "Producto",
+    "Nacional",
+    "Regional",
+    "Distrito",
+    "Central",
+    "Global",
+    "Cliente",
+    "Inversor",
+    "International",
+    "Heredado",
+    "Adelante",
+    "Interno",
+    "Humano",
+    "Gerente",
+    "SubGerente",
+    "Director"
+  ],
+  "level": [
+    "Soluciones",
+    "Programa",
+    "Marca",
+    "Seguridad",
+    "Investigación",
+    "Marketing",
+    "Normas",
+    "Implementación",
+    "Integración",
+    "Funcionalidad",
+    "Respuesta",
+    "Paradigma",
+    "Tácticas",
+    "Identidad",
+    "Mercados",
+    "Grupo",
+    "División",
+    "Aplicaciones",
+    "Optimización",
+    "Operaciones",
+    "Infraestructura",
+    "Intranet",
+    "Comunicaciones",
+    "Web",
+    "Calidad",
+    "Seguro",
+    "Mobilidad",
+    "Cuentas",
+    "Datos",
+    "Creativo",
+    "Configuración",
+    "Contabilidad",
+    "Interacciones",
+    "Factores",
+    "Usabilidad",
+    "Métricas",
+  ],
+  "job": [
+    "Supervisor",
+    "Asociado",
+    "Ejecutivo",
+    "Relacciones",
+    "Oficial",
+    "Gerente",
+    "Ingeniero",
+    "Especialista",
+    "Director",
+    "Coordinador",
+    "Administrador",
+    "Arquitecto",
+    "Analista",
+    "Diseñador",
+    "Planificador",
+    "Técnico",
+    "Funcionario",
+    "Desarrollador",
+    "Productor",
+    "Consultor",
+    "Asistente",
+    "Facilitador",
+    "Agente",
+    "Representante",
+    "Estratega",
+    "Scrum Master",
+    "Scrum Owner",
+    "Product Owner",
+    "Scrum Developer"
+  ]
+};
+
+},{}],366:[function(require,module,exports){
+module["exports"] = [
+  "5###-###-###",
+  "5##.###.###",
+  "5## ### ###",
+  "5########"
+];
+
+},{}],367:[function(require,module,exports){
+arguments[4][47][0].apply(exports,arguments)
+},{"./formats":366,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],368:[function(require,module,exports){
+module["exports"] = [
+  "hormigas",
+   "murciélagos",
+   "osos",
+   "abejas",
+   "pájaros",
+   "búfalo",
+   "gatos",
+   "pollos",
+   "ganado",
+   "perros",
+   "delfines",
+   "patos",
+   "elefantes",
+   "peces",
+   "zorros",
+   "ranas",
+   "gansos",
+   "cabras",
+   "caballos",
+   "canguros",
+   "leones",
+   "monos",
+   "búhos",
+   "bueyes",
+   "pingüinos",
+   "pueblo",
+   "cerdos",
+   "conejos",
+   "ovejas",
+   "tigres",
+   "ballenas",
+   "lobos",
+   "cebras",
+   "almas en pena",
+   "cuervos",
+   "gatos negros",
+   "quimeras",
+   "fantasmas",
+   "conspiradores",
+   "dragones",
+   "enanos",
+   "duendes",
+   "encantadores",
+   "exorcistas",
+   "hijos",
+   "enemigos",
+   "gigantes",
+   "gnomos",
+   "duendes",
+   "gansos",
+   "grifos",
+   "licántropos",
+   "némesis",
+   "ogros",
+   "oráculos",
+   "profetas",
+   "hechiceros",
+   "arañas",
+   "espíritus",
+   "vampiros",
+   "brujos",
+   "zorras",
+   "hombres lobo",
+   "brujas",
+   "adoradores",
+   "zombies",
+   "druidas"
+];
+
+},{}],369:[function(require,module,exports){
+arguments[4][182][0].apply(exports,arguments)
+},{"./creature":368,"./name":370,"/Users/a/dev/faker.js/lib/locales/en/team/index.js":182}],370:[function(require,module,exports){
+module.exports=require(183)
+},{"/Users/a/dev/faker.js/lib/locales/en/team/name.js":183}],371:[function(require,module,exports){
 var fa = {};
 module['exports'] = fa;
 fa.title = "Farsi";
 fa.name = require("./name");
 
-},{"./name":311}],310:[function(require,module,exports){
+},{"./name":373}],372:[function(require,module,exports){
 module["exports"] = [
   "آبان دخت",
   "آبتین",
@@ -20495,14 +31153,14 @@ module["exports"] = [
   "یوشیتا"
 ];
 
-},{}],311:[function(require,module,exports){
+},{}],373:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 
-},{"./first_name":310,"./last_name":312,"./prefix":313}],312:[function(require,module,exports){
+},{"./first_name":372,"./last_name":374,"./prefix":375}],374:[function(require,module,exports){
 module["exports"] = [
   "عارف",
   "عاشوری",
@@ -20650,14 +31308,14 @@ module["exports"] = [
   "یلدا"
 ];
 
-},{}],313:[function(require,module,exports){
+},{}],375:[function(require,module,exports){
 module["exports"] = [
   "آقای",
   "خانم",
   "دکتر"
 ];
 
-},{}],314:[function(require,module,exports){
+},{}],376:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
@@ -20665,9 +31323,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],315:[function(require,module,exports){
+},{}],377:[function(require,module,exports){
 module.exports=require(49)
-},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],316:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],378:[function(require,module,exports){
 module["exports"] = [
   "Paris",
   "Marseille",
@@ -20771,12 +31429,12 @@ module["exports"] = [
   "Cholet"
 ];
 
-},{}],317:[function(require,module,exports){
+},{}],379:[function(require,module,exports){
 module["exports"] = [
   "France"
 ];
 
-},{}],318:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.building_number = require("./building_number");
@@ -20791,15 +31449,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":314,"./city":315,"./city_name":316,"./default_country":317,"./postcode":319,"./secondary_address":320,"./state":321,"./street_address":322,"./street_name":323,"./street_prefix":324,"./street_suffix":325}],319:[function(require,module,exports){
-module.exports=require(279)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":279}],320:[function(require,module,exports){
+},{"./building_number":376,"./city":377,"./city_name":378,"./default_country":379,"./postcode":381,"./secondary_address":382,"./state":383,"./street_address":384,"./street_name":385,"./street_prefix":386,"./street_suffix":387}],381:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],382:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "# étage"
 ];
 
-},{}],321:[function(require,module,exports){
+},{}],383:[function(require,module,exports){
 module["exports"] = [
   "Alsace",
   "Aquitaine",
@@ -20825,14 +31483,14 @@ module["exports"] = [
   "Rhône-Alpes"
 ];
 
-},{}],322:[function(require,module,exports){
-module.exports=require(105)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/street_address.js":105}],323:[function(require,module,exports){
+},{}],384:[function(require,module,exports){
+module.exports=require(110)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/street_address.js":110}],385:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{street_suffix}"
 ];
 
-},{}],324:[function(require,module,exports){
+},{}],386:[function(require,module,exports){
 module["exports"] = [
   "Allée, Voie",
   "Rue",
@@ -20844,7 +31502,7 @@ module["exports"] = [
   "Place"
 ];
 
-},{}],325:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
 module["exports"] = [
   "de l'Abbaye",
   "Adolphe Mille",
@@ -20914,27 +31572,27 @@ module["exports"] = [
   "Zadkine"
 ];
 
-},{}],326:[function(require,module,exports){
-module.exports=require(123)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":123}],327:[function(require,module,exports){
-module.exports=require(124)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":124}],328:[function(require,module,exports){
-module.exports=require(125)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":125}],329:[function(require,module,exports){
-module.exports=require(126)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":126}],330:[function(require,module,exports){
-module.exports=require(127)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":127}],331:[function(require,module,exports){
-arguments[4][128][0].apply(exports,arguments)
-},{"./adjective":326,"./bs_adjective":327,"./bs_noun":328,"./bs_verb":329,"./descriptor":330,"./name":332,"./noun":333,"./suffix":334,"/Users/a/dev/faker.js/lib/locales/en/company/index.js":128}],332:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
+module.exports=require(128)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":128}],389:[function(require,module,exports){
+module.exports=require(129)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":129}],390:[function(require,module,exports){
+module.exports=require(130)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":130}],391:[function(require,module,exports){
+module.exports=require(131)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":131}],392:[function(require,module,exports){
+module.exports=require(132)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":132}],393:[function(require,module,exports){
+arguments[4][133][0].apply(exports,arguments)
+},{"./adjective":388,"./bs_adjective":389,"./bs_noun":390,"./bs_verb":391,"./descriptor":392,"./name":394,"./noun":395,"./suffix":396,"/Users/a/dev/faker.js/lib/locales/en/company/index.js":133}],394:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} et #{Name.last_name}"
 ];
 
-},{}],333:[function(require,module,exports){
-module.exports=require(130)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":130}],334:[function(require,module,exports){
+},{}],395:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":135}],396:[function(require,module,exports){
 module["exports"] = [
   "SARL",
   "SA",
@@ -20946,7 +31604,7 @@ module["exports"] = [
   "EI"
 ];
 
-},{}],335:[function(require,module,exports){
+},{}],397:[function(require,module,exports){
 var fr = {};
 module['exports'] = fr;
 fr.title = "French";
@@ -20957,7 +31615,7 @@ fr.lorem = require("./lorem");
 fr.name = require("./name");
 fr.phone_number = require("./phone_number");
 
-},{"./address":318,"./company":331,"./internet":338,"./lorem":339,"./name":343,"./phone_number":349}],336:[function(require,module,exports){
+},{"./address":380,"./company":393,"./internet":400,"./lorem":401,"./name":405,"./phone_number":411}],398:[function(require,module,exports){
 module["exports"] = [
   "com",
   "fr",
@@ -20968,22 +31626,22 @@ module["exports"] = [
   "org"
 ];
 
-},{}],337:[function(require,module,exports){
+},{}],399:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.fr",
   "hotmail.fr"
 ];
 
-},{}],338:[function(require,module,exports){
+},{}],400:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":336,"./free_email":337,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],339:[function(require,module,exports){
-module.exports=require(158)
-},{"./supplemental":340,"./words":341,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":158}],340:[function(require,module,exports){
-module.exports=require(159)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":159}],341:[function(require,module,exports){
+},{"./domain_suffix":398,"./free_email":399,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],401:[function(require,module,exports){
+module.exports=require(167)
+},{"./supplemental":402,"./words":403,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":167}],402:[function(require,module,exports){
+module.exports=require(168)
+},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":168}],403:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],342:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],404:[function(require,module,exports){
 module["exports"] = [
   "Enzo",
   "Lucas",
@@ -21076,7 +31734,7 @@ module["exports"] = [
   "Mélissa"
 ];
 
-},{}],343:[function(require,module,exports){
+},{}],405:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -21085,7 +31743,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name":342,"./last_name":344,"./name":345,"./prefix":346,"./title":347}],344:[function(require,module,exports){
+},{"./first_name":404,"./last_name":406,"./name":407,"./prefix":408,"./title":409}],406:[function(require,module,exports){
 module["exports"] = [
   "Martin",
   "Bernard",
@@ -21239,14 +31897,14 @@ module["exports"] = [
   "Cousin"
 ];
 
-},{}],345:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
   "#{last_name} #{first_name}"
 ];
 
-},{}],346:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
 module["exports"] = [
   "M",
   "Mme",
@@ -21255,7 +31913,7 @@ module["exports"] = [
   "Prof"
 ];
 
-},{}],347:[function(require,module,exports){
+},{}],409:[function(require,module,exports){
 module["exports"] = {
   "job": [
     "Superviseur",
@@ -21279,7 +31937,7 @@ module["exports"] = {
   ]
 };
 
-},{}],348:[function(require,module,exports){
+},{}],410:[function(require,module,exports){
 module["exports"] = [
   "01########",
   "02########",
@@ -21297,15 +31955,15 @@ module["exports"] = [
   "+33 7########"
 ];
 
-},{}],349:[function(require,module,exports){
+},{}],411:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":348,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],350:[function(require,module,exports){
-module.exports=require(193)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/default_country.js":193}],351:[function(require,module,exports){
-arguments[4][226][0].apply(exports,arguments)
-},{"./default_country":350,"./postcode":352,"./state":353,"./state_abbr":354,"/Users/a/dev/faker.js/lib/locales/en_IND/address/index.js":226}],352:[function(require,module,exports){
-module.exports=require(195)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":195}],353:[function(require,module,exports){
+},{"./formats":410,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],412:[function(require,module,exports){
+module.exports=require(204)
+},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/default_country.js":204}],413:[function(require,module,exports){
+arguments[4][238][0].apply(exports,arguments)
+},{"./default_country":412,"./postcode":414,"./state":415,"./state_abbr":416,"/Users/a/dev/faker.js/lib/locales/en_IND/address/index.js":238}],414:[function(require,module,exports){
+module.exports=require(206)
+},{"/Users/a/dev/faker.js/lib/locales/en_CA/address/postcode.js":206}],415:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "Colombie-Britannique",
@@ -21322,7 +31980,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],354:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -21339,7 +31997,7 @@ module["exports"] = [
   "YK"
 ];
 
-},{}],355:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 var fr_CA = {};
 module['exports'] = fr_CA;
 fr_CA.title = "Canada (French)";
@@ -21347,7 +32005,7 @@ fr_CA.address = require("./address");
 fr_CA.internet = require("./internet");
 fr_CA.phone_number = require("./phone_number");
 
-},{"./address":351,"./internet":358,"./phone_number":360}],356:[function(require,module,exports){
+},{"./address":413,"./internet":420,"./phone_number":422}],418:[function(require,module,exports){
 module["exports"] = [
   "qc.ca",
   "ca",
@@ -21359,27 +32017,27 @@ module["exports"] = [
   "org"
 ];
 
-},{}],357:[function(require,module,exports){
-module.exports=require(200)
-},{"/Users/a/dev/faker.js/lib/locales/en_CA/internet/free_email.js":200}],358:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
+module.exports=require(211)
+},{"/Users/a/dev/faker.js/lib/locales/en_CA/internet/free_email.js":211}],420:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":356,"./free_email":357,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],359:[function(require,module,exports){
+},{"./domain_suffix":418,"./free_email":419,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],421:[function(require,module,exports){
 module["exports"] = [
   "### ###-####",
   "1 ### ###-####",
   "### ###-####, poste ###"
 ];
 
-},{}],360:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":359,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],361:[function(require,module,exports){
+},{"./formats":421,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],423:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
   "#"
 ];
 
-},{}],362:[function(require,module,exports){
+},{}],424:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name}#{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -21389,7 +32047,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],363:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 module["exports"] = [
   "აბასთუმანი",
   "აბაშა",
@@ -21481,7 +32139,7 @@ module["exports"] = [
   "ხულო"
 ];
 
-},{}],364:[function(require,module,exports){
+},{}],426:[function(require,module,exports){
 module["exports"] = [
   "ახალი",
   "ძველი",
@@ -21489,7 +32147,7 @@ module["exports"] = [
   "ქვემო"
 ];
 
-},{}],365:[function(require,module,exports){
+},{}],427:[function(require,module,exports){
 module["exports"] = [
   "სოფელი",
   "ძირი",
@@ -21497,7 +32155,7 @@ module["exports"] = [
   "დაბა"
 ];
 
-},{}],366:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 module["exports"] = [
   "ავსტრალია",
   "ავსტრია",
@@ -21814,12 +32472,12 @@ module["exports"] = [
   "ჰონკონგი"
 ];
 
-},{}],367:[function(require,module,exports){
+},{}],429:[function(require,module,exports){
 module["exports"] = [
   "საქართველო"
 ];
 
-},{}],368:[function(require,module,exports){
+},{}],430:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -21836,25 +32494,25 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":361,"./city":362,"./city_name":363,"./city_prefix":364,"./city_suffix":365,"./country":366,"./default_country":367,"./postcode":369,"./secondary_address":370,"./street_address":371,"./street_name":372,"./street_suffix":373,"./street_title":374}],369:[function(require,module,exports){
+},{"./building_number":423,"./city":424,"./city_name":425,"./city_prefix":426,"./city_suffix":427,"./country":428,"./default_country":429,"./postcode":431,"./secondary_address":432,"./street_address":433,"./street_name":434,"./street_suffix":435,"./street_title":436}],431:[function(require,module,exports){
 module["exports"] = [
   "01##"
 ];
 
-},{}],370:[function(require,module,exports){
+},{}],432:[function(require,module,exports){
 module["exports"] = [
   "კორპ. ##",
   "შენობა ###"
 ];
 
-},{}],371:[function(require,module,exports){
+},{}],433:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],372:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],434:[function(require,module,exports){
 module["exports"] = [
   "#{street_title} #{street_suffix}"
 ];
 
-},{}],373:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 module["exports"] = [
   "გამზ.",
   "გამზირი",
@@ -21864,7 +32522,7 @@ module["exports"] = [
   "ხეივანი"
 ];
 
-},{}],374:[function(require,module,exports){
+},{}],436:[function(require,module,exports){
 module["exports"] = [
   "აბაშიძის",
   "აბესაძის",
@@ -22284,7 +32942,7 @@ module["exports"] = [
   "ჯორჯიაშვილის"
 ];
 
-},{}],375:[function(require,module,exports){
+},{}],437:[function(require,module,exports){
 module["exports"] = [
   "(+995 32) 2-##-##-##",
   "032-2-##-##-##",
@@ -22297,16 +32955,16 @@ module["exports"] = [
   "2 ### ###"
 ];
 
-},{}],376:[function(require,module,exports){
+},{}],438:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":375,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],377:[function(require,module,exports){
+},{"./formats":437,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],439:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.suffix = require("./suffix");
 company.name = require("./name");
 
-},{"./name":378,"./prefix":379,"./suffix":380}],378:[function(require,module,exports){
+},{"./name":440,"./prefix":441,"./suffix":442}],440:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{prefix} #{Name.last_name}",
@@ -22315,7 +32973,7 @@ module["exports"] = [
   "#{prefix} #{Name.last_name}-#{Name.last_name}"
 ];
 
-},{}],379:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 module["exports"] = [
   "შპს",
   "სს",
@@ -22323,7 +32981,7 @@ module["exports"] = [
   "სსიპ"
 ];
 
-},{}],380:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 module["exports"] = [
   "ჯგუფი",
   "და კომპანია",
@@ -22331,7 +32989,7 @@ module["exports"] = [
   "გრუპი"
 ];
 
-},{}],381:[function(require,module,exports){
+},{}],443:[function(require,module,exports){
 var ge = {};
 module['exports'] = ge;
 ge.title = "Georgian";
@@ -22343,7 +33001,7 @@ ge.company = require("./company");
 ge.phone_number = require("./phone_number");
 ge.cell_phone = require("./cell_phone");
 
-},{"./address":368,"./cell_phone":376,"./company":377,"./internet":384,"./name":386,"./phone_number":392}],382:[function(require,module,exports){
+},{"./address":430,"./cell_phone":438,"./company":439,"./internet":446,"./name":448,"./phone_number":454}],444:[function(require,module,exports){
 module["exports"] = [
   "ge",
   "com",
@@ -22353,16 +33011,16 @@ module["exports"] = [
   "org.ge"
 ];
 
-},{}],383:[function(require,module,exports){
+},{}],445:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
   "posta.ge"
 ];
 
-},{}],384:[function(require,module,exports){
+},{}],446:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":382,"./free_email":383,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],385:[function(require,module,exports){
+},{"./domain_suffix":444,"./free_email":445,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],447:[function(require,module,exports){
 module["exports"] = [
   "აგული",
   "აგუნა",
@@ -22865,9 +33523,9 @@ module["exports"] = [
   "ჰამლეტ"
 ];
 
-},{}],386:[function(require,module,exports){
-arguments[4][343][0].apply(exports,arguments)
-},{"./first_name":385,"./last_name":387,"./name":388,"./prefix":389,"./title":390,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":343}],387:[function(require,module,exports){
+},{}],448:[function(require,module,exports){
+arguments[4][405][0].apply(exports,arguments)
+},{"./first_name":447,"./last_name":449,"./name":450,"./prefix":451,"./title":452,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":405}],449:[function(require,module,exports){
 module["exports"] = [
   "აბაზაძე",
   "აბაშიძე",
@@ -23040,7 +33698,7 @@ module["exports"] = [
   "ჯუღაშვილი"
 ];
 
-},{}],388:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
@@ -23050,7 +33708,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],389:[function(require,module,exports){
+},{}],451:[function(require,module,exports){
 module["exports"] = [
   "ბ-ნი",
   "ბატონი",
@@ -23058,7 +33716,7 @@ module["exports"] = [
   "ქალბატონი"
 ];
 
-},{}],390:[function(require,module,exports){
+},{}],452:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "გენერალური",
@@ -23136,7 +33794,7 @@ module["exports"] = {
   ]
 };
 
-},{}],391:[function(require,module,exports){
+},{}],453:[function(require,module,exports){
 module["exports"] = [
   "5##-###-###",
   "5########",
@@ -23160,11 +33818,1487 @@ module["exports"] = [
   "(+995) 5## ### ###"
 ];
 
-},{}],392:[function(require,module,exports){
+},{}],454:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":391,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],393:[function(require,module,exports){
-module.exports=require(361)
-},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":361}],394:[function(require,module,exports){
+},{"./formats":453,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],455:[function(require,module,exports){
+module["exports"] = [  
+  "##",
+  "#"
+];
+
+},{}],456:[function(require,module,exports){
+module.exports=require(49)
+},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],457:[function(require,module,exports){
+module["exports"] = [
+  "Airmadidi",
+  "Ampana",
+  "Amurang",
+  "Andolo",
+  "Banggai",
+  "Bantaeng",
+  "Barru",
+  "Bau-Bau",
+  "Benteng",
+  "Bitung",
+  "Bolaang Uki",
+  "Boroko",
+  "Bulukumba",
+  "Bungku",
+  "Buol",
+  "Buranga",
+  "Donggala",
+  "Enrekang",
+  "Gorontalo",
+  "Jeneponto",
+  "Kawangkoan",
+  "Kendari",
+  "Kolaka",
+  "Kotamobagu",
+  "Kota Raha",
+  "Kwandang",
+  "Lasusua",
+  "Luwuk",
+  "Majene",
+  "Makale",
+  "Makassar",
+  "Malili",
+  "Mamasa",
+  "Mamuju",
+  "Manado",
+  "Marisa",
+  "Maros",
+  "Masamba",
+  "Melonguane",
+  "Ondong Siau",
+  "Palopo",
+  "Palu",
+  "Pangkajene",
+  "Pare-Pare",
+  "Parigi",
+  "Pasangkayu",
+  "Pinrang",
+  "Polewali",
+  "Poso",
+  "Rantepao",
+  "Ratahan",
+  "Rumbia",
+  "Sengkang",
+  "Sidenreng",
+  "Sigi Biromaru",
+  "Sinjai",
+  "Sunggu Minasa",
+  "Suwawa",
+  "Tahuna",
+  "Takalar",
+  "Tilamuta",
+  "Toli Toli",
+  "Tomohon",
+  "Tondano",
+  "Tutuyan",
+  "Unaaha",
+  "Wangi Wangi",
+  "Wanggudu",
+  "Watampone",
+  "Watan Soppeng",
+  "Ambarawa",
+  "Anyer",
+  "Bandung",
+  "Bangil",
+  "Banjar (Jawa Barat)",
+  "Banjarnegara",
+  "Bangkalan",
+  "Bantul",
+  "Banyumas",
+  "Banyuwangi",
+  "Batang",
+  "Batu",
+  "Bekasi",
+  "Blitar",
+  "Blora",
+  "Bogor",
+  "Bojonegoro",
+  "Bondowoso",
+  "Boyolali",
+  "Bumiayu",
+  "Brebes",
+  "Caruban",
+  "Cianjur",
+  "Ciamis",
+  "Cibinong",
+  "Cikampek",
+  "Cikarang",
+  "Cilacap",
+  "Cilegon",
+  "Cirebon",
+  "Demak",
+  "Depok",
+  "Garut",
+  "Gresik",
+  "Indramayu",
+  "Jakarta",
+  "Jember",
+  "Jepara",
+  "Jombang",
+  "Kajen",
+  "Karanganyar",
+  "Kebumen",
+  "Kediri",
+  "Kendal",
+  "Kepanjen",
+  "Klaten",
+  "Pelabuhan Ratu",
+  "Kraksaan",
+  "Kudus",
+  "Kuningan",
+  "Lamongan",
+  "Lumajang",
+  "Madiun",
+  "Magelang",
+  "Magetan",
+  "Majalengka",
+  "Malang",
+  "Mojokerto",
+  "Mojosari",
+  "Mungkid",
+  "Ngamprah",
+  "Nganjuk",
+  "Ngawi",
+  "Pacitan",
+  "Pamekasan",
+  "Pandeglang",
+  "Pare",
+  "Pati",
+  "Pasuruan",
+  "Pekalongan",
+  "Pemalang",
+  "Ponorogo",
+  "Probolinggo",
+  "Purbalingga",
+  "Purwakarta",
+  "Purwodadi",
+  "Purwokerto",
+  "Purworejo",
+  "Rangkasbitung",
+  "Rembang",
+  "Salatiga",
+  "Sampang",
+  "Semarang",
+  "Serang",
+  "Sidayu",
+  "Sidoarjo",
+  "Singaparna",
+  "Situbondo",
+  "Slawi",
+  "Sleman",
+  "Soreang",
+  "Sragen",
+  "Subang",
+  "Sukabumi",
+  "Sukoharjo",
+  "Sumber",
+  "Sumedang",
+  "Sumenep",
+  "Surabaya",
+  "Surakarta",
+  "Tasikmalaya",
+  "Tangerang",
+  "Tangerang Selatan",
+  "Tegal",
+  "Temanggung",
+  "Tigaraksa",
+  "Trenggalek",
+  "Tuban",
+  "Tulungagung",
+  "Ungaran",
+  "Wates",
+  "Wlingi",
+  "Wonogiri",
+  "Wonosari",
+  "Wonosobo",
+  "Yogyakarta",
+  "Atambua",
+  "Baa",
+  "Badung",
+  "Bajawa",
+  "Bangli",
+  "Bima",
+  "Denpasar",
+  "Dompu",
+  "Ende",
+  "Gianyar",
+  "Kalabahi",
+  "Karangasem",
+  "Kefamenanu",
+  "Klungkung",
+  "Kupang",
+  "Labuhan Bajo",
+  "Larantuka",
+  "Lewoleba",
+  "Maumere",
+  "Mataram",
+  "Mbay",
+  "Negara",
+  "Praya",
+  "Raba",
+  "Ruteng",
+  "Selong",
+  "Singaraja",
+  "Soe",
+  "Sumbawa Besar",
+  "Tabanan",
+  "Taliwang",
+  "Tambolaka",
+  "Tanjung",
+  "Waibakul",
+  "Waikabubak",
+  "Waingapu",
+  "Denpasar",
+  "Negara,Bali",
+  "Singaraja",
+  "Tabanan",
+  "Bangli"
+];
+},{}],458:[function(require,module,exports){
+module["exports"] = [
+  "Indonesia"
+];
+
+},{}],459:[function(require,module,exports){
+var address = {};
+module['exports'] = address;
+address.building_number = require("./building_number");
+address.postcode = require("./postcode");
+address.state = require("./state");
+address.city_name = require("./city_name");
+address.city = require("./city");
+address.street_prefix = require("./street_prefix");
+address.street_name = require("./street_name");
+address.street_address = require("./street_address");
+address.default_country = require("./default_country");
+
+},{"./building_number":455,"./city":456,"./city_name":457,"./default_country":458,"./postcode":460,"./state":461,"./street_address":462,"./street_name":463,"./street_prefix":464}],460:[function(require,module,exports){
+module["exports"] = [
+  "#####"
+];
+},{}],461:[function(require,module,exports){
+module["exports"] = [
+  "Aceh",
+  "Sumatera Utara",
+  "Sumatera Barat",
+  "Jambi",
+  "Bangka Belitung",
+  "Riau",
+  "Kepulauan Riau",
+  "Bengkulu",
+  "Sumatera Selatan",
+  "Lampung",
+  "Banten",
+  "DKI Jakarta",
+  "Jawa Barat",
+  "Jawa Tengah",
+  "Jawa Timur",
+  "Nusa Tenggara Timur",
+  "DI Yogyakarta",
+  "Bali",
+  "Nusa Tenggara Barat",
+  "Kalimantan Barat",
+  "Kalimantan Tengah",
+  "Kalimantan Selatan",
+  "Kalimantan Timur",
+  "Kalimantan Utara",
+  "Sulawesi Selatan",
+  "Sulawesi Utara",
+  "Gorontalo",
+  "Sulawesi Tengah",
+  "Sulawesi Barat",
+  "Sulawesi Tenggara",
+  "Maluku",
+  "Maluku Utara",
+  "Papua Barat",
+  "Papua"
+];
+},{}],462:[function(require,module,exports){
+module["exports"] = [
+  "#{street_name} no #{building_number}"
+];
+},{}],463:[function(require,module,exports){
+module["exports"] = [
+  "#{street_prefix} #{Name.first_name}",
+  "#{street_prefix} #{Name.last_name}"
+];
+},{}],464:[function(require,module,exports){
+module["exports"] = [
+  "Ds.",
+  "Dk.",
+  "Gg.",
+  "Jln.",
+  "Jr.",
+  "Kpg.",
+  "Ki.",
+  "Psr."
+];
+},{}],465:[function(require,module,exports){
+arguments[4][439][0].apply(exports,arguments)
+},{"./name":466,"./prefix":467,"./suffix":468,"/Users/a/dev/faker.js/lib/locales/ge/company/index.js":439}],466:[function(require,module,exports){
+module["exports"] = [
+  "#{prefix} #{Name.last_name}",
+  "#{Name.last_name} #{suffix}",
+  "#{prefix} #{Name.last_name} #{suffix}"
+];
+
+},{}],467:[function(require,module,exports){
+module["exports"] = [
+  "PT",
+  "CV",
+  "UD",
+  "PD",
+  "Perum"
+];
+},{}],468:[function(require,module,exports){
+module["exports"] = [
+  "(Persero) Tbk",
+  "Tbk"
+];
+},{}],469:[function(require,module,exports){
+arguments[4][148][0].apply(exports,arguments)
+},{"./month":470,"./weekday":471,"/Users/a/dev/faker.js/lib/locales/en/date/index.js":148}],470:[function(require,module,exports){
+module["exports"] = {
+  wide: [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember"
+  ],
+  wide_context: [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember"
+  ],
+  abbr: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Ags",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des"
+  ],
+  abbr_context: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Ags",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des"
+  ]
+};
+
+},{}],471:[function(require,module,exports){
+module["exports"] = {
+  wide: [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu"
+  ],
+  wide_context: [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu"
+  ],
+  abbr: [
+    "Min",
+    "Sen",
+    "Sel",
+    "Rab",
+    "Kam",
+    "Jum",
+    "Sab"
+  ],
+  abbr_context: [
+    "Min",
+    "Sen",
+    "Sel",
+    "Rab",
+    "Kam",
+    "Jum",
+    "Sab"
+  ]
+};
+
+},{}],472:[function(require,module,exports){
+var id = {};
+module['exports'] = id;
+id.title = "Indonesia";
+id.address = require("./address");
+id.company = require("./company");
+id.internet = require("./internet");
+id.date = require("./date");
+id.name = require("./name");
+id.phone_number = require("./phone_number");
+
+},{"./address":459,"./company":465,"./date":469,"./internet":475,"./name":478,"./phone_number":485}],473:[function(require,module,exports){
+module["exports"] = [
+  "com",
+  "net",
+  "org",
+  "asia",
+  "tv",
+  "biz",
+  "info",
+  "in",
+  "name",
+  "co",
+  "ac.id",
+  "sch.id",
+  "go.id",
+  "mil.id",
+  "co.id",
+  "or.id",
+  "web.id",
+  "my.id",
+  "biz.id",
+  "desa.id"
+];
+},{}],474:[function(require,module,exports){
+module["exports"] = [
+  'gmail.com',
+  'yahoo.com',
+  'gmail.co.id',
+  'yahoo.co.id'
+];
+},{}],475:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./domain_suffix":473,"./free_email":474,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],476:[function(require,module,exports){
+module["exports"] = [
+  "Ade",
+  "Agnes",
+  "Ajeng",
+  "Amalia",
+  "Anita",
+  "Ayu",
+  "Aisyah",
+  "Ana",
+  "Ami",
+  "Ani",
+  "Azalea",
+  "Aurora",
+  "Alika",
+  "Anastasia",
+  "Amelia",
+  "Almira",
+  "Bella",
+  "Betania",
+  "Belinda",
+  "Citra",
+  "Cindy",
+  "Chelsea",
+  "Clara",
+  "Cornelia",
+  "Cinta",
+  "Cinthia",
+  "Ciaobella",
+  "Cici",
+  "Carla",
+  "Calista",
+  "Devi",
+  "Dewi","Dian",
+  "Diah",
+  "Diana",
+  "Dina",
+  "Dinda",
+  "Dalima",
+  "Eka",
+  "Eva",
+  "Endah",
+  "Elisa",
+  "Eli",
+  "Ella",
+  "Ellis",
+  "Elma",
+  "Elvina",
+  "Fitria",
+  "Fitriani",
+  "Febi",
+  "Faizah",
+  "Farah",
+  "Farhunnisa",
+  "Fathonah",
+  "Gabriella",
+  "Gasti",
+  "Gawati",
+  "Genta",
+  "Ghaliyati",
+  "Gina",
+  "Gilda",
+  "Halima",
+  "Hesti",
+  "Hilda",
+  "Hafshah",
+  "Hamima",
+  "Hana",
+  "Hani",
+  "Hasna",
+  "Humaira",
+  "Ika",
+  "Indah",
+  "Intan",
+  "Irma",
+  "Icha",
+  "Ida",
+  "Ifa",
+  "Ilsa",
+  "Ina",
+  "Ira",
+  "Iriana",
+  "Jamalia",
+  "Janet",
+  "Jane",
+  "Julia",
+  "Juli",
+  "Jessica",
+  "Jasmin",
+  "Jelita",
+  "Kamaria",
+  "Kamila",
+  "Kani",
+  "Karen",
+  "Karimah",
+  "Kartika",
+  "Kasiyah",
+  "Keisha",
+  "Kezia",
+  "Kiandra",
+  "Kayla",
+  "Kania",
+  "Lala",
+  "Lalita",
+  "Latika",
+  "Laila",
+  "Laras",
+  "Lidya",
+  "Lili",
+  "Lintang",
+  "Maria",
+  "Mala",
+  "Maya",
+  "Maida",
+  "Maimunah",
+  "Melinda",
+  "Mila",
+  "Mutia",
+  "Michelle",
+  "Malika",
+  "Nadia",
+  "Nadine",
+  "Nabila",
+  "Natalia",
+  "Novi",
+  "Nova",
+  "Nurul",
+  "Nilam",
+  "Najwa",
+  "Olivia",
+  "Ophelia",
+  "Oni",
+  "Oliva",
+  "Padma",
+  "Putri",
+  "Paramita",
+  "Paris",
+  "Patricia",
+  "Paulin",
+  "Puput",
+  "Puji",
+  "Pia",
+  "Puspa",
+  "Puti",
+  "Putri",
+  "Padmi",
+  "Qori",
+  "Queen",
+  "Ratih",
+  "Ratna",
+  "Restu",
+  "Rini",
+  "Rika",
+  "Rina",
+  "Rahayu",
+  "Rahmi",
+  "Rachel",
+  "Rahmi",
+  "Raisa",
+  "Raina",
+  "Sarah",
+  "Sari",
+  "Siti",
+  "Siska",
+  "Suci",
+  "Syahrini",
+  "Septi",
+  "Sadina",
+  "Safina",
+  "Sakura",
+  "Salimah",
+  "Salwa",
+  "Salsabila",
+  "Samiah",
+  "Shania",
+  "Sabrina",
+  "Silvia",
+  "Shakila",
+  "Talia",
+  "Tami",
+  "Tira",
+  "Tiara",
+  "Titin",
+  "Tania",
+  "Tina",
+  "Tantri",
+  "Tari",
+  "Titi",
+  "Uchita",
+  "Unjani",
+  "Ulya",
+  "Uli",
+  "Ulva",
+  "Umi",
+  "Usyi",
+  "Vanya",
+  "Vanesa",
+  "Vivi",
+  "Vera",
+  "Vicky",
+  "Victoria",
+  "Violet",
+  "Winda",
+  "Widya",
+  "Wulan",
+  "Wirda",
+  "Wani",
+  "Yani",
+  "Yessi",
+  "Yulia",
+  "Yuliana",
+  "Yuni",
+  "Yunita",
+  "Yance",
+  "Zahra",
+  "Zalindra",
+  "Zaenab",
+  "Zulfa",
+  "Zizi",
+  "Zulaikha",
+  "Zamira",
+  "Zelda",
+  "Zelaya"
+];
+},{}],477:[function(require,module,exports){
+module["exports"] = [
+  "Agustina",
+  "Andriani",
+  "Anggraini",
+  "Aryani",
+  "Astuti",
+  "Fujiati",
+  "Farida",
+  "Handayani",
+  "Hassanah",
+  "Hartati",
+  "Hasanah",
+  "Haryanti",
+  "Hariyah",
+  "Hastuti",
+  "Halimah",
+  "Kusmawati",
+  "Kuswandari",
+  "Laksmiwati",
+  "Laksita",
+  "Lestari",
+  "Lailasari",
+  "Mandasari",
+  "Mardhiyah",
+  "Mayasari",
+  "Melani",
+  "Mulyani",
+  "Maryati",
+  "Nurdiyanti",
+  "Novitasari",
+  "Nuraini",
+  "Nasyidah",
+  "Nasyiah",
+  "Namaga",
+  "Palastri",
+  "Pudjiastuti",
+  "Puspasari",
+  "Puspita",
+  "Purwanti",
+  "Pratiwi",
+  "Purnawati",
+  "Pertiwi",
+  "Permata",
+  "Prastuti",
+  "Padmasari",
+  "Rahmawati",
+  "Rahayu",
+  "Riyanti",
+  "Rahimah",
+  "Suartini",
+  "Sudiati",
+  "Suryatmi",
+  "Susanti",
+  "Safitri",
+  "Oktaviani",
+  "Utami",
+  "Usamah",
+  "Usada",
+  "Uyainah",
+  "Yuniar",
+  "Yuliarti",
+  "Yulianti",
+  "Yolanda",
+  "Wahyuni",
+  "Wijayanti",
+  "Widiastuti",
+  "Winarsih",
+  "Wulandari",
+  "Wastuti",
+  "Zulaika"
+];
+},{}],478:[function(require,module,exports){
+var name = {};
+module['exports'] = name;
+name.male_first_name = require("./male_first_name");
+name.male_last_name = require("./male_last_name");
+name.female_first_name = require("./female_first_name");
+name.female_last_name = require("./female_last_name");
+name.prefix = require("./prefix");
+name.suffix = require("./suffix");
+name.name = require("./name");
+
+},{"./female_first_name":476,"./female_last_name":477,"./male_first_name":479,"./male_last_name":480,"./name":481,"./prefix":482,"./suffix":483}],479:[function(require,module,exports){
+module["exports"] = [
+  "Abyasa",
+  "Ade",
+  "Adhiarja",
+  "Adiarja",
+  "Adika",
+  "Adikara",
+  "Adinata",
+  "Aditya",
+  "Agus",
+  "Ajiman",
+  "Ajimat",
+  "Ajimin",
+  "Ajiono",
+  "Akarsana",
+  "Alambana",
+  "Among",
+  "Anggabaya",
+  "Anom",
+  "Argono",
+  "Aris",
+  "Arta",
+  "Artanto",
+  "Artawan",
+  "Arsipatra",
+  "Asirwada",
+  "Asirwanda",
+  "Aslijan",
+  "Asmadi",
+  "Asman",
+  "Asmianto",
+  "Asmuni",
+  "Aswani",
+  "Atma",
+  "Atmaja",
+  "Bagas",
+  "Bagiya",
+  "Bagus",
+  "Bagya",
+  "Bahuraksa",
+  "Bahuwarna",
+  "Bahuwirya",
+  "Bajragin",
+  "Bakda",
+  "Bakiadi",
+  "Bakianto",
+  "Bakidin",
+  "Bakijan",
+  "Bakiman",
+  "Bakiono",
+  "Bakti",
+  "Baktiadi",
+  "Baktianto",
+  "Baktiono",
+  "Bala",
+  "Balamantri",
+  "Balangga",
+  "Balapati",
+  "Balidin",
+  "Balijan",
+  "Bambang",
+  "Banara",
+  "Banawa",
+  "Banawi",
+  "Bancar",
+  "Budi",
+  "Cagak",
+  "Cager",
+  "Cahyadi",
+  "Cahyanto",
+  "Cahya",
+  "Cahyo",
+  "Cahyono",
+  "Caket",
+  "Cakrabirawa",
+  "Cakrabuana",
+  "Cakrajiya",
+  "Cakrawala",
+  "Cakrawangsa",
+  "Candra",
+  "Chandra",
+  "Candrakanta",
+  "Capa",
+  "Caraka",
+  "Carub",
+  "Catur",
+  "Caturangga",
+  "Cawisadi",
+  "Cawisono",
+  "Cawuk",
+  "Cayadi",
+  "Cecep",
+  "Cemani",
+  "Cemeti",
+  "Cemplunk",
+  "Cengkal",
+  "Cengkir",
+  "Dacin",
+  "Dadap",
+  "Dadi",
+  "Dagel",
+  "Daliman",
+  "Dalimin",
+  "Daliono",
+  "Damar",
+  "Damu",
+  "Danang",
+  "Daniswara",
+  "Danu",
+  "Danuja",
+  "Dariati",
+  "Darijan",
+  "Darimin",
+  "Darmaji",
+  "Darman",
+  "Darmana",
+  "Darmanto",
+  "Darsirah",
+  "Dartono",
+  "Daru",
+  "Daruna",
+  "Daryani",
+  "Dasa",
+  "Digdaya",
+  "Dimas",
+  "Dimaz",
+  "Dipa",
+  "Dirja",
+  "Drajat",
+  "Dwi",
+  "Dono",
+  "Dodo",
+  "Edi",
+  "Eka",
+  "Elon",
+  "Eluh",
+  "Eman",
+  "Emas",
+  "Embuh",
+  "Emong",
+  "Empluk",
+  "Endra",
+  "Enteng",
+  "Estiawan",
+  "Estiono",
+  "Eko",
+  "Edi",
+  "Edison",
+  "Edward",
+  "Elvin",
+  "Erik",
+  "Emil",
+  "Ega",
+  "Emin",
+  "Eja",
+  "Gada",
+  "Gadang",
+  "Gaduh",
+  "Gaiman",
+  "Galak",
+  "Galang",
+  "Galar",
+  "Galih",
+  "Galiono",
+  "Galuh",
+  "Galur",
+  "Gaman",
+  "Gamani",
+  "Gamanto",
+  "Gambira",
+  "Gamblang",
+  "Ganda",
+  "Gandewa",
+  "Gandi",
+  "Gandi",
+  "Ganep",
+  "Gangsa",
+  "Gangsar",
+  "Ganjaran",
+  "Gantar",
+  "Gara",
+  "Garan",
+  "Garang",
+  "Garda",
+  "Gatot",
+  "Gatra",
+  "Gilang",
+  "Galih",
+  "Ghani",
+  "Gading",
+  "Hairyanto",
+  "Hardana",
+  "Hardi",
+  "Harimurti",
+  "Harja",
+  "Harjasa",
+  "Harjaya",
+  "Harjo",
+  "Harsana",
+  "Harsanto",
+  "Harsaya",
+  "Hartaka",
+  "Hartana",
+  "Harto",
+  "Hasta",
+  "Heru",
+  "Himawan",
+  "Hadi",
+  "Halim",
+  "Hasim",
+  "Hasan",
+  "Hendra",
+  "Hendri",
+  "Heryanto",
+  "Hamzah",
+  "Hari",
+  "Imam",
+  "Indra",
+  "Irwan",
+  "Irsad",
+  "Ikhsan",
+  "Irfan",
+  "Ian",
+  "Ibrahim",
+  "Ibrani",
+  "Ismail",
+  "Irnanto",
+  "Ilyas",
+  "Ibun",
+  "Ivan",
+  "Ikin",
+  "Ihsan",
+  "Jabal",
+  "Jaeman",
+  "Jaga",
+  "Jagapati",
+  "Jagaraga",
+  "Jail",
+  "Jaiman",
+  "Jaka",
+  "Jarwa",
+  "Jarwadi",
+  "Jarwi",
+  "Jasmani",
+  "Jaswadi",
+  "Jati",
+  "Jatmiko",
+  "Jaya",
+  "Jayadi",
+  "Jayeng",
+  "Jinawi",
+  "Jindra",
+  "Joko",
+  "Jumadi",
+  "Jumari",
+  "Jamal",
+  "Jamil",
+  "Jais",
+  "Jefri",
+  "Johan",
+  "Jono",
+  "Kacung",
+  "Kajen",
+  "Kambali",
+  "Kamidin",
+  "Kariman",
+  "Karja",
+  "Karma",
+  "Karman",
+  "Karna",
+  "Karsa",
+  "Karsana",
+  "Karta",
+  "Kasiran",
+  "Kasusra",
+  "Kawaca",
+  "Kawaya",
+  "Kayun",
+  "Kemba",
+  "Kenari",
+  "Kenes",
+  "Kuncara",
+  "Kunthara",
+  "Kusuma",
+  "Kadir",
+  "Kala",
+  "Kalim",
+  "Kurnia",
+  "Kanda",
+  "Kardi",
+  "Karya",
+  "Kasim",
+  "Kairav",
+  "Kenzie",
+  "Kemal",
+  "Kamal",
+  "Koko",
+  "Labuh",
+  "Laksana",
+  "Lamar",
+  "Lanang",
+  "Langgeng",
+  "Lanjar",
+  "Lantar",
+  "Lega",
+  "Legawa",
+  "Lembah",
+  "Liman",
+  "Limar",
+  "Luhung",
+  "Lukita",
+  "Luluh",
+  "Lulut",
+  "Lurhur",
+  "Luwar",
+  "Luwes",
+  "Latif",
+  "Lasmanto",
+  "Lukman",
+  "Luthfi",
+  "Leo",
+  "Luis",
+  "Lutfan",
+  "Lasmono",
+  "Laswi",
+  "Mahesa",
+  "Makara",
+  "Makuta",
+  "Manah",
+  "Maras",
+  "Margana",
+  "Mariadi",
+  "Marsudi",
+  "Martaka",
+  "Martana",
+  "Martani",
+  "Marwata",
+  "Maryadi",
+  "Maryanto",
+  "Mitra",
+  "Mujur",
+  "Mulya",
+  "Mulyanto",
+  "Mulyono",
+  "Mumpuni",
+  "Muni",
+  "Mursita",
+  "Murti",
+  "Mustika",
+  "Maman",
+  "Mahmud",
+  "Mahdi",
+  "Mahfud",
+  "Malik",
+  "Muhammad",
+  "Mustofa",
+  "Marsito",
+  "Mursinin",
+  "Nalar",
+  "Naradi",
+  "Nardi",
+  "Niyaga",
+  "Nrima",
+  "Nugraha",
+  "Nyana",
+  "Narji",
+  "Nasab",
+  "Nasrullah",
+  "Nasim",
+  "Najib",
+  "Najam",
+  "Nyoman",
+  "Olga",
+  "Ozy",
+  "Omar",
+  "Opan",
+  "Oskar",
+  "Oman",
+  "Okto",
+  "Okta",
+  "Opung",
+  "Paiman",
+  "Panca",
+  "Pangeran",
+  "Pangestu",
+  "Pardi",
+  "Parman",
+  "Perkasa",
+  "Praba",
+  "Prabu",
+  "Prabawa",
+  "Prabowo",
+  "Prakosa",
+  "Pranata",
+  "Pranawa",
+  "Prasetya",
+  "Prasetyo",
+  "Prayitna",
+  "Prayoga",
+  "Prayogo",
+  "Purwadi",
+  "Purwa",
+  "Purwanto",
+  "Panji",
+  "Pandu",
+  "Paiman",
+  "Prima",
+  "Putu",
+  "Raden",
+  "Raditya",
+  "Raharja",
+  "Rama",
+  "Rangga",
+  "Reksa",
+  "Respati",
+  "Rusman",
+  "Rosman",
+  "Rahmat",
+  "Rahman",
+  "Rendy",
+  "Reza",
+  "Rizki",
+  "Ridwan",
+  "Rudi",
+  "Raden",
+  "Radit",
+  "Radika",
+  "Rafi",
+  "Rafid",
+  "Raihan",
+  "Salman",
+  "Saadat",
+  "Saiful",
+  "Surya",
+  "Slamet",
+  "Samsul",
+  "Soleh",
+  "Simon",
+  "Sabar",
+  "Sabri",
+  "Sidiq",
+  "Satya",
+  "Setya",
+  "Saka",
+  "Sakti",
+  "Taswir",
+  "Tedi",
+  "Teddy",
+  "Taufan",
+  "Taufik",
+  "Tomi",
+  "Tasnim",
+  "Teguh",
+  "Tasdik",
+  "Timbul",
+  "Tirta",
+  "Tirtayasa",
+  "Tri",
+  "Tugiman",
+  "Umar",
+  "Usman",
+  "Uda",
+  "Umay",
+  "Unggul",
+  "Utama",
+  "Umaya",
+  "Upik",
+  "Viktor",
+  "Vino",
+  "Vinsen",
+  "Vero",
+  "Vega",
+  "Viman",
+  "Virman",
+  "Wahyu",
+  "Wira",
+  "Wisnu",
+  "Wadi",
+  "Wardi",
+  "Warji",
+  "Waluyo",
+  "Wakiman",
+  "Wage",
+  "Wardaya",
+  "Warsa",
+  "Warsita",
+  "Warta",
+  "Wasis",
+  "Wawan",
+  "Xanana",
+  "Yahya",
+  "Yusuf",
+  "Yosef",
+  "Yono",
+  "Yoga"
+];
+},{}],480:[function(require,module,exports){
+module["exports"] = [
+  "Adriansyah",
+  "Ardianto",
+  "Anggriawan",
+  "Budiman",
+  "Budiyanto",
+  "Damanik",
+  "Dongoran",
+  "Dabukke",
+  "Firmansyah",
+  "Firgantoro",
+  "Gunarto",
+  "Gunawan",
+  "Hardiansyah",
+  "Habibi",
+  "Hakim",
+  "Halim",
+  "Haryanto",
+  "Hidayat",
+  "Hidayanto",
+  "Hutagalung",
+  "Hutapea",
+  "Hutasoit",
+  "Irawan",
+  "Iswahyudi",
+  "Kuswoyo",
+  "Januar",
+  "Jailani",
+  "Kurniawan",
+  "Kusumo",
+  "Latupono",
+  "Lazuardi",
+  "Maheswara",
+  "Mahendra",
+  "Mustofa",
+  "Mansur",
+  "Mandala",
+  "Megantara",
+  "Maulana",
+  "Maryadi",
+  "Mangunsong",
+  "Manullang",
+  "Marpaung",
+  "Marbun",
+  "Narpati",
+  "Natsir",
+  "Nugroho",
+  "Najmudin",
+  "Nashiruddin",
+  "Nainggolan",
+  "Nababan",
+  "Napitupulu",
+  "Pangestu",
+  "Putra",
+  "Pranowo",
+  "Prabowo",
+  "Pratama",
+  "Prasetya",
+  "Prasetyo",
+  "Pradana",
+  "Pradipta",
+  "Prakasa",
+  "Permadi",
+  "Prasasta",
+  "Prayoga",
+  "Ramadan",
+  "Rajasa",
+  "Rajata",
+  "Saptono",
+  "Santoso",
+  "Saputra",
+  "Saefullah",
+  "Setiawan",
+  "Suryono",
+  "Suwarno",
+  "Siregar",
+  "Sihombing",
+  "Salahudin",
+  "Sihombing",
+  "Samosir",
+  "Saragih",
+  "Sihotang",
+  "Simanjuntak",
+  "Sinaga",
+  "Simbolon",
+  "Sitompul",
+  "Sitorus",
+  "Sirait",
+  "Siregar",
+  "Situmorang",
+  "Tampubolon",
+  "Thamrin",
+  "Tamba",
+  "Tarihoran",
+  "Utama",
+  "Uwais",
+  "Wahyudin",
+  "Waluyo",
+  "Wibowo",
+  "Winarno",
+  "Wibisono",
+  "Wijaya",
+  "Widodo",
+  "Wacana",
+  "Waskita",
+  "Wasita",
+  "Zulkarnain"
+];
+},{}],481:[function(require,module,exports){
+module["exports"] = [
+  "#{male_first_name} #{male_last_name}",
+  "#{male_last_name} #{male_first_name}",
+  "#{male_first_name} #{male_first_name} #{male_last_name}",
+  "#{female_first_name} #{female_last_name}",
+  "#{female_first_name} #{male_last_name}",
+  "#{female_last_name} #{female_first_name}",
+  "#{female_first_name} #{female_first_name} #{female_last_name}"
+];
+
+},{}],482:[function(require,module,exports){
+module["exports"] = [];
+},{}],483:[function(require,module,exports){
+module["exports"] = [
+  "S.Ked",
+  "S.Gz",
+  "S.Pt",
+  "S.IP",
+  "S.E.I",
+  "S.E.",
+  "S.Kom",
+  "S.H.",
+  "S.T.",
+  "S.Pd",
+  "S.Psi",
+  "S.I.Kom",
+  "S.Sos",
+  "S.Farm",
+  "M.M.",
+  "M.Kom.",
+  "M.TI.",
+  "M.Pd",
+  "M.Farm",
+  "M.Ak"
+];
+},{}],484:[function(require,module,exports){
+module["exports"] = [
+  "02# #### ###",
+  "02## #### ###",
+  "03## #### ###",
+  "04## #### ###",
+  "05## #### ###",
+  "06## #### ###",
+  "07## #### ###",
+  "09## #### ###",
+  "02# #### ####",
+  "02## #### ####",
+  "03## #### ####",
+  "04## #### ####",
+  "05## #### ####",
+  "06## #### ####",
+  "07## #### ####",
+  "09## #### ####",
+  "08## ### ###",
+  "08## #### ###",
+  "08## #### ####",
+  "(+62) 8## ### ###",
+  "(+62) 2# #### ###",
+  "(+62) 2## #### ###",
+  "(+62) 3## #### ###",
+  "(+62) 4## #### ###",
+  "(+62) 5## #### ###",
+  "(+62) 6## #### ###",
+  "(+62) 7## #### ###",
+  "(+62) 8## #### ###",
+  "(+62) 9## #### ###",
+  "(+62) 2# #### ####",
+  "(+62) 2## #### ####",
+  "(+62) 3## #### ####",
+  "(+62) 4## #### ####",
+  "(+62) 5## #### ####",
+  "(+62) 6## #### ####",
+  "(+62) 7## #### ####",
+  "(+62) 8## #### ####",
+  "(+62) 9## #### ####"
+];
+},{}],485:[function(require,module,exports){
+arguments[4][47][0].apply(exports,arguments)
+},{"./formats":484,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],486:[function(require,module,exports){
+module.exports=require(423)
+},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":423}],487:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name} #{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -23172,7 +35306,7 @@ module["exports"] = [
   "#{Name.last_name} #{city_suffix}"
 ];
 
-},{}],395:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 module["exports"] = [
   "San",
   "Borgo",
@@ -23181,7 +35315,7 @@ module["exports"] = [
   "Settimo"
 ];
 
-},{}],396:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 module["exports"] = [
   "a mare",
   "lido",
@@ -23197,7 +35331,7 @@ module["exports"] = [
   "sardo"
 ];
 
-},{}],397:[function(require,module,exports){
+},{}],490:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -23442,12 +35576,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],398:[function(require,module,exports){
+},{}],491:[function(require,module,exports){
 module["exports"] = [
   "Italia"
 ];
 
-},{}],399:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -23464,15 +35598,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":393,"./city":394,"./city_prefix":395,"./city_suffix":396,"./country":397,"./default_country":398,"./postcode":400,"./secondary_address":401,"./state":402,"./state_abbr":403,"./street_address":404,"./street_name":405,"./street_suffix":406}],400:[function(require,module,exports){
-module.exports=require(279)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":279}],401:[function(require,module,exports){
+},{"./building_number":486,"./city":487,"./city_prefix":488,"./city_suffix":489,"./country":490,"./default_country":491,"./postcode":493,"./secondary_address":494,"./state":495,"./state_abbr":496,"./street_address":497,"./street_name":498,"./street_suffix":499}],493:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],494:[function(require,module,exports){
 module["exports"] = [
   "Appartamento ##",
   "Piano #"
 ];
 
-},{}],402:[function(require,module,exports){
+},{}],495:[function(require,module,exports){
 module["exports"] = [
   "Agrigento",
   "Alessandria",
@@ -23586,7 +35720,7 @@ module["exports"] = [
   "Viterbo"
 ];
 
-},{}],403:[function(require,module,exports){
+},{}],496:[function(require,module,exports){
 module["exports"] = [
   "AG",
   "AL",
@@ -23700,19 +35834,19 @@ module["exports"] = [
   "VT"
 ];
 
-},{}],404:[function(require,module,exports){
+},{}],497:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} #{building_number}",
   "#{street_name} #{building_number}, #{secondary_address}"
 ];
 
-},{}],405:[function(require,module,exports){
+},{}],498:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.last_name}"
 ];
 
-},{}],406:[function(require,module,exports){
+},{}],499:[function(require,module,exports){
 module["exports"] = [
   "Piazza",
   "Strada",
@@ -23723,7 +35857,7 @@ module["exports"] = [
   "Incrocio"
 ];
 
-},{}],407:[function(require,module,exports){
+},{}],500:[function(require,module,exports){
 module["exports"] = [
   "24 ore",
   "24/7",
@@ -23797,7 +35931,7 @@ module["exports"] = [
   "valore aggiunto"
 ];
 
-},{}],408:[function(require,module,exports){
+},{}],501:[function(require,module,exports){
 module["exports"] = [
   "valore aggiunto",
   "verticalizzate",
@@ -23847,7 +35981,7 @@ module["exports"] = [
   "ricche"
 ];
 
-},{}],409:[function(require,module,exports){
+},{}],502:[function(require,module,exports){
 module["exports"] = [
   "partnerships",
   "comunità",
@@ -23877,7 +36011,7 @@ module["exports"] = [
   "metodologie"
 ];
 
-},{}],410:[function(require,module,exports){
+},{}],503:[function(require,module,exports){
 module["exports"] = [
   "implementate",
   "utilizzo",
@@ -23909,7 +36043,7 @@ module["exports"] = [
   "ricontestualizzate"
 ];
 
-},{}],411:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
 module["exports"] = [
   "adattiva",
   "avanzata",
@@ -23970,7 +36104,7 @@ module["exports"] = [
   "visionaria"
 ];
 
-},{}],412:[function(require,module,exports){
+},{}],505:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -23982,14 +36116,14 @@ company.bs_verb = require("./bs_verb");
 company.bs_adjective = require("./bs_adjective");
 company.name = require("./name");
 
-},{"./adjective":407,"./bs_adjective":408,"./bs_noun":409,"./bs_verb":410,"./descriptor":411,"./name":413,"./noun":414,"./suffix":415}],413:[function(require,module,exports){
+},{"./adjective":500,"./bs_adjective":501,"./bs_noun":502,"./bs_verb":503,"./descriptor":504,"./name":506,"./noun":507,"./suffix":508}],506:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name} #{suffix}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name} #{suffix}"
 ];
 
-},{}],414:[function(require,module,exports){
+},{}],507:[function(require,module,exports){
 module["exports"] = [
   "Abilità",
   "Access",
@@ -24082,7 +36216,7 @@ module["exports"] = [
   "Forza lavoro"
 ];
 
-},{}],415:[function(require,module,exports){
+},{}],508:[function(require,module,exports){
 module["exports"] = [
   "SPA",
   "e figli",
@@ -24090,7 +36224,7 @@ module["exports"] = [
   "s.r.l."
 ];
 
-},{}],416:[function(require,module,exports){
+},{}],509:[function(require,module,exports){
 var it = {};
 module['exports'] = it;
 it.title = "Italian";
@@ -24100,7 +36234,7 @@ it.internet = require("./internet");
 it.name = require("./name");
 it.phone_number = require("./phone_number");
 
-},{"./address":399,"./company":412,"./internet":419,"./name":421,"./phone_number":427}],417:[function(require,module,exports){
+},{"./address":492,"./company":505,"./internet":512,"./name":514,"./phone_number":520}],510:[function(require,module,exports){
 module["exports"] = [
   "com",
   "com",
@@ -24112,7 +36246,7 @@ module["exports"] = [
   "it"
 ];
 
-},{}],418:[function(require,module,exports){
+},{}],511:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -24122,9 +36256,9 @@ module["exports"] = [
   "yahoo.it"
 ];
 
-},{}],419:[function(require,module,exports){
+},{}],512:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":417,"./free_email":418,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],420:[function(require,module,exports){
+},{"./domain_suffix":510,"./free_email":511,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],513:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Akira",
@@ -24490,7 +36624,7 @@ module["exports"] = [
   "Zelida"
 ];
 
-},{}],421:[function(require,module,exports){
+},{}],514:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -24499,7 +36633,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":420,"./last_name":422,"./name":423,"./prefix":424,"./suffix":425}],422:[function(require,module,exports){
+},{"./first_name":513,"./last_name":515,"./name":516,"./prefix":517,"./suffix":518}],515:[function(require,module,exports){
 module["exports"] = [
   "Amato",
   "Barbieri",
@@ -24603,9 +36737,9 @@ module["exports"] = [
   "Vitali"
 ];
 
-},{}],423:[function(require,module,exports){
-module.exports=require(388)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":388}],424:[function(require,module,exports){
+},{}],516:[function(require,module,exports){
+module.exports=require(450)
+},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":450}],517:[function(require,module,exports){
 module["exports"] = [
   "Sig.",
   "Dott.",
@@ -24613,10 +36747,10 @@ module["exports"] = [
   "Ing."
 ];
 
-},{}],425:[function(require,module,exports){
+},{}],518:[function(require,module,exports){
 module["exports"] = [];
 
-},{}],426:[function(require,module,exports){
+},{}],519:[function(require,module,exports){
 module["exports"] = [
   "+## ### ## ## ####",
   "+## ## #######",
@@ -24631,9 +36765,9 @@ module["exports"] = [
   "+39 3## ### ###"
 ];
 
-},{}],427:[function(require,module,exports){
+},{}],520:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":426,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],428:[function(require,module,exports){
+},{"./formats":519,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],521:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{Name.first_name}#{city_suffix}",
   "#{Name.first_name}#{city_suffix}",
@@ -24641,7 +36775,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],429:[function(require,module,exports){
+},{}],522:[function(require,module,exports){
 module["exports"] = [
   "北",
   "東",
@@ -24652,7 +36786,7 @@ module["exports"] = [
   "港"
 ];
 
-},{}],430:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 module["exports"] = [
   "市",
   "区",
@@ -24660,7 +36794,7 @@ module["exports"] = [
   "村"
 ];
 
-},{}],431:[function(require,module,exports){
+},{}],524:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -24671,12 +36805,12 @@ address.city_suffix = require("./city_suffix");
 address.city = require("./city");
 address.street_name = require("./street_name");
 
-},{"./city":428,"./city_prefix":429,"./city_suffix":430,"./postcode":432,"./state":433,"./state_abbr":434,"./street_name":435}],432:[function(require,module,exports){
+},{"./city":521,"./city_prefix":522,"./city_suffix":523,"./postcode":525,"./state":526,"./state_abbr":527,"./street_name":528}],525:[function(require,module,exports){
 module["exports"] = [
   "###-####"
 ];
 
-},{}],433:[function(require,module,exports){
+},{}],526:[function(require,module,exports){
 module["exports"] = [
   "北海道",
   "青森県",
@@ -24727,7 +36861,7 @@ module["exports"] = [
   "沖縄県"
 ];
 
-},{}],434:[function(require,module,exports){
+},{}],527:[function(require,module,exports){
 module["exports"] = [
   "1",
   "2",
@@ -24778,22 +36912,22 @@ module["exports"] = [
   "47"
 ];
 
-},{}],435:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name}#{street_suffix}",
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],436:[function(require,module,exports){
+},{}],529:[function(require,module,exports){
 module["exports"] = [
   "090-####-####",
   "080-####-####",
   "070-####-####"
 ];
 
-},{}],437:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":436,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],438:[function(require,module,exports){
+},{"./formats":529,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],531:[function(require,module,exports){
 var ja = {};
 module['exports'] = ja;
 ja.title = "Japanese";
@@ -24802,7 +36936,7 @@ ja.phone_number = require("./phone_number");
 ja.cell_phone = require("./cell_phone");
 ja.name = require("./name");
 
-},{"./address":431,"./cell_phone":437,"./name":440,"./phone_number":444}],439:[function(require,module,exports){
+},{"./address":524,"./cell_phone":530,"./name":533,"./phone_number":537}],532:[function(require,module,exports){
 module["exports"] = [
   "大翔",
   "蓮",
@@ -24827,14 +36961,14 @@ module["exports"] = [
   "美咲"
 ];
 
-},{}],440:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.last_name = require("./last_name");
 name.first_name = require("./first_name");
 name.name = require("./name");
 
-},{"./first_name":439,"./last_name":441,"./name":442}],441:[function(require,module,exports){
+},{"./first_name":532,"./last_name":534,"./name":535}],534:[function(require,module,exports){
 module["exports"] = [
   "佐藤",
   "鈴木",
@@ -24858,12 +36992,12 @@ module["exports"] = [
   "清水"
 ];
 
-},{}],442:[function(require,module,exports){
+},{}],535:[function(require,module,exports){
 module["exports"] = [
   "#{last_name} #{first_name}"
 ];
 
-},{}],443:[function(require,module,exports){
+},{}],536:[function(require,module,exports){
 module["exports"] = [
   "0####-#-####",
   "0###-##-####",
@@ -24871,14 +37005,14 @@ module["exports"] = [
   "0#-####-####"
 ];
 
-},{}],444:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":443,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],445:[function(require,module,exports){
+},{"./formats":536,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],538:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}#{city_suffix}"
 ];
 
-},{}],446:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 module["exports"] = [
   "강릉",
   "양양",
@@ -24910,14 +37044,14 @@ module["exports"] = [
   "수성"
 ];
 
-},{}],447:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 module["exports"] = [
   "구",
   "시",
   "군"
 ];
 
-},{}],448:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -24930,12 +37064,12 @@ address.street_root = require("./street_root");
 address.street_suffix = require("./street_suffix");
 address.street_name = require("./street_name");
 
-},{"./city":445,"./city_name":446,"./city_suffix":447,"./postcode":449,"./state":450,"./state_abbr":451,"./street_name":452,"./street_root":453,"./street_suffix":454}],449:[function(require,module,exports){
+},{"./city":538,"./city_name":539,"./city_suffix":540,"./postcode":542,"./state":543,"./state_abbr":544,"./street_name":545,"./street_root":546,"./street_suffix":547}],542:[function(require,module,exports){
 module["exports"] = [
   "###-###"
 ];
 
-},{}],450:[function(require,module,exports){
+},{}],543:[function(require,module,exports){
 module["exports"] = [
   "강원",
   "경기",
@@ -24956,14 +37090,14 @@ module["exports"] = [
   "세종"
 ];
 
-},{}],451:[function(require,module,exports){
-module.exports=require(450)
-},{"/Users/a/dev/faker.js/lib/locales/ko/address/state.js":450}],452:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
+module.exports=require(543)
+},{"/Users/a/dev/faker.js/lib/locales/ko/address/state.js":543}],545:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}"
 ];
 
-},{}],453:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
 module["exports"] = [
   "상계",
   "화곡",
@@ -24995,33 +37129,33 @@ module["exports"] = [
   "동탄"
 ];
 
-},{}],454:[function(require,module,exports){
+},{}],547:[function(require,module,exports){
 module["exports"] = [
   "읍",
   "면",
   "동"
 ];
 
-},{}],455:[function(require,module,exports){
+},{}],548:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":456,"./prefix":457,"./suffix":458}],456:[function(require,module,exports){
+},{"./name":549,"./prefix":550,"./suffix":551}],549:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{Name.first_name} #{suffix}"
 ];
 
-},{}],457:[function(require,module,exports){
+},{}],550:[function(require,module,exports){
 module["exports"] = [
   "주식회사",
   "한국"
 ];
 
-},{}],458:[function(require,module,exports){
+},{}],551:[function(require,module,exports){
 module["exports"] = [
   "연구소",
   "게임즈",
@@ -25031,7 +37165,7 @@ module["exports"] = [
   "코리아"
 ];
 
-},{}],459:[function(require,module,exports){
+},{}],552:[function(require,module,exports){
 var ko = {};
 module['exports'] = ko;
 ko.title = "Korean";
@@ -25042,7 +37176,7 @@ ko.internet = require("./internet");
 ko.lorem = require("./lorem");
 ko.name = require("./name");
 
-},{"./address":448,"./company":455,"./internet":462,"./lorem":463,"./name":466,"./phone_number":470}],460:[function(require,module,exports){
+},{"./address":541,"./company":548,"./internet":555,"./lorem":556,"./name":559,"./phone_number":563}],553:[function(require,module,exports){
 module["exports"] = [
   "co.kr",
   "com",
@@ -25054,7 +37188,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],461:[function(require,module,exports){
+},{}],554:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.kr",
@@ -25062,11 +37196,11 @@ module["exports"] = [
   "naver.com"
 ];
 
-},{}],462:[function(require,module,exports){
+},{}],555:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":460,"./free_email":461,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],463:[function(require,module,exports){
+},{"./domain_suffix":553,"./free_email":554,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],556:[function(require,module,exports){
 arguments[4][38][0].apply(exports,arguments)
-},{"./words":464,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],464:[function(require,module,exports){
+},{"./words":557,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],557:[function(require,module,exports){
 module["exports"] = [
   "국가는",
   "법률이",
@@ -25198,7 +37332,7 @@ module["exports"] = [
   "가진다."
 ];
 
-},{}],465:[function(require,module,exports){
+},{}],558:[function(require,module,exports){
 module["exports"] = [
   "서연",
   "민서",
@@ -25223,9 +37357,9 @@ module["exports"] = [
   "은주"
 ];
 
-},{}],466:[function(require,module,exports){
-arguments[4][440][0].apply(exports,arguments)
-},{"./first_name":465,"./last_name":467,"./name":468,"/Users/a/dev/faker.js/lib/locales/ja/name/index.js":440}],467:[function(require,module,exports){
+},{}],559:[function(require,module,exports){
+arguments[4][533][0].apply(exports,arguments)
+},{"./first_name":558,"./last_name":560,"./name":561,"/Users/a/dev/faker.js/lib/locales/ja/name/index.js":533}],560:[function(require,module,exports){
 module["exports"] = [
   "김",
   "이",
@@ -25249,29 +37383,29 @@ module["exports"] = [
   "홍"
 ];
 
-},{}],468:[function(require,module,exports){
-module.exports=require(442)
-},{"/Users/a/dev/faker.js/lib/locales/ja/name/name.js":442}],469:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
+module.exports=require(535)
+},{"/Users/a/dev/faker.js/lib/locales/ja/name/name.js":535}],562:[function(require,module,exports){
 module["exports"] = [
   "0#-#####-####",
   "0##-###-####",
   "0##-####-####"
 ];
 
-},{}],470:[function(require,module,exports){
+},{}],563:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":469,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],471:[function(require,module,exports){
+},{"./formats":562,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],564:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##"
 ];
 
-},{}],472:[function(require,module,exports){
+},{}],565:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}#{city_suffix}"
 ];
 
-},{}],473:[function(require,module,exports){
+},{}],566:[function(require,module,exports){
 module["exports"] = [
   "Fet",
   "Gjes",
@@ -25292,7 +37426,7 @@ module["exports"] = [
   "Vest"
 ];
 
-},{}],474:[function(require,module,exports){
+},{}],567:[function(require,module,exports){
 module["exports"] = [
   "berg",
   "borg",
@@ -25324,7 +37458,7 @@ module["exports"] = [
   "ås"
 ];
 
-},{}],475:[function(require,module,exports){
+},{}],568:[function(require,module,exports){
 module["exports"] = [
   "sgate",
   "svei",
@@ -25334,12 +37468,12 @@ module["exports"] = [
   "veien"
 ];
 
-},{}],476:[function(require,module,exports){
+},{}],569:[function(require,module,exports){
 module["exports"] = [
   "Norge"
 ];
 
-},{}],477:[function(require,module,exports){
+},{}],570:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -25357,7 +37491,7 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":471,"./city":472,"./city_root":473,"./city_suffix":474,"./common_street_suffix":475,"./default_country":476,"./postcode":478,"./secondary_address":479,"./state":480,"./street_address":481,"./street_name":482,"./street_prefix":483,"./street_root":484,"./street_suffix":485}],478:[function(require,module,exports){
+},{"./building_number":564,"./city":565,"./city_root":566,"./city_suffix":567,"./common_street_suffix":568,"./default_country":569,"./postcode":571,"./secondary_address":572,"./state":573,"./street_address":574,"./street_name":575,"./street_prefix":576,"./street_root":577,"./street_suffix":578}],571:[function(require,module,exports){
 module["exports"] = [
   "####",
   "####",
@@ -25365,21 +37499,21 @@ module["exports"] = [
   "0###"
 ];
 
-},{}],479:[function(require,module,exports){
+},{}],572:[function(require,module,exports){
 module["exports"] = [
   "Leil. ###",
   "Oppgang A",
   "Oppgang B"
 ];
 
-},{}],480:[function(require,module,exports){
+},{}],573:[function(require,module,exports){
 module["exports"] = [
   ""
 ];
 
-},{}],481:[function(require,module,exports){
+},{}],574:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],482:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],575:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}",
   "#{street_prefix} #{street_root}#{street_suffix}",
@@ -25387,7 +37521,7 @@ module["exports"] = [
   "#{Name.last_name}#{common_street_suffix}"
 ];
 
-},{}],483:[function(require,module,exports){
+},{}],576:[function(require,module,exports){
 module["exports"] = [
   "Øvre",
   "Nedre",
@@ -25397,7 +37531,7 @@ module["exports"] = [
   "Vestre"
 ];
 
-},{}],484:[function(require,module,exports){
+},{}],577:[function(require,module,exports){
 module["exports"] = [
   "Eike",
   "Bjørke",
@@ -25434,7 +37568,7 @@ module["exports"] = [
   "Sjø"
 ];
 
-},{}],485:[function(require,module,exports){
+},{}],578:[function(require,module,exports){
 module["exports"] = [
   "alléen",
   "bakken",
@@ -25484,16 +37618,16 @@ module["exports"] = [
   "åsen"
 ];
 
-},{}],486:[function(require,module,exports){
+},{}],579:[function(require,module,exports){
 arguments[4][83][0].apply(exports,arguments)
-},{"./name":487,"./suffix":488,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],487:[function(require,module,exports){
+},{"./name":580,"./suffix":581,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],580:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} og #{Name.last_name}"
 ];
 
-},{}],488:[function(require,module,exports){
+},{}],581:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AS",
@@ -25503,7 +37637,7 @@ module["exports"] = [
   "og Sønner"
 ];
 
-},{}],489:[function(require,module,exports){
+},{}],582:[function(require,module,exports){
 var nb_NO = {};
 module['exports'] = nb_NO;
 nb_NO.title = "Norwegian";
@@ -25513,7 +37647,7 @@ nb_NO.internet = require("./internet");
 nb_NO.name = require("./name");
 nb_NO.phone_number = require("./phone_number");
 
-},{"./address":477,"./company":486,"./internet":491,"./name":494,"./phone_number":501}],490:[function(require,module,exports){
+},{"./address":570,"./company":579,"./internet":584,"./name":587,"./phone_number":594}],583:[function(require,module,exports){
 module["exports"] = [
   "no",
   "com",
@@ -25521,9 +37655,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],491:[function(require,module,exports){
+},{}],584:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":490,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],492:[function(require,module,exports){
+},{"./domain_suffix":583,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],585:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -25577,7 +37711,7 @@ module["exports"] = [
   "Madeleine"
 ];
 
-},{}],493:[function(require,module,exports){
+},{}],586:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -25681,7 +37815,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],494:[function(require,module,exports){
+},{}],587:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -25692,7 +37826,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./feminine_name":492,"./first_name":493,"./last_name":495,"./masculine_name":496,"./name":497,"./prefix":498,"./suffix":499}],495:[function(require,module,exports){
+},{"./feminine_name":585,"./first_name":586,"./last_name":588,"./masculine_name":589,"./name":590,"./prefix":591,"./suffix":592}],588:[function(require,module,exports){
 module["exports"] = [
   "Johansen",
   "Hansen",
@@ -25796,7 +37930,7 @@ module["exports"] = [
   "Edvardsen"
 ];
 
-},{}],496:[function(require,module,exports){
+},{}],589:[function(require,module,exports){
 module["exports"] = [
   "Markus",
   "Mathias",
@@ -25850,7 +37984,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],497:[function(require,module,exports){
+},{}],590:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -25860,13 +37994,13 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],498:[function(require,module,exports){
+},{}],591:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof."
 ];
 
-},{}],499:[function(require,module,exports){
+},{}],592:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -25877,7 +38011,7 @@ module["exports"] = [
   "V"
 ];
 
-},{}],500:[function(require,module,exports){
+},{}],593:[function(require,module,exports){
 module["exports"] = [
   "########",
   "## ## ## ##",
@@ -25885,9 +38019,9 @@ module["exports"] = [
   "+47 ## ## ## ##"
 ];
 
-},{}],501:[function(require,module,exports){
+},{}],594:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":500,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],502:[function(require,module,exports){
+},{"./formats":593,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],595:[function(require,module,exports){
 module["exports"] = [
   "Bhaktapur",
   "Biratnagar",
@@ -25907,12 +38041,12 @@ module["exports"] = [
   "Pokhara"
 ];
 
-},{}],503:[function(require,module,exports){
+},{}],596:[function(require,module,exports){
 module["exports"] = [
   "Nepal"
 ];
 
-},{}],504:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -25920,12 +38054,12 @@ address.state = require("./state");
 address.city = require("./city");
 address.default_country = require("./default_country");
 
-},{"./city":502,"./default_country":503,"./postcode":505,"./state":506}],505:[function(require,module,exports){
+},{"./city":595,"./default_country":596,"./postcode":598,"./state":599}],598:[function(require,module,exports){
 module["exports"] = [
   0
 ];
 
-},{}],506:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
 module["exports"] = [
   "Baglung",
   "Banke",
@@ -25982,9 +38116,9 @@ module["exports"] = [
   "Terhathum"
 ];
 
-},{}],507:[function(require,module,exports){
-arguments[4][180][0].apply(exports,arguments)
-},{"./suffix":508,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":180}],508:[function(require,module,exports){
+},{}],600:[function(require,module,exports){
+arguments[4][191][0].apply(exports,arguments)
+},{"./suffix":601,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":191}],601:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Group",
@@ -25992,7 +38126,7 @@ module["exports"] = [
   "Limited"
 ];
 
-},{}],509:[function(require,module,exports){
+},{}],602:[function(require,module,exports){
 var nep = {};
 module['exports'] = nep;
 nep.title = "Nepalese";
@@ -26002,7 +38136,7 @@ nep.internet = require("./internet");
 nep.company = require("./company");
 nep.phone_number = require("./phone_number");
 
-},{"./address":504,"./company":507,"./internet":512,"./name":514,"./phone_number":517}],510:[function(require,module,exports){
+},{"./address":597,"./company":600,"./internet":605,"./name":607,"./phone_number":610}],603:[function(require,module,exports){
 module["exports"] = [
   "np",
   "com",
@@ -26011,7 +38145,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],511:[function(require,module,exports){
+},{}],604:[function(require,module,exports){
 module["exports"] = [
   "worldlink.com.np",
   "gmail.com",
@@ -26019,9 +38153,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],512:[function(require,module,exports){
+},{}],605:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":510,"./free_email":511,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],513:[function(require,module,exports){
+},{"./domain_suffix":603,"./free_email":604,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],606:[function(require,module,exports){
 module["exports"] = [
   "Aarav",
   "Ajita",
@@ -26080,9 +38214,9 @@ module["exports"] = [
   "Sushant"
 ];
 
-},{}],514:[function(require,module,exports){
-arguments[4][186][0].apply(exports,arguments)
-},{"./first_name":513,"./last_name":515,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":186}],515:[function(require,module,exports){
+},{}],607:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"./first_name":606,"./last_name":608,"/Users/a/dev/faker.js/lib/locales/en_AU/name/index.js":197}],608:[function(require,module,exports){
 module["exports"] = [
   "Adhikari",
   "Aryal",
@@ -26125,16 +38259,16 @@ module["exports"] = [
   "Thapa"
 ];
 
-},{}],516:[function(require,module,exports){
+},{}],609:[function(require,module,exports){
 module["exports"] = [
   "##-#######",
   "+977-#-#######",
   "+977########"
 ];
 
-},{}],517:[function(require,module,exports){
+},{}],610:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":516,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],518:[function(require,module,exports){
+},{"./formats":609,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],611:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
@@ -26147,7 +38281,7 @@ module["exports"] = [
   "### III"
 ];
 
-},{}],519:[function(require,module,exports){
+},{}],612:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name}#{city_suffix}",
   "#{Name.last_name}#{city_suffix}",
@@ -26155,7 +38289,7 @@ module["exports"] = [
   "#{city_prefix} #{Name.last_name}#{city_suffix}"
 ];
 
-},{}],520:[function(require,module,exports){
+},{}],613:[function(require,module,exports){
 module["exports"] = [
   "Noord",
   "Oost",
@@ -26165,7 +38299,7 @@ module["exports"] = [
   "Oud"
 ];
 
-},{}],521:[function(require,module,exports){
+},{}],614:[function(require,module,exports){
 module["exports"] = [
   "dam",
   "berg",
@@ -26198,7 +38332,7 @@ module["exports"] = [
   "meer"
 ];
 
-},{}],522:[function(require,module,exports){
+},{}],615:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Akrotiri",
@@ -26458,12 +38592,12 @@ module["exports"] = [
   "Zwitserland"
 ];
 
-},{}],523:[function(require,module,exports){
+},{}],616:[function(require,module,exports){
 module["exports"] = [
   "Nederland"
 ];
 
-},{}],524:[function(require,module,exports){
+},{}],617:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -26479,19 +38613,19 @@ address.postcode = require("./postcode");
 address.state = require("./state");
 address.default_country = require("./default_country");
 
-},{"./building_number":518,"./city":519,"./city_prefix":520,"./city_suffix":521,"./country":522,"./default_country":523,"./postcode":525,"./secondary_address":526,"./state":527,"./street_address":528,"./street_name":529,"./street_suffix":530}],525:[function(require,module,exports){
+},{"./building_number":611,"./city":612,"./city_prefix":613,"./city_suffix":614,"./country":615,"./default_country":616,"./postcode":618,"./secondary_address":619,"./state":620,"./street_address":621,"./street_name":622,"./street_suffix":623}],618:[function(require,module,exports){
 module["exports"] = [
   "#### ??"
 ];
 
-},{}],526:[function(require,module,exports){
+},{}],619:[function(require,module,exports){
 module["exports"] = [
   "1 hoog",
   "2 hoog",
   "3 hoog"
 ];
 
-},{}],527:[function(require,module,exports){
+},{}],620:[function(require,module,exports){
 module["exports"] = [
   "Noord-Holland",
   "Zuid-Holland",
@@ -26507,11 +38641,11 @@ module["exports"] = [
   "Flevoland"
 ];
 
-},{}],528:[function(require,module,exports){
+},{}],621:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],529:[function(require,module,exports){
-module.exports=require(435)
-},{"/Users/a/dev/faker.js/lib/locales/ja/address/street_name.js":435}],530:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],622:[function(require,module,exports){
+module.exports=require(528)
+},{"/Users/a/dev/faker.js/lib/locales/ja/address/street_name.js":528}],623:[function(require,module,exports){
 module["exports"] = [
   "straat",
   "laan",
@@ -26520,9 +38654,9 @@ module["exports"] = [
   "park"
 ];
 
-},{}],531:[function(require,module,exports){
-arguments[4][180][0].apply(exports,arguments)
-},{"./suffix":532,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":180}],532:[function(require,module,exports){
+},{}],624:[function(require,module,exports){
+arguments[4][191][0].apply(exports,arguments)
+},{"./suffix":625,"/Users/a/dev/faker.js/lib/locales/en_AU/company/index.js":191}],625:[function(require,module,exports){
 module["exports"] = [
   "BV",
   "V.O.F.",
@@ -26530,7 +38664,7 @@ module["exports"] = [
   "en Zonen"
 ];
 
-},{}],533:[function(require,module,exports){
+},{}],626:[function(require,module,exports){
 var nl = {};
 module['exports'] = nl;
 nl.title = "Dutch";
@@ -26541,7 +38675,7 @@ nl.lorem = require("./lorem");
 nl.name = require("./name");
 nl.phone_number = require("./phone_number");
 
-},{"./address":524,"./company":531,"./internet":536,"./lorem":537,"./name":541,"./phone_number":548}],534:[function(require,module,exports){
+},{"./address":617,"./company":624,"./internet":629,"./lorem":630,"./name":634,"./phone_number":641}],627:[function(require,module,exports){
 module["exports"] = [
   "nl",
   "com",
@@ -26549,17 +38683,17 @@ module["exports"] = [
   "org"
 ];
 
-},{}],535:[function(require,module,exports){
+},{}],628:[function(require,module,exports){
 module.exports=require(36)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],536:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],629:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":534,"./free_email":535,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],537:[function(require,module,exports){
-module.exports=require(158)
-},{"./supplemental":538,"./words":539,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":158}],538:[function(require,module,exports){
-module.exports=require(159)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":159}],539:[function(require,module,exports){
+},{"./domain_suffix":627,"./free_email":628,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],630:[function(require,module,exports){
+module.exports=require(167)
+},{"./supplemental":631,"./words":632,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":167}],631:[function(require,module,exports){
+module.exports=require(168)
+},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":168}],632:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],540:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],633:[function(require,module,exports){
 module["exports"] = [
   "Amber",
   "Anna",
@@ -26613,7 +38747,7 @@ module["exports"] = [
   "Tom"
 ];
 
-},{}],541:[function(require,module,exports){
+},{}],634:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -26623,7 +38757,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":540,"./last_name":542,"./name":543,"./prefix":544,"./suffix":545,"./tussenvoegsel":546}],542:[function(require,module,exports){
+},{"./first_name":633,"./last_name":635,"./name":636,"./prefix":637,"./suffix":638,"./tussenvoegsel":639}],635:[function(require,module,exports){
 module["exports"] = [
   "Bakker",
   "Beek",
@@ -26677,7 +38811,7 @@ module["exports"] = [
   "Wit"
 ];
 
-},{}],543:[function(require,module,exports){
+},{}],636:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -26687,7 +38821,7 @@ module["exports"] = [
   "#{first_name} #{tussenvoegsel} #{last_name}"
 ];
 
-},{}],544:[function(require,module,exports){
+},{}],637:[function(require,module,exports){
 module["exports"] = [
   "Dhr.",
   "Mevr. Dr.",
@@ -26696,9 +38830,9 @@ module["exports"] = [
   "Prof."
 ];
 
-},{}],545:[function(require,module,exports){
-module.exports=require(499)
-},{"/Users/a/dev/faker.js/lib/locales/nb_NO/name/suffix.js":499}],546:[function(require,module,exports){
+},{}],638:[function(require,module,exports){
+module.exports=require(592)
+},{"/Users/a/dev/faker.js/lib/locales/nb_NO/name/suffix.js":592}],639:[function(require,module,exports){
 module["exports"] = [
   "van",
   "van de",
@@ -26709,7 +38843,7 @@ module["exports"] = [
   "den"
 ];
 
-},{}],547:[function(require,module,exports){
+},{}],640:[function(require,module,exports){
 module["exports"] = [
   "(####) ######",
   "##########",
@@ -26717,13 +38851,13 @@ module["exports"] = [
   "06 #### ####"
 ];
 
-},{}],548:[function(require,module,exports){
+},{}],641:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":547,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],549:[function(require,module,exports){
-module.exports=require(91)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":91}],550:[function(require,module,exports){
+},{"./formats":640,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],642:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":96}],643:[function(require,module,exports){
 module.exports=require(49)
-},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],551:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],644:[function(require,module,exports){
 module["exports"] = [
   "Aleksandrów Kujawski",
   "Aleksandrów Łódzki",
@@ -27635,7 +39769,7 @@ module["exports"] = [
   "Żywiec"
 ];
 
-},{}],552:[function(require,module,exports){
+},{}],645:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Albania",
@@ -27838,12 +39972,12 @@ module["exports"] = [
   "Zjednoczone Emiraty Arabskie"
 ];
 
-},{}],553:[function(require,module,exports){
+},{}],646:[function(require,module,exports){
 module["exports"] = [
   "Polska"
 ];
 
-},{}],554:[function(require,module,exports){
+},{}],647:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -27859,14 +39993,14 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":549,"./city":550,"./city_name":551,"./country":552,"./default_country":553,"./postcode":555,"./secondary_address":556,"./state":557,"./state_abbr":558,"./street_address":559,"./street_name":560,"./street_prefix":561}],555:[function(require,module,exports){
+},{"./building_number":642,"./city":643,"./city_name":644,"./country":645,"./default_country":646,"./postcode":648,"./secondary_address":649,"./state":650,"./state_abbr":651,"./street_address":652,"./street_name":653,"./street_prefix":654}],648:[function(require,module,exports){
 module["exports"] = [
   "##-###"
 ];
 
-},{}],556:[function(require,module,exports){
-module.exports=require(102)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/secondary_address.js":102}],557:[function(require,module,exports){
+},{}],649:[function(require,module,exports){
+module.exports=require(107)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/secondary_address.js":107}],650:[function(require,module,exports){
 module["exports"] = [
   "Dolnośląskie",
   "Kujawsko-pomorskie",
@@ -27886,7 +40020,7 @@ module["exports"] = [
   "Zachodniopomorskie"
 ];
 
-},{}],558:[function(require,module,exports){
+},{}],651:[function(require,module,exports){
 module["exports"] = [
   "DŚ",
   "KP",
@@ -27906,20 +40040,20 @@ module["exports"] = [
   "ZP"
 ];
 
-},{}],559:[function(require,module,exports){
+},{}],652:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],560:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],653:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Name.last_name}"
 ];
 
-},{}],561:[function(require,module,exports){
+},{}],654:[function(require,module,exports){
 module["exports"] = [
   "ul.",
   "al."
 ];
 
-},{}],562:[function(require,module,exports){
+},{}],655:[function(require,module,exports){
 module["exports"] = [
   "50-###-##-##",
   "51-###-##-##",
@@ -27935,19 +40069,19 @@ module["exports"] = [
   "88-###-##-##"
 ];
 
-},{}],563:[function(require,module,exports){
+},{}],656:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":562,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],564:[function(require,module,exports){
-module.exports=require(123)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":123}],565:[function(require,module,exports){
-module.exports=require(124)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":124}],566:[function(require,module,exports){
-module.exports=require(125)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":125}],567:[function(require,module,exports){
-module.exports=require(126)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":126}],568:[function(require,module,exports){
-module.exports=require(127)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":127}],569:[function(require,module,exports){
+},{"./formats":655,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],657:[function(require,module,exports){
+module.exports=require(128)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":128}],658:[function(require,module,exports){
+module.exports=require(129)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_adjective.js":129}],659:[function(require,module,exports){
+module.exports=require(130)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_noun.js":130}],660:[function(require,module,exports){
+module.exports=require(131)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":131}],661:[function(require,module,exports){
+module.exports=require(132)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":132}],662:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -27959,13 +40093,13 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjetive":564,"./bs_adjective":565,"./bs_noun":566,"./bs_verb":567,"./descriptor":568,"./name":570,"./noun":571,"./suffix":572}],570:[function(require,module,exports){
-module.exports=require(129)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/name.js":129}],571:[function(require,module,exports){
-module.exports=require(130)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":130}],572:[function(require,module,exports){
-module.exports=require(131)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/suffix.js":131}],573:[function(require,module,exports){
+},{"./adjetive":657,"./bs_adjective":658,"./bs_noun":659,"./bs_verb":660,"./descriptor":661,"./name":663,"./noun":664,"./suffix":665}],663:[function(require,module,exports){
+module.exports=require(134)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/name.js":134}],664:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":135}],665:[function(require,module,exports){
+module.exports=require(136)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/suffix.js":136}],666:[function(require,module,exports){
 var pl = {};
 module['exports'] = pl;
 pl.title = "Polish";
@@ -27977,7 +40111,7 @@ pl.lorem = require("./lorem");
 pl.phone_number = require("./phone_number");
 pl.cell_phone = require("./cell_phone");
 
-},{"./address":554,"./cell_phone":563,"./company":569,"./internet":576,"./lorem":577,"./name":581,"./phone_number":587}],574:[function(require,module,exports){
+},{"./address":647,"./cell_phone":656,"./company":662,"./internet":669,"./lorem":670,"./name":674,"./phone_number":680}],667:[function(require,module,exports){
 module["exports"] = [
   "com",
   "pl",
@@ -27986,17 +40120,17 @@ module["exports"] = [
   "org"
 ];
 
-},{}],575:[function(require,module,exports){
+},{}],668:[function(require,module,exports){
 module.exports=require(36)
-},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],576:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/internet/free_email.js":36}],669:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":574,"./free_email":575,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],577:[function(require,module,exports){
-module.exports=require(158)
-},{"./supplemental":578,"./words":579,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":158}],578:[function(require,module,exports){
-module.exports=require(159)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":159}],579:[function(require,module,exports){
+},{"./domain_suffix":667,"./free_email":668,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],670:[function(require,module,exports){
+module.exports=require(167)
+},{"./supplemental":671,"./words":672,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":167}],671:[function(require,module,exports){
+module.exports=require(168)
+},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":168}],672:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],580:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],673:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abraham",
@@ -28409,9 +40543,9 @@ module["exports"] = [
   "Zoe"
 ];
 
-},{}],581:[function(require,module,exports){
-arguments[4][343][0].apply(exports,arguments)
-},{"./first_name":580,"./last_name":582,"./name":583,"./prefix":584,"./title":585,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":343}],582:[function(require,module,exports){
+},{}],674:[function(require,module,exports){
+arguments[4][405][0].apply(exports,arguments)
+},{"./first_name":673,"./last_name":675,"./name":676,"./prefix":677,"./title":678,"/Users/a/dev/faker.js/lib/locales/fr/name/index.js":405}],675:[function(require,module,exports){
 module["exports"] = [
   "Adamczak",
   "Adamczyk",
@@ -29119,17 +41253,17 @@ module["exports"] = [
   "Żyła"
 ];
 
-},{}],583:[function(require,module,exports){
-module.exports=require(388)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":388}],584:[function(require,module,exports){
+},{}],676:[function(require,module,exports){
+module.exports=require(450)
+},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":450}],677:[function(require,module,exports){
 module["exports"] = [
   "Pan",
   "Pani"
 ];
 
-},{}],585:[function(require,module,exports){
-module.exports=require(167)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":167}],586:[function(require,module,exports){
+},{}],678:[function(require,module,exports){
+module.exports=require(176)
+},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":176}],679:[function(require,module,exports){
 module["exports"] = [
   "12-###-##-##",
   "13-###-##-##",
@@ -29182,11 +41316,11 @@ module["exports"] = [
   "95-###-##-##"
 ];
 
-},{}],587:[function(require,module,exports){
+},{}],680:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":586,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],588:[function(require,module,exports){
-module.exports=require(91)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":91}],589:[function(require,module,exports){
+},{"./formats":679,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],681:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/building_number.js":96}],682:[function(require,module,exports){
 module["exports"] = [
   "Nova",
   "Velha",
@@ -29195,7 +41329,7 @@ module["exports"] = [
   "Município de"
 ];
 
-},{}],590:[function(require,module,exports){
+},{}],683:[function(require,module,exports){
 module["exports"] = [
   "do Descoberto",
   "de Nossa Senhora",
@@ -29203,7 +41337,7 @@ module["exports"] = [
   "do Sul"
 ];
 
-},{}],591:[function(require,module,exports){
+},{}],684:[function(require,module,exports){
 module["exports"] = [
   "Afeganistão",
   "Albânia",
@@ -29444,12 +41578,12 @@ module["exports"] = [
   "Zimbábue"
 ];
 
-},{}],592:[function(require,module,exports){
+},{}],685:[function(require,module,exports){
 module["exports"] = [
   "Brasil"
 ];
 
-},{}],593:[function(require,module,exports){
+},{}],686:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -29463,13 +41597,13 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./building_number":588,"./city_prefix":589,"./city_suffix":590,"./country":591,"./default_country":592,"./postcode":594,"./secondary_address":595,"./state":596,"./state_abbr":597,"./street_suffix":598}],594:[function(require,module,exports){
+},{"./building_number":681,"./city_prefix":682,"./city_suffix":683,"./country":684,"./default_country":685,"./postcode":687,"./secondary_address":688,"./state":689,"./state_abbr":690,"./street_suffix":691}],687:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####-###"
 ];
 
-},{}],595:[function(require,module,exports){
+},{}],688:[function(require,module,exports){
 module["exports"] = [
   "Apto. ###",
   "Sobrado ##",
@@ -29478,7 +41612,7 @@ module["exports"] = [
   "Quadra ##"
 ];
 
-},{}],596:[function(require,module,exports){
+},{}],689:[function(require,module,exports){
 module["exports"] = [
   "Acre",
   "Alagoas",
@@ -29509,7 +41643,7 @@ module["exports"] = [
   "Tocantins"
 ];
 
-},{}],597:[function(require,module,exports){
+},{}],690:[function(require,module,exports){
 module["exports"] = [
   "AC",
   "AL",
@@ -29537,7 +41671,7 @@ module["exports"] = [
   "SP"
 ];
 
-},{}],598:[function(require,module,exports){
+},{}],691:[function(require,module,exports){
 module["exports"] = [
   "Rua",
   "Avenida",
@@ -29549,16 +41683,16 @@ module["exports"] = [
   "Rodovia"
 ];
 
-},{}],599:[function(require,module,exports){
+},{}],692:[function(require,module,exports){
 arguments[4][83][0].apply(exports,arguments)
-},{"./name":600,"./suffix":601,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],600:[function(require,module,exports){
+},{"./name":693,"./suffix":694,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],693:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name}"
 ];
 
-},{}],601:[function(require,module,exports){
+},{}],694:[function(require,module,exports){
 module["exports"] = [
   "S.A.",
   "LTDA",
@@ -29566,7 +41700,7 @@ module["exports"] = [
   "Comércio"
 ];
 
-},{}],602:[function(require,module,exports){
+},{}],695:[function(require,module,exports){
 var pt_BR = {};
 module['exports'] = pt_BR;
 pt_BR.title = "Portuguese (Brazil)";
@@ -29577,7 +41711,7 @@ pt_BR.lorem = require("./lorem");
 pt_BR.name = require("./name");
 pt_BR.phone_number = require("./phone_number");
 
-},{"./address":593,"./company":599,"./internet":605,"./lorem":606,"./name":609,"./phone_number":614}],603:[function(require,module,exports){
+},{"./address":686,"./company":692,"./internet":698,"./lorem":699,"./name":702,"./phone_number":707}],696:[function(require,module,exports){
 module["exports"] = [
   "br",
   "com",
@@ -29588,7 +41722,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],604:[function(require,module,exports){
+},{}],697:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -29597,13 +41731,13 @@ module["exports"] = [
   "bol.com.br"
 ];
 
-},{}],605:[function(require,module,exports){
+},{}],698:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":603,"./free_email":604,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],606:[function(require,module,exports){
+},{"./domain_suffix":696,"./free_email":697,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],699:[function(require,module,exports){
 module.exports=require(38)
-},{"./words":607,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],607:[function(require,module,exports){
+},{"./words":700,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],700:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],608:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],701:[function(require,module,exports){
 module["exports"] = [
   "Alessandro",
   "Alessandra",
@@ -29698,7 +41832,7 @@ module["exports"] = [
   "Warley"
 ];
 
-},{}],609:[function(require,module,exports){
+},{}],702:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -29706,7 +41840,7 @@ name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 
-},{"./first_name":608,"./last_name":610,"./prefix":611,"./suffix":612}],610:[function(require,module,exports){
+},{"./first_name":701,"./last_name":703,"./prefix":704,"./suffix":705}],703:[function(require,module,exports){
 module["exports"] = [
   "Silva",
   "Souza",
@@ -29732,7 +41866,7 @@ module["exports"] = [
   "Albuquerque"
 ];
 
-},{}],611:[function(require,module,exports){
+},{}],704:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
@@ -29740,33 +41874,33 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],612:[function(require,module,exports){
+},{}],705:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Neto",
   "Filho"
 ];
 
-},{}],613:[function(require,module,exports){
+},{}],706:[function(require,module,exports){
 module["exports"] = [
   "(##) ####-####",
   "+55 (##) ####-####",
   "(##) #####-####"
 ];
 
-},{}],614:[function(require,module,exports){
+},{}],707:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":613,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],615:[function(require,module,exports){
+},{"./formats":706,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],708:[function(require,module,exports){
 module["exports"] = [
   "###"
 ];
 
-},{}],616:[function(require,module,exports){
+},{}],709:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city_name}"
 ];
 
-},{}],617:[function(require,module,exports){
+},{}],710:[function(require,module,exports){
 module["exports"] = [
   "Москва",
   "Владимир",
@@ -29816,7 +41950,7 @@ module["exports"] = [
   "Сочи"
 ];
 
-},{}],618:[function(require,module,exports){
+},{}],711:[function(require,module,exports){
 module["exports"] = [
   "Австралия",
   "Австрия",
@@ -30030,12 +42164,12 @@ module["exports"] = [
   "Япония"
 ];
 
-},{}],619:[function(require,module,exports){
+},{}],712:[function(require,module,exports){
 module["exports"] = [
   "Россия"
 ];
 
-},{}],620:[function(require,module,exports){
+},{}],713:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -30051,17 +42185,17 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":615,"./city":616,"./city_name":617,"./country":618,"./default_country":619,"./postcode":621,"./secondary_address":622,"./state":623,"./street_address":624,"./street_name":625,"./street_suffix":626,"./street_title":627}],621:[function(require,module,exports){
+},{"./building_number":708,"./city":709,"./city_name":710,"./country":711,"./default_country":712,"./postcode":714,"./secondary_address":715,"./state":716,"./street_address":717,"./street_name":718,"./street_suffix":719,"./street_title":720}],714:[function(require,module,exports){
 module["exports"] = [
   "######"
 ];
 
-},{}],622:[function(require,module,exports){
+},{}],715:[function(require,module,exports){
 module["exports"] = [
   "кв. ###"
 ];
 
-},{}],623:[function(require,module,exports){
+},{}],716:[function(require,module,exports){
 module["exports"] = [
   "Республика Адыгея",
   "Республика Башкортостан",
@@ -30151,18 +42285,18 @@ module["exports"] = [
   "Чеченская Республика"
 ];
 
-},{}],624:[function(require,module,exports){
+},{}],717:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}, #{building_number}"
 ];
 
-},{}],625:[function(require,module,exports){
+},{}],718:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],626:[function(require,module,exports){
+},{}],719:[function(require,module,exports){
 module["exports"] = [
   "ул.",
   "улица",
@@ -30172,7 +42306,7 @@ module["exports"] = [
   "пл."
 ];
 
-},{}],627:[function(require,module,exports){
+},{}],720:[function(require,module,exports){
 module["exports"] = [
   "Советская",
   "Молодежная",
@@ -30277,7 +42411,7 @@ module["exports"] = [
   "Майская"
 ];
 
-},{}],628:[function(require,module,exports){
+},{}],721:[function(require,module,exports){
 module["exports"] = [
   "красный",
   "зеленый",
@@ -30312,7 +42446,7 @@ module["exports"] = [
   "серебряный"
 ];
 
-},{}],629:[function(require,module,exports){
+},{}],722:[function(require,module,exports){
 module["exports"] = [
   "Книги",
   "Фильмы",
@@ -30337,9 +42471,9 @@ module["exports"] = [
   "промышленное"
 ];
 
-},{}],630:[function(require,module,exports){
-arguments[4][121][0].apply(exports,arguments)
-},{"./color":628,"./department":629,"./product_name":631,"/Users/a/dev/faker.js/lib/locales/en/commerce/index.js":121}],631:[function(require,module,exports){
+},{}],723:[function(require,module,exports){
+arguments[4][126][0].apply(exports,arguments)
+},{"./color":721,"./department":722,"./product_name":724,"/Users/a/dev/faker.js/lib/locales/en/commerce/index.js":126}],724:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Маленький",
@@ -30375,9 +42509,9 @@ module["exports"] = {
   ]
 };
 
-},{}],632:[function(require,module,exports){
-arguments[4][377][0].apply(exports,arguments)
-},{"./name":633,"./prefix":634,"./suffix":635,"/Users/a/dev/faker.js/lib/locales/ge/company/index.js":377}],633:[function(require,module,exports){
+},{}],725:[function(require,module,exports){
+arguments[4][439][0].apply(exports,arguments)
+},{"./name":726,"./prefix":727,"./suffix":728,"/Users/a/dev/faker.js/lib/locales/ge/company/index.js":439}],726:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.female_first_name}",
   "#{prefix} #{Name.male_first_name}",
@@ -30389,7 +42523,7 @@ module["exports"] = [
   "#{prefix} #{Address.city_name}#{suffix}#{suffix}#{suffix}"
 ];
 
-},{}],634:[function(require,module,exports){
+},{}],727:[function(require,module,exports){
 module["exports"] = [
   "ИП",
   "ООО",
@@ -30400,7 +42534,7 @@ module["exports"] = [
   "ОП"
 ];
 
-},{}],635:[function(require,module,exports){
+},{}],728:[function(require,module,exports){
 module["exports"] = [
   "Снаб",
   "Торг",
@@ -30409,7 +42543,111 @@ module["exports"] = [
   "Сбыт"
 ];
 
-},{}],636:[function(require,module,exports){
+},{}],729:[function(require,module,exports){
+arguments[4][148][0].apply(exports,arguments)
+},{"./month":730,"./weekday":731,"/Users/a/dev/faker.js/lib/locales/en/date/index.js":148}],730:[function(require,module,exports){
+// source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1734
+module["exports"] = {
+  wide: [
+    "январь",
+    "февраль",
+    "март",
+    "апрель",
+    "май",
+    "июнь",
+    "июль",
+    "август",
+    "сентябрь",
+    "октябрь",
+    "ноябрь",
+    "декабрь"
+  ],
+  wide_context: [
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря"
+  ],
+  abbr: [
+    "янв.",
+    "февр.",
+    "март",
+    "апр.",
+    "май",
+    "июнь",
+    "июль",
+    "авг.",
+    "сент.",
+    "окт.",
+    "нояб.",
+    "дек."
+  ],
+  abbr_context: [
+    "янв.",
+    "февр.",
+    "марта",
+    "апр.",
+    "мая",
+    "июня",
+    "июля",
+    "авг.",
+    "сент.",
+    "окт.",
+    "нояб.",
+    "дек."
+  ]
+};
+
+},{}],731:[function(require,module,exports){
+// source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1825
+module["exports"] = {
+  wide: [
+    "Воскресенье",
+    "Понедельник",
+    "Вторник",
+    "Среда",
+    "Четверг",
+    "Пятница",
+    "Суббота"
+  ],
+  wide_context: [
+    "воскресенье",
+    "понедельник",
+    "вторник",
+    "среда",
+    "четверг",
+    "пятница",
+    "суббота"
+  ],
+  abbr: [
+    "Вс",
+    "Пн",
+    "Вт",
+    "Ср",
+    "Чт",
+    "Пт",
+    "Сб"
+  ],
+  abbr_context: [
+    "вс",
+    "пн",
+    "вт",
+    "ср",
+    "чт",
+    "пт",
+    "сб"
+  ]
+};
+
+},{}],732:[function(require,module,exports){
 var ru = {};
 module['exports'] = ru;
 ru.title = "Russian";
@@ -30420,8 +42658,9 @@ ru.name = require("./name");
 ru.phone_number = require("./phone_number");
 ru.commerce = require("./commerce");
 ru.company = require("./company");
+ru.date = require("./date");
 
-},{"./address":620,"./commerce":630,"./company":632,"./internet":639,"./name":643,"./phone_number":651}],637:[function(require,module,exports){
+},{"./address":713,"./commerce":723,"./company":725,"./date":729,"./internet":735,"./name":739,"./phone_number":747}],733:[function(require,module,exports){
 module["exports"] = [
   "com",
   "ru",
@@ -30431,7 +42670,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],638:[function(require,module,exports){
+},{}],734:[function(require,module,exports){
 module["exports"] = [
   "yandex.ru",
   "ya.ru",
@@ -30441,9 +42680,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],639:[function(require,module,exports){
+},{}],735:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":637,"./free_email":638,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],640:[function(require,module,exports){
+},{"./domain_suffix":733,"./free_email":734,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],736:[function(require,module,exports){
 module["exports"] = [
   "Анна",
   "Алёна",
@@ -30503,7 +42742,7 @@ module["exports"] = [
   "Юлия"
 ];
 
-},{}],641:[function(require,module,exports){
+},{}],737:[function(require,module,exports){
 module["exports"] = [
   "Смирнова",
   "Иванова",
@@ -30757,7 +42996,7 @@ module["exports"] = [
   "Турова"
 ];
 
-},{}],642:[function(require,module,exports){
+},{}],738:[function(require,module,exports){
 module["exports"] = [
   "Александровна",
   "Алексеевна",
@@ -30812,7 +43051,7 @@ module["exports"] = [
   "Ярославовна"
 ];
 
-},{}],643:[function(require,module,exports){
+},{}],739:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -30825,7 +43064,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./female_first_name":640,"./female_last_name":641,"./female_middle_name":642,"./male_first_name":644,"./male_last_name":645,"./male_middle_name":646,"./name":647,"./prefix":648,"./suffix":649}],644:[function(require,module,exports){
+},{"./female_first_name":736,"./female_last_name":737,"./female_middle_name":738,"./male_first_name":740,"./male_last_name":741,"./male_middle_name":742,"./name":743,"./prefix":744,"./suffix":745}],740:[function(require,module,exports){
 module["exports"] = [
   "Александр",
   "Алексей",
@@ -30881,7 +43120,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],645:[function(require,module,exports){
+},{}],741:[function(require,module,exports){
 module["exports"] = [
   "Смирнов",
   "Иванов",
@@ -31135,7 +43374,7 @@ module["exports"] = [
   "Туров"
 ];
 
-},{}],646:[function(require,module,exports){
+},{}],742:[function(require,module,exports){
 module["exports"] = [
   "Александрович",
   "Алексеевич",
@@ -31191,7 +43430,7 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],647:[function(require,module,exports){
+},{}],743:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name} #{male_last_name}",
   "#{male_last_name} #{male_first_name}",
@@ -31203,27 +43442,27 @@ module["exports"] = [
   "#{female_last_name} #{female_first_name} #{female_middle_name}"
 ];
 
-},{}],648:[function(require,module,exports){
-module.exports=require(425)
-},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":425}],649:[function(require,module,exports){
-module.exports=require(425)
-},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":425}],650:[function(require,module,exports){
+},{}],744:[function(require,module,exports){
+module.exports=require(518)
+},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":518}],745:[function(require,module,exports){
+module.exports=require(518)
+},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":518}],746:[function(require,module,exports){
 module["exports"] = [
   "(9##)###-##-##"
 ];
 
-},{}],651:[function(require,module,exports){
+},{}],747:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":650,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],652:[function(require,module,exports){
+},{"./formats":746,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],748:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
   "###"
 ];
 
-},{}],653:[function(require,module,exports){
+},{}],749:[function(require,module,exports){
 module.exports=require(49)
-},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],654:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de_AT/address/city.js":49}],750:[function(require,module,exports){
 module["exports"] = [
   "Bánovce nad Bebravou",
   "Banská Bystrica",
@@ -31306,11 +43545,11 @@ module["exports"] = [
   "Zvolen"
 ];
 
-},{}],655:[function(require,module,exports){
-module.exports=require(93)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/city_prefix.js":93}],656:[function(require,module,exports){
-module.exports=require(94)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/city_suffix.js":94}],657:[function(require,module,exports){
+},{}],751:[function(require,module,exports){
+module.exports=require(98)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/city_prefix.js":98}],752:[function(require,module,exports){
+module.exports=require(99)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/city_suffix.js":99}],753:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Afgánsky islamský štát",
@@ -31696,12 +43935,12 @@ module["exports"] = [
   "Zimbabwianska republika"
 ];
 
-},{}],658:[function(require,module,exports){
+},{}],754:[function(require,module,exports){
 module["exports"] = [
   "Slovensko"
 ];
 
-},{}],659:[function(require,module,exports){
+},{}],755:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -31720,20 +43959,20 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":652,"./city":653,"./city_name":654,"./city_prefix":655,"./city_suffix":656,"./country":657,"./default_country":658,"./postcode":660,"./secondary_address":661,"./state":662,"./state_abbr":663,"./street":664,"./street_address":665,"./street_name":666,"./time_zone":667}],660:[function(require,module,exports){
+},{"./building_number":748,"./city":749,"./city_name":750,"./city_prefix":751,"./city_suffix":752,"./country":753,"./default_country":754,"./postcode":756,"./secondary_address":757,"./state":758,"./state_abbr":759,"./street":760,"./street_address":761,"./street_name":762,"./time_zone":763}],756:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "### ##",
   "## ###"
 ];
 
-},{}],661:[function(require,module,exports){
-module.exports=require(102)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/secondary_address.js":102}],662:[function(require,module,exports){
-module.exports=require(425)
-},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":425}],663:[function(require,module,exports){
-module.exports=require(425)
-},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":425}],664:[function(require,module,exports){
+},{}],757:[function(require,module,exports){
+module.exports=require(107)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/secondary_address.js":107}],758:[function(require,module,exports){
+module.exports=require(518)
+},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":518}],759:[function(require,module,exports){
+module.exports=require(518)
+},{"/Users/a/dev/faker.js/lib/locales/it/name/suffix.js":518}],760:[function(require,module,exports){
 module["exports"] = [
   "Adámiho",
   "Ahoj",
@@ -32897,18 +45136,18 @@ module["exports"] = [
   "Župné námestie"
 ];
 
-},{}],665:[function(require,module,exports){
+},{}],761:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],666:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],762:[function(require,module,exports){
 module["exports"] = [
   "#{street}"
 ];
 
-},{}],667:[function(require,module,exports){
-module.exports=require(108)
-},{"/Users/a/dev/faker.js/lib/locales/en/address/time_zone.js":108}],668:[function(require,module,exports){
-module.exports=require(123)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":123}],669:[function(require,module,exports){
+},{}],763:[function(require,module,exports){
+module.exports=require(113)
+},{"/Users/a/dev/faker.js/lib/locales/en/address/time_zone.js":113}],764:[function(require,module,exports){
+module.exports=require(128)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/adjective.js":128}],765:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -33021,11 +45260,11 @@ module["exports"] = [
   "methodologies"
 ];
 
-},{}],670:[function(require,module,exports){
-module.exports=require(126)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":126}],671:[function(require,module,exports){
-module.exports=require(127)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":127}],672:[function(require,module,exports){
+},{}],766:[function(require,module,exports){
+module.exports=require(131)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/bs_verb.js":131}],767:[function(require,module,exports){
+module.exports=require(132)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/descriptor.js":132}],768:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -33036,23 +45275,23 @@ company.bs_verb = require("./bs_verb");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":668,"./bs_noun":669,"./bs_verb":670,"./descriptor":671,"./name":673,"./noun":674,"./suffix":675}],673:[function(require,module,exports){
+},{"./adjective":764,"./bs_noun":765,"./bs_verb":766,"./descriptor":767,"./name":769,"./noun":770,"./suffix":771}],769:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} #{suffix}",
   "#{Name.man_last_name} a #{Name.man_last_name} #{suffix}"
 ];
 
-},{}],674:[function(require,module,exports){
-module.exports=require(130)
-},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":130}],675:[function(require,module,exports){
+},{}],770:[function(require,module,exports){
+module.exports=require(135)
+},{"/Users/a/dev/faker.js/lib/locales/en/company/noun.js":135}],771:[function(require,module,exports){
 module["exports"] = [
   "s.r.o.",
   "a.s.",
   "v.o.s."
 ];
 
-},{}],676:[function(require,module,exports){
+},{}],772:[function(require,module,exports){
 var sk = {};
 module['exports'] = sk;
 sk.title = "Slovakian";
@@ -33063,7 +45302,7 @@ sk.lorem = require("./lorem");
 sk.name = require("./name");
 sk.phone_number = require("./phone_number");
 
-},{"./address":659,"./company":672,"./internet":679,"./lorem":680,"./name":683,"./phone_number":693}],677:[function(require,module,exports){
+},{"./address":755,"./company":768,"./internet":775,"./lorem":776,"./name":781,"./phone_number":789}],773:[function(require,module,exports){
 module["exports"] = [
   "sk",
   "com",
@@ -33072,34 +45311,493 @@ module["exports"] = [
   "org"
 ];
 
-},{}],678:[function(require,module,exports){
+},{}],774:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "zoznam.sk",
   "azet.sk"
 ];
 
-},{}],679:[function(require,module,exports){
+},{}],775:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":677,"./free_email":678,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],680:[function(require,module,exports){
-module.exports=require(158)
-},{"./supplemental":681,"./words":682,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":158}],681:[function(require,module,exports){
-module.exports=require(159)
-},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":159}],682:[function(require,module,exports){
+},{"./domain_suffix":773,"./free_email":774,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],776:[function(require,module,exports){
+module.exports=require(167)
+},{"./supplemental":777,"./words":778,"/Users/a/dev/faker.js/lib/locales/en/lorem/index.js":167}],777:[function(require,module,exports){
+module.exports=require(168)
+},{"/Users/a/dev/faker.js/lib/locales/en/lorem/supplemental.js":168}],778:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],683:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],779:[function(require,module,exports){
+module["exports"] = [
+  "Alexandra",
+  "Karina",
+  "Daniela",
+  "Andrea",
+  "Antónia",
+  "Bohuslava",
+  "Dáša",
+  "Malvína",
+  "Kristína",
+  "Nataša",
+  "Bohdana",
+  "Drahomíra",
+  "Sára",
+  "Zora",
+  "Tamara",
+  "Ema",
+  "Tatiana",
+  "Erika",
+  "Veronika",
+  "Agáta",
+  "Dorota",
+  "Vanda",
+  "Zoja",
+  "Gabriela",
+  "Perla",
+  "Ida",
+  "Liana",
+  "Miloslava",
+  "Vlasta",
+  "Lívia",
+  "Eleonóra",
+  "Etela",
+  "Romana",
+  "Zlatica",
+  "Anežka",
+  "Bohumila",
+  "Františka",
+  "Angela",
+  "Matilda",
+  "Svetlana",
+  "Ľubica",
+  "Alena",
+  "Soňa",
+  "Vieroslava",
+  "Zita",
+  "Miroslava",
+  "Irena",
+  "Milena",
+  "Estera",
+  "Justína",
+  "Dana",
+  "Danica",
+  "Jela",
+  "Jaroslava",
+  "Jarmila",
+  "Lea",
+  "Anastázia",
+  "Galina",
+  "Lesana",
+  "Hermína",
+  "Monika",
+  "Ingrida",
+  "Viktória",
+  "Blažena",
+  "Žofia",
+  "Sofia",
+  "Gizela",
+  "Viola",
+  "Gertrúda",
+  "Zina",
+  "Júlia",
+  "Juliana",
+  "Želmíra",
+  "Ela",
+  "Vanesa",
+  "Iveta",
+  "Vilma",
+  "Petronela",
+  "Žaneta",
+  "Xénia",
+  "Karolína",
+  "Lenka",
+  "Laura",
+  "Stanislava",
+  "Margaréta",
+  "Dobroslava",
+  "Blanka",
+  "Valéria",
+  "Paulína",
+  "Sidónia",
+  "Adriána",
+  "Beáta",
+  "Petra",
+  "Melánia",
+  "Diana",
+  "Berta",
+  "Patrícia",
+  "Lujza",
+  "Amália",
+  "Milota",
+  "Nina",
+  "Margita",
+  "Kamila",
+  "Dušana",
+  "Magdaléna",
+  "Oľga",
+  "Anna",
+  "Hana",
+  "Božena",
+  "Marta",
+  "Libuša",
+  "Božidara",
+  "Dominika",
+  "Hortenzia",
+  "Jozefína",
+  "Štefánia",
+  "Ľubomíra",
+  "Zuzana",
+  "Darina",
+  "Marcela",
+  "Milica",
+  "Elena",
+  "Helena",
+  "Lýdia",
+  "Anabela",
+  "Jana",
+  "Silvia",
+  "Nikola",
+  "Ružena",
+  "Nora",
+  "Drahoslava",
+  "Linda",
+  "Melinda",
+  "Rebeka",
+  "Rozália",
+  "Regína",
+  "Alica",
+  "Marianna",
+  "Miriama",
+  "Martina",
+  "Mária",
+  "Jolana",
+  "Ľudomila",
+  "Ľudmila",
+  "Olympia",
+  "Eugénia",
+  "Ľuboslava",
+  "Zdenka",
+  "Edita",
+  "Michaela",
+  "Stela",
+  "Viera",
+  "Natália",
+  "Eliška",
+  "Brigita",
+  "Valentína",
+  "Terézia",
+  "Vladimíra",
+  "Hedviga",
+  "Uršuľa",
+  "Alojza",
+  "Kvetoslava",
+  "Sabína",
+  "Dobromila",
+  "Klára",
+  "Simona",
+  "Aurélia",
+  "Denisa",
+  "Renáta",
+  "Irma",
+  "Agnesa",
+  "Klaudia",
+  "Alžbeta",
+  "Elvíra",
+  "Cecília",
+  "Emília",
+  "Katarína",
+  "Henrieta",
+  "Bibiána",
+  "Barbora",
+  "Marína",
+  "Izabela",
+  "Hilda",
+  "Otília",
+  "Lucia",
+  "Branislava",
+  "Bronislava",
+  "Ivica",
+  "Albína",
+  "Kornélia",
+  "Sláva",
+  "Slávka",
+  "Judita",
+  "Dagmara",
+  "Adela",
+  "Nadežda",
+  "Eva",
+  "Filoména",
+  "Ivana",
+  "Milada"
+];
+
+},{}],780:[function(require,module,exports){
+module["exports"] = [
+  "Antalová",
+  "Babková",
+  "Bahnová",
+  "Balážová",
+  "Baranová",
+  "Baranková",
+  "Bartovičová",
+  "Bartošová",
+  "Bačová",
+  "Bernoláková",
+  "Beňová",
+  "Biceková",
+  "Bieliková",
+  "Blahová",
+  "Bondrová",
+  "Bosáková",
+  "Bošková",
+  "Brezinová",
+  "Bukovská",
+  "Chalupková",
+  "Chudíková",
+  "Cibulová",
+  "Cibulková",
+  "Cyprichová",
+  "Cígerová",
+  "Danková",
+  "Daňková",
+  "Daňová",
+  "Debnárová",
+  "Dejová",
+  "Dekýšová",
+  "Doležalová",
+  "Dočolomanská",
+  "Droppová",
+  "Dubovská",
+  "Dudeková",
+  "Dulová",
+  "Dullová",
+  "Dusíková",
+  "Dvončová",
+  "Dzurjaninová",
+  "Dávidová",
+  "Fabianová",
+  "Fabiánová",
+  "Fajnorová",
+  "Farkašovská",
+  "Ficová",
+  "Filcová",
+  "Filipová",
+  "Finková",
+  "Ftoreková",
+  "Gašparová",
+  "Gašparovičová",
+  "Gocníková",
+  "Gregorová",
+  "Gregušová",
+  "Grznárová",
+  "Habláková",
+  "Habšudová",
+  "Haldová",
+  "Halušková",
+  "Haláková",
+  "Hanková",
+  "Hanzalová",
+  "Haščáková",
+  "Heretiková",
+  "Hečková",
+  "Hlaváčeková",
+  "Hlinková",
+  "Holubová",
+  "Holubyová",
+  "Hossová",
+  "Hozová",
+  "Hrašková",
+  "Hricová",
+  "Hrmová",
+  "Hrušovská",
+  "Hubová",
+  "Ihnačáková",
+  "Janečeková",
+  "Janošková",
+  "Jantošovičová",
+  "Janíková",
+  "Jančeková",
+  "Jedľovská",
+  "Jendeková",
+  "Jonatová",
+  "Jurinová",
+  "Jurkovičová",
+  "Juríková",
+  "Jánošíková",
+  "Kafendová",
+  "Kaliská",
+  "Karulová",
+  "Kenížová",
+  "Klapková",
+  "Kmeťová",
+  "Kolesárová",
+  "Kollárová",
+  "Kolniková",
+  "Kolníková",
+  "Kolárová",
+  "Korecová",
+  "Kostkaová",
+  "Kostrecová",
+  "Kováčová",
+  "Kováčiková",
+  "Kozová",
+  "Kočišová",
+  "Krajíčeková",
+  "Krajčová",
+  "Krajčovičová",
+  "Krajčírová",
+  "Králiková",
+  "Krúpová",
+  "Kubíková",
+  "Kyseľová",
+  "Kállayová",
+  "Labudová",
+  "Lepšíková",
+  "Liptáková",
+  "Lisická",
+  "Lubinová",
+  "Lukáčová",
+  "Luptáková",
+  "Líšková",
+  "Madejová",
+  "Majeská",
+  "Malachovská",
+  "Malíšeková",
+  "Mamojková",
+  "Marcinková",
+  "Mariánová",
+  "Masaryková",
+  "Maslová",
+  "Matiašková",
+  "Medveďová",
+  "Melcerová",
+  "Mečiarová",
+  "Michalíková",
+  "Mihaliková",
+  "Mihálová",
+  "Miháliková",
+  "Miklošková",
+  "Mikulíková",
+  "Mikušová",
+  "Mikúšová",
+  "Milotová",
+  "Mináčová",
+  "Mišíková",
+  "Mojžišová",
+  "Mokrošová",
+  "Morová",
+  "Moravčíková",
+  "Mydlová",
+  "Nemcová",
+  "Nováková",
+  "Obšutová",
+  "Ondrušová",
+  "Otčenášová",
+  "Pauková",
+  "Pavlikovská",
+  "Pavúková",
+  "Pašeková",
+  "Pašková",
+  "Pelikánová",
+  "Petrovická",
+  "Petrušková",
+  "Pešková",
+  "Plchová",
+  "Plekanecová",
+  "Podhradská",
+  "Podkonická",
+  "Poliaková",
+  "Pupáková",
+  "Raková",
+  "Repiská",
+  "Romančíková",
+  "Rusová",
+  "Ružičková",
+  "Rybníčeková",
+  "Rybárová",
+  "Rybáriková",
+  "Samsonová",
+  "Sedliaková",
+  "Senková",
+  "Sklenková",
+  "Skokanová",
+  "Skutecká",
+  "Slašťanová",
+  "Slobodová",
+  "Slobodníková",
+  "Slotová",
+  "Slováková",
+  "Smreková",
+  "Stodolová",
+  "Straková",
+  "Strnisková",
+  "Svrbíková",
+  "Sámelová",
+  "Sýkorová",
+  "Tatarová",
+  "Tatarková",
+  "Tatárová",
+  "Tatárkaová",
+  "Thomková",
+  "Tomečeková",
+  "Tomková",
+  "Trubenová",
+  "Turčoková",
+  "Uramová",
+  "Urblíková",
+  "Vajcíková",
+  "Vajdová",
+  "Valachová",
+  "Valachovičová",
+  "Valentová",
+  "Valušková",
+  "Vaneková",
+  "Veselová",
+  "Vicenová",
+  "Višňovská",
+  "Vlachová",
+  "Vojteková",
+  "Vydarená",
+  "Zajacová",
+  "Zimová",
+  "Zimková",
+  "Záborská",
+  "Zúbriková",
+  "Čapkovičová",
+  "Čaplovičová",
+  "Čarnogurská",
+  "Čierná",
+  "Čobrdová",
+  "Ďaďová",
+  "Ďuricová",
+  "Ďurišová",
+  "Šidlová",
+  "Šimonovičová",
+  "Škriniarová",
+  "Škultétyová",
+  "Šmajdová",
+  "Šoltésová",
+  "Šoltýsová",
+  "Štefanová",
+  "Štefanková",
+  "Šulcová",
+  "Šurková",
+  "Švehlová",
+  "Šťastná"
+];
+
+},{}],781:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
-name.man_first_name = require("./man_first_name");
-name.woman_first_name = require("./woman_first_name");
-name.man_last_name = require("./man_last_name");
-name.woman_last_name = require("./woman_last_name");
+name.male_first_name = require("./male_first_name");
+name.female_first_name = require("./female_first_name");
+name.male_last_name = require("./male_last_name");
+name.female_last_name = require("./female_last_name");
 name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./man_first_name":684,"./man_last_name":685,"./name":686,"./prefix":687,"./suffix":688,"./title":689,"./woman_first_name":690,"./woman_last_name":691}],684:[function(require,module,exports){
+},{"./female_first_name":779,"./female_last_name":780,"./male_first_name":782,"./male_last_name":783,"./name":784,"./prefix":785,"./suffix":786,"./title":787}],782:[function(require,module,exports){
 module["exports"] = [
   "Drahoslav",
   "Severín",
@@ -33295,7 +45993,7 @@ module["exports"] = [
   "Silvester"
 ];
 
-},{}],685:[function(require,module,exports){
+},{}],783:[function(require,module,exports){
 module["exports"] = [
   "Antal",
   "Babka",
@@ -33556,7 +46254,7 @@ module["exports"] = [
   "Šťastný"
 ];
 
-},{}],686:[function(require,module,exports){
+},{}],784:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{man_first_name} #{man_last_name}",
   "#{prefix} #{woman_first_name} #{woman_last_name}",
@@ -33570,7 +46268,7 @@ module["exports"] = [
   "#{woman_first_name} #{woman_last_name}"
 ];
 
-},{}],687:[function(require,module,exports){
+},{}],785:[function(require,module,exports){
 module["exports"] = [
   "Ing.",
   "Mgr.",
@@ -33578,473 +46276,14 @@ module["exports"] = [
   "MUDr."
 ];
 
-},{}],688:[function(require,module,exports){
+},{}],786:[function(require,module,exports){
 module["exports"] = [
   "Phd."
 ];
 
-},{}],689:[function(require,module,exports){
-module.exports=require(167)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":167}],690:[function(require,module,exports){
-module["exports"] = [
-  "Alexandra",
-  "Karina",
-  "Daniela",
-  "Andrea",
-  "Antónia",
-  "Bohuslava",
-  "Dáša",
-  "Malvína",
-  "Kristína",
-  "Nataša",
-  "Bohdana",
-  "Drahomíra",
-  "Sára",
-  "Zora",
-  "Tamara",
-  "Ema",
-  "Tatiana",
-  "Erika",
-  "Veronika",
-  "Agáta",
-  "Dorota",
-  "Vanda",
-  "Zoja",
-  "Gabriela",
-  "Perla",
-  "Ida",
-  "Liana",
-  "Miloslava",
-  "Vlasta",
-  "Lívia",
-  "Eleonóra",
-  "Etela",
-  "Romana",
-  "Zlatica",
-  "Anežka",
-  "Bohumila",
-  "Františka",
-  "Angela",
-  "Matilda",
-  "Svetlana",
-  "Ľubica",
-  "Alena",
-  "Soňa",
-  "Vieroslava",
-  "Zita",
-  "Miroslava",
-  "Irena",
-  "Milena",
-  "Estera",
-  "Justína",
-  "Dana",
-  "Danica",
-  "Jela",
-  "Jaroslava",
-  "Jarmila",
-  "Lea",
-  "Anastázia",
-  "Galina",
-  "Lesana",
-  "Hermína",
-  "Monika",
-  "Ingrida",
-  "Viktória",
-  "Blažena",
-  "Žofia",
-  "Sofia",
-  "Gizela",
-  "Viola",
-  "Gertrúda",
-  "Zina",
-  "Júlia",
-  "Juliana",
-  "Želmíra",
-  "Ela",
-  "Vanesa",
-  "Iveta",
-  "Vilma",
-  "Petronela",
-  "Žaneta",
-  "Xénia",
-  "Karolína",
-  "Lenka",
-  "Laura",
-  "Stanislava",
-  "Margaréta",
-  "Dobroslava",
-  "Blanka",
-  "Valéria",
-  "Paulína",
-  "Sidónia",
-  "Adriána",
-  "Beáta",
-  "Petra",
-  "Melánia",
-  "Diana",
-  "Berta",
-  "Patrícia",
-  "Lujza",
-  "Amália",
-  "Milota",
-  "Nina",
-  "Margita",
-  "Kamila",
-  "Dušana",
-  "Magdaléna",
-  "Oľga",
-  "Anna",
-  "Hana",
-  "Božena",
-  "Marta",
-  "Libuša",
-  "Božidara",
-  "Dominika",
-  "Hortenzia",
-  "Jozefína",
-  "Štefánia",
-  "Ľubomíra",
-  "Zuzana",
-  "Darina",
-  "Marcela",
-  "Milica",
-  "Elena",
-  "Helena",
-  "Lýdia",
-  "Anabela",
-  "Jana",
-  "Silvia",
-  "Nikola",
-  "Ružena",
-  "Nora",
-  "Drahoslava",
-  "Linda",
-  "Melinda",
-  "Rebeka",
-  "Rozália",
-  "Regína",
-  "Alica",
-  "Marianna",
-  "Miriama",
-  "Martina",
-  "Mária",
-  "Jolana",
-  "Ľudomila",
-  "Ľudmila",
-  "Olympia",
-  "Eugénia",
-  "Ľuboslava",
-  "Zdenka",
-  "Edita",
-  "Michaela",
-  "Stela",
-  "Viera",
-  "Natália",
-  "Eliška",
-  "Brigita",
-  "Valentína",
-  "Terézia",
-  "Vladimíra",
-  "Hedviga",
-  "Uršuľa",
-  "Alojza",
-  "Kvetoslava",
-  "Sabína",
-  "Dobromila",
-  "Klára",
-  "Simona",
-  "Aurélia",
-  "Denisa",
-  "Renáta",
-  "Irma",
-  "Agnesa",
-  "Klaudia",
-  "Alžbeta",
-  "Elvíra",
-  "Cecília",
-  "Emília",
-  "Katarína",
-  "Henrieta",
-  "Bibiána",
-  "Barbora",
-  "Marína",
-  "Izabela",
-  "Hilda",
-  "Otília",
-  "Lucia",
-  "Branislava",
-  "Bronislava",
-  "Ivica",
-  "Albína",
-  "Kornélia",
-  "Sláva",
-  "Slávka",
-  "Judita",
-  "Dagmara",
-  "Adela",
-  "Nadežda",
-  "Eva",
-  "Filoména",
-  "Ivana",
-  "Milada"
-];
-
-},{}],691:[function(require,module,exports){
-module["exports"] = [
-  "Antalová",
-  "Babková",
-  "Bahnová",
-  "Balážová",
-  "Baranová",
-  "Baranková",
-  "Bartovičová",
-  "Bartošová",
-  "Bačová",
-  "Bernoláková",
-  "Beňová",
-  "Biceková",
-  "Bieliková",
-  "Blahová",
-  "Bondrová",
-  "Bosáková",
-  "Bošková",
-  "Brezinová",
-  "Bukovská",
-  "Chalupková",
-  "Chudíková",
-  "Cibulová",
-  "Cibulková",
-  "Cyprichová",
-  "Cígerová",
-  "Danková",
-  "Daňková",
-  "Daňová",
-  "Debnárová",
-  "Dejová",
-  "Dekýšová",
-  "Doležalová",
-  "Dočolomanská",
-  "Droppová",
-  "Dubovská",
-  "Dudeková",
-  "Dulová",
-  "Dullová",
-  "Dusíková",
-  "Dvončová",
-  "Dzurjaninová",
-  "Dávidová",
-  "Fabianová",
-  "Fabiánová",
-  "Fajnorová",
-  "Farkašovská",
-  "Ficová",
-  "Filcová",
-  "Filipová",
-  "Finková",
-  "Ftoreková",
-  "Gašparová",
-  "Gašparovičová",
-  "Gocníková",
-  "Gregorová",
-  "Gregušová",
-  "Grznárová",
-  "Habláková",
-  "Habšudová",
-  "Haldová",
-  "Halušková",
-  "Haláková",
-  "Hanková",
-  "Hanzalová",
-  "Haščáková",
-  "Heretiková",
-  "Hečková",
-  "Hlaváčeková",
-  "Hlinková",
-  "Holubová",
-  "Holubyová",
-  "Hossová",
-  "Hozová",
-  "Hrašková",
-  "Hricová",
-  "Hrmová",
-  "Hrušovská",
-  "Hubová",
-  "Ihnačáková",
-  "Janečeková",
-  "Janošková",
-  "Jantošovičová",
-  "Janíková",
-  "Jančeková",
-  "Jedľovská",
-  "Jendeková",
-  "Jonatová",
-  "Jurinová",
-  "Jurkovičová",
-  "Juríková",
-  "Jánošíková",
-  "Kafendová",
-  "Kaliská",
-  "Karulová",
-  "Kenížová",
-  "Klapková",
-  "Kmeťová",
-  "Kolesárová",
-  "Kollárová",
-  "Kolniková",
-  "Kolníková",
-  "Kolárová",
-  "Korecová",
-  "Kostkaová",
-  "Kostrecová",
-  "Kováčová",
-  "Kováčiková",
-  "Kozová",
-  "Kočišová",
-  "Krajíčeková",
-  "Krajčová",
-  "Krajčovičová",
-  "Krajčírová",
-  "Králiková",
-  "Krúpová",
-  "Kubíková",
-  "Kyseľová",
-  "Kállayová",
-  "Labudová",
-  "Lepšíková",
-  "Liptáková",
-  "Lisická",
-  "Lubinová",
-  "Lukáčová",
-  "Luptáková",
-  "Líšková",
-  "Madejová",
-  "Majeská",
-  "Malachovská",
-  "Malíšeková",
-  "Mamojková",
-  "Marcinková",
-  "Mariánová",
-  "Masaryková",
-  "Maslová",
-  "Matiašková",
-  "Medveďová",
-  "Melcerová",
-  "Mečiarová",
-  "Michalíková",
-  "Mihaliková",
-  "Mihálová",
-  "Miháliková",
-  "Miklošková",
-  "Mikulíková",
-  "Mikušová",
-  "Mikúšová",
-  "Milotová",
-  "Mináčová",
-  "Mišíková",
-  "Mojžišová",
-  "Mokrošová",
-  "Morová",
-  "Moravčíková",
-  "Mydlová",
-  "Nemcová",
-  "Nováková",
-  "Obšutová",
-  "Ondrušová",
-  "Otčenášová",
-  "Pauková",
-  "Pavlikovská",
-  "Pavúková",
-  "Pašeková",
-  "Pašková",
-  "Pelikánová",
-  "Petrovická",
-  "Petrušková",
-  "Pešková",
-  "Plchová",
-  "Plekanecová",
-  "Podhradská",
-  "Podkonická",
-  "Poliaková",
-  "Pupáková",
-  "Raková",
-  "Repiská",
-  "Romančíková",
-  "Rusová",
-  "Ružičková",
-  "Rybníčeková",
-  "Rybárová",
-  "Rybáriková",
-  "Samsonová",
-  "Sedliaková",
-  "Senková",
-  "Sklenková",
-  "Skokanová",
-  "Skutecká",
-  "Slašťanová",
-  "Slobodová",
-  "Slobodníková",
-  "Slotová",
-  "Slováková",
-  "Smreková",
-  "Stodolová",
-  "Straková",
-  "Strnisková",
-  "Svrbíková",
-  "Sámelová",
-  "Sýkorová",
-  "Tatarová",
-  "Tatarková",
-  "Tatárová",
-  "Tatárkaová",
-  "Thomková",
-  "Tomečeková",
-  "Tomková",
-  "Trubenová",
-  "Turčoková",
-  "Uramová",
-  "Urblíková",
-  "Vajcíková",
-  "Vajdová",
-  "Valachová",
-  "Valachovičová",
-  "Valentová",
-  "Valušková",
-  "Vaneková",
-  "Veselová",
-  "Vicenová",
-  "Višňovská",
-  "Vlachová",
-  "Vojteková",
-  "Vydarená",
-  "Zajacová",
-  "Zimová",
-  "Zimková",
-  "Záborská",
-  "Zúbriková",
-  "Čapkovičová",
-  "Čaplovičová",
-  "Čarnogurská",
-  "Čierná",
-  "Čobrdová",
-  "Ďaďová",
-  "Ďuricová",
-  "Ďurišová",
-  "Šidlová",
-  "Šimonovičová",
-  "Škriniarová",
-  "Škultétyová",
-  "Šmajdová",
-  "Šoltésová",
-  "Šoltýsová",
-  "Štefanová",
-  "Štefanková",
-  "Šulcová",
-  "Šurková",
-  "Švehlová",
-  "Šťastná"
-];
-
-},{}],692:[function(require,module,exports){
+},{}],787:[function(require,module,exports){
+module.exports=require(176)
+},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":176}],788:[function(require,module,exports){
 module["exports"] = [
   "09## ### ###",
   "0## #### ####",
@@ -34052,16 +46291,16 @@ module["exports"] = [
   "+421 ### ### ###"
 ];
 
-},{}],693:[function(require,module,exports){
+},{}],789:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":692,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],694:[function(require,module,exports){
-module.exports=require(361)
-},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":361}],695:[function(require,module,exports){
+},{"./formats":788,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],790:[function(require,module,exports){
+module.exports=require(423)
+},{"/Users/a/dev/faker.js/lib/locales/ge/address/building_number.js":423}],791:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{city_suffix}"
 ];
 
-},{}],696:[function(require,module,exports){
+},{}],792:[function(require,module,exports){
 module["exports"] = [
   "Söder",
   "Norr",
@@ -34090,7 +46329,7 @@ module["exports"] = [
   "Ny"
 ];
 
-},{}],697:[function(require,module,exports){
+},{}],793:[function(require,module,exports){
 module["exports"] = [
   "stad",
   "land",
@@ -34113,13 +46352,13 @@ module["exports"] = [
   "vik"
 ];
 
-},{}],698:[function(require,module,exports){
+},{}],794:[function(require,module,exports){
 module["exports"] = [
   "s Väg",
   "s Gata"
 ];
 
-},{}],699:[function(require,module,exports){
+},{}],795:[function(require,module,exports){
 module["exports"] = [
   "Ryssland",
   "Kanada",
@@ -34328,12 +46567,12 @@ module["exports"] = [
   "Vatikanstaten"
 ];
 
-},{}],700:[function(require,module,exports){
+},{}],796:[function(require,module,exports){
 module["exports"] = [
   "Sverige"
 ];
 
-},{}],701:[function(require,module,exports){
+},{}],797:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -34352,15 +46591,15 @@ address.secondary_address = require("./secondary_address");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":694,"./city":695,"./city_prefix":696,"./city_suffix":697,"./common_street_suffix":698,"./country":699,"./default_country":700,"./postcode":702,"./secondary_address":703,"./state":704,"./street_address":705,"./street_name":706,"./street_prefix":707,"./street_root":708,"./street_suffix":709}],702:[function(require,module,exports){
-module.exports=require(279)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":279}],703:[function(require,module,exports){
+},{"./building_number":790,"./city":791,"./city_prefix":792,"./city_suffix":793,"./common_street_suffix":794,"./country":795,"./default_country":796,"./postcode":798,"./secondary_address":799,"./state":800,"./street_address":801,"./street_name":802,"./street_prefix":803,"./street_root":804,"./street_suffix":805}],798:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],799:[function(require,module,exports){
 module["exports"] = [
   "Lgh. ###",
   "Hus ###"
 ];
 
-},{}],704:[function(require,module,exports){
+},{}],800:[function(require,module,exports){
 module["exports"] = [
   "Blekinge",
   "Dalarna",
@@ -34387,11 +46626,11 @@ module["exports"] = [
   "Östergötland"
 ];
 
-},{}],705:[function(require,module,exports){
+},{}],801:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],706:[function(require,module,exports){
-module.exports=require(482)
-},{"/Users/a/dev/faker.js/lib/locales/nb_NO/address/street_name.js":482}],707:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],802:[function(require,module,exports){
+module.exports=require(575)
+},{"/Users/a/dev/faker.js/lib/locales/nb_NO/address/street_name.js":575}],803:[function(require,module,exports){
 module["exports"] = [
   "Västra",
   "Östra",
@@ -34401,7 +46640,7 @@ module["exports"] = [
   "Undre"
 ];
 
-},{}],708:[function(require,module,exports){
+},{}],804:[function(require,module,exports){
 module["exports"] = [
   "Björk",
   "Järnvägs",
@@ -34433,7 +46672,7 @@ module["exports"] = [
   "Asp"
 ];
 
-},{}],709:[function(require,module,exports){
+},{}],805:[function(require,module,exports){
 module["exports"] = [
   "vägen",
   "gatan",
@@ -34442,25 +46681,25 @@ module["exports"] = [
   "allén"
 ];
 
-},{}],710:[function(require,module,exports){
+},{}],806:[function(require,module,exports){
 module["exports"] = [
   56,
   62,
   59
 ];
 
-},{}],711:[function(require,module,exports){
+},{}],807:[function(require,module,exports){
 module["exports"] = [
   "#{common_cell_prefix}-###-####"
 ];
 
-},{}],712:[function(require,module,exports){
+},{}],808:[function(require,module,exports){
 var cell_phone = {};
 module['exports'] = cell_phone;
 cell_phone.common_cell_prefix = require("./common_cell_prefix");
 cell_phone.formats = require("./formats");
 
-},{"./common_cell_prefix":710,"./formats":711}],713:[function(require,module,exports){
+},{"./common_cell_prefix":806,"./formats":807}],809:[function(require,module,exports){
 module["exports"] = [
   "vit",
   "silver",
@@ -34479,7 +46718,7 @@ module["exports"] = [
   "korall"
 ];
 
-},{}],714:[function(require,module,exports){
+},{}],810:[function(require,module,exports){
 module["exports"] = [
   "Böcker",
   "Filmer",
@@ -34500,9 +46739,9 @@ module["exports"] = [
   "Sport"
 ];
 
-},{}],715:[function(require,module,exports){
-arguments[4][121][0].apply(exports,arguments)
-},{"./color":713,"./department":714,"./product_name":716,"/Users/a/dev/faker.js/lib/locales/en/commerce/index.js":121}],716:[function(require,module,exports){
+},{}],811:[function(require,module,exports){
+arguments[4][126][0].apply(exports,arguments)
+},{"./color":809,"./department":810,"./product_name":812,"/Users/a/dev/faker.js/lib/locales/en/commerce/index.js":126}],812:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Liten",
@@ -34540,16 +46779,16 @@ module["exports"] = {
   ]
 };
 
-},{}],717:[function(require,module,exports){
+},{}],813:[function(require,module,exports){
 arguments[4][83][0].apply(exports,arguments)
-},{"./name":718,"./suffix":719,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],718:[function(require,module,exports){
+},{"./name":814,"./suffix":815,"/Users/a/dev/faker.js/lib/locales/de_CH/company/index.js":83}],814:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} #{suffix}"
 ];
 
-},{}],719:[function(require,module,exports){
+},{}],815:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AB",
@@ -34560,7 +46799,65 @@ module["exports"] = [
   "Aktiebolag"
 ];
 
-},{}],720:[function(require,module,exports){
+},{}],816:[function(require,module,exports){
+arguments[4][148][0].apply(exports,arguments)
+},{"./month":817,"./weekday":818,"/Users/a/dev/faker.js/lib/locales/en/date/index.js":148}],817:[function(require,module,exports){
+// Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
+module["exports"] = {
+  wide: [
+    "januari",
+    "februari",
+    "mars",
+    "april",
+    "maj",
+    "juni",
+    "juli",
+    "augusti",
+    "september",
+    "oktober",
+    "november",
+    "december"
+  ],
+  abbr: [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "maj",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "okt",
+    "nov",
+    "dec"
+  ]
+};
+
+},{}],818:[function(require,module,exports){
+// Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
+module["exports"] = {
+  wide: [
+    "söndag",
+    "måndag",
+    "tisdag",
+    "onsdag",
+    "torsdag",
+    "fredag",
+    "lördag"
+  ],
+  abbr: [
+    "sön",
+    "mån",
+    "tis",
+    "ons",
+    "tor",
+    "fre",
+    "lör"
+  ]
+};
+
+},{}],819:[function(require,module,exports){
 var sv = {};
 module['exports'] = sv;
 sv.title = "Swedish";
@@ -34572,8 +46869,9 @@ sv.phone_number = require("./phone_number");
 sv.cell_phone = require("./cell_phone");
 sv.commerce = require("./commerce");
 sv.team = require("./team");
+sv.date = require("./date");
 
-},{"./address":701,"./cell_phone":712,"./commerce":715,"./company":717,"./internet":722,"./name":725,"./phone_number":731,"./team":732}],721:[function(require,module,exports){
+},{"./address":797,"./cell_phone":808,"./commerce":811,"./company":813,"./date":816,"./internet":821,"./name":824,"./phone_number":830,"./team":831}],820:[function(require,module,exports){
 module["exports"] = [
   "se",
   "nu",
@@ -34582,9 +46880,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],722:[function(require,module,exports){
+},{}],821:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":721,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],723:[function(require,module,exports){
+},{"./domain_suffix":820,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],822:[function(require,module,exports){
 module["exports"] = [
   "Erik",
   "Lars",
@@ -34598,7 +46896,7 @@ module["exports"] = [
   "Hans"
 ];
 
-},{}],724:[function(require,module,exports){
+},{}],823:[function(require,module,exports){
 module["exports"] = [
   "Maria",
   "Anna",
@@ -34612,7 +46910,7 @@ module["exports"] = [
   "Marie"
 ];
 
-},{}],725:[function(require,module,exports){
+},{}],824:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name_women = require("./first_name_women");
@@ -34622,7 +46920,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name_men":723,"./first_name_women":724,"./last_name":726,"./name":727,"./prefix":728,"./title":729}],726:[function(require,module,exports){
+},{"./first_name_men":822,"./first_name_women":823,"./last_name":825,"./name":826,"./prefix":827,"./title":828}],825:[function(require,module,exports){
 module["exports"] = [
   "Johansson",
   "Andersson",
@@ -34636,7 +46934,7 @@ module["exports"] = [
   "Gustafsson"
 ];
 
-},{}],727:[function(require,module,exports){
+},{}],826:[function(require,module,exports){
 module["exports"] = [
   "#{first_name_women} #{last_name}",
   "#{first_name_men} #{last_name}",
@@ -34648,35 +46946,35 @@ module["exports"] = [
   "#{prefix} #{first_name_women} #{last_name}"
 ];
 
-},{}],728:[function(require,module,exports){
+},{}],827:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof.",
   "PhD."
 ];
 
-},{}],729:[function(require,module,exports){
-module.exports=require(167)
-},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":167}],730:[function(require,module,exports){
+},{}],828:[function(require,module,exports){
+module.exports=require(176)
+},{"/Users/a/dev/faker.js/lib/locales/en/name/title.js":176}],829:[function(require,module,exports){
 module["exports"] = [
   "####-#####",
   "####-######"
 ];
 
-},{}],731:[function(require,module,exports){
+},{}],830:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":730,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],732:[function(require,module,exports){
+},{"./formats":829,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],831:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.suffix = require("./suffix");
 team.name = require("./name");
 
-},{"./name":733,"./suffix":734}],733:[function(require,module,exports){
+},{"./name":832,"./suffix":833}],832:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city} #{suffix}"
 ];
 
-},{}],734:[function(require,module,exports){
+},{}],833:[function(require,module,exports){
 module["exports"] = [
   "IF",
   "FF",
@@ -34693,9 +46991,9 @@ module["exports"] = [
   "IK"
 ];
 
-},{}],735:[function(require,module,exports){
+},{}],834:[function(require,module,exports){
 module.exports=require(14)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/building_number.js":14}],736:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/building_number.js":14}],835:[function(require,module,exports){
 module["exports"] = [
   "Adana",
   "Adıyaman",
@@ -34780,7 +47078,7 @@ module["exports"] = [
   "Düzce"
 ];
 
-},{}],737:[function(require,module,exports){
+},{}],836:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Almanya",
@@ -35020,12 +47318,12 @@ module["exports"] = [
   "Zimbabve"
 ];
 
-},{}],738:[function(require,module,exports){
+},{}],837:[function(require,module,exports){
 module["exports"] = [
   "Türkiye"
 ];
 
-},{}],739:[function(require,module,exports){
+},{}],838:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city = require("./city");
@@ -35037,13 +47335,13 @@ address.building_number = require("./building_number");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 
-},{"./building_number":735,"./city":736,"./country":737,"./default_country":738,"./postcode":740,"./street_address":741,"./street_name":742,"./street_root":743}],740:[function(require,module,exports){
-module.exports=require(279)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":279}],741:[function(require,module,exports){
+},{"./building_number":834,"./city":835,"./country":836,"./default_country":837,"./postcode":839,"./street_address":840,"./street_name":841,"./street_root":842}],839:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],840:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],742:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_address.js":25}],841:[function(require,module,exports){
 module.exports=require(26)
-},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":26}],743:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/address/street_name.js":26}],842:[function(require,module,exports){
 module["exports"] = [
   "Atatürk Bulvarı",
   "Alparslan Türkeş Bulvarı",
@@ -35088,7 +47386,7 @@ module["exports"] = [
   "Bandak Sokak"
 ];
 
-},{}],744:[function(require,module,exports){
+},{}],843:[function(require,module,exports){
 module["exports"] = [
   "+90-53#-###-##-##",
   "+90-54#-###-##-##",
@@ -35096,9 +47394,9 @@ module["exports"] = [
   "+90-50#-###-##-##"
 ];
 
-},{}],745:[function(require,module,exports){
+},{}],844:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":744,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],746:[function(require,module,exports){
+},{"./formats":843,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],845:[function(require,module,exports){
 var tr = {};
 module['exports'] = tr;
 tr.title = "Turkish";
@@ -35109,7 +47407,7 @@ tr.phone_number = require("./phone_number");
 tr.cell_phone = require("./cell_phone");
 tr.name = require("./name");
 
-},{"./address":739,"./cell_phone":745,"./internet":748,"./lorem":749,"./name":752,"./phone_number":758}],747:[function(require,module,exports){
+},{"./address":838,"./cell_phone":844,"./internet":847,"./lorem":848,"./name":851,"./phone_number":857}],846:[function(require,module,exports){
 module["exports"] = [
   "com.tr",
   "com",
@@ -35119,13 +47417,13 @@ module["exports"] = [
   "gov.tr"
 ];
 
-},{}],748:[function(require,module,exports){
+},{}],847:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":747,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],749:[function(require,module,exports){
+},{"./domain_suffix":846,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],848:[function(require,module,exports){
 module.exports=require(38)
-},{"./words":750,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],750:[function(require,module,exports){
+},{"./words":849,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],849:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],751:[function(require,module,exports){
+},{"/Users/a/dev/faker.js/lib/locales/de/lorem/words.js":39}],850:[function(require,module,exports){
 module["exports"] = [
   "Aba",
   "Abak",
@@ -35860,15 +48158,9 @@ module["exports"] = [
   "Kızılalma"
 ];
 
-},{}],752:[function(require,module,exports){
-var name = {};
-module['exports'] = name;
-name.first_name = require("./first_name");
-name.last_name = require("./last_name");
-name.prefix = require("./prefix");
-name.name = require("./name");
-
-},{"./first_name":751,"./last_name":753,"./name":754,"./prefix":755}],753:[function(require,module,exports){
+},{}],851:[function(require,module,exports){
+arguments[4][90][0].apply(exports,arguments)
+},{"./first_name":850,"./last_name":852,"./name":853,"./prefix":854,"/Users/a/dev/faker.js/lib/locales/de_CH/name/index.js":90}],852:[function(require,module,exports){
 module["exports"] = [
   "Abacı",
   "Abadan",
@@ -36070,9 +48362,9 @@ module["exports"] = [
   "Öztuna"
 ];
 
-},{}],754:[function(require,module,exports){
-module.exports=require(388)
-},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":388}],755:[function(require,module,exports){
+},{}],853:[function(require,module,exports){
+module.exports=require(450)
+},{"/Users/a/dev/faker.js/lib/locales/ge/name/name.js":450}],854:[function(require,module,exports){
 module["exports"] = [
   "Bay",
   "Bayan",
@@ -36080,7 +48372,7 @@ module["exports"] = [
   "Prof. Dr."
 ];
 
-},{}],756:[function(require,module,exports){
+},{}],855:[function(require,module,exports){
 module["exports"] = [
   "392",
   "510",
@@ -36181,27 +48473,27 @@ module["exports"] = [
   "372"
 ];
 
-},{}],757:[function(require,module,exports){
+},{}],856:[function(require,module,exports){
 module["exports"] = [
   "+90-###-###-##-##",
   "+90-###-###-#-###"
 ];
 
-},{}],758:[function(require,module,exports){
+},{}],857:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.formats = require("./formats");
 
-},{"./area_code":756,"./formats":757}],759:[function(require,module,exports){
-module.exports=require(652)
-},{"/Users/a/dev/faker.js/lib/locales/sk/address/building_number.js":652}],760:[function(require,module,exports){
+},{"./area_code":855,"./formats":856}],858:[function(require,module,exports){
+module.exports=require(748)
+},{"/Users/a/dev/faker.js/lib/locales/sk/address/building_number.js":748}],859:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}",
   "#{city_prefix} #{Name.male_first_name}"
 ];
 
-},{}],761:[function(require,module,exports){
+},{}],860:[function(require,module,exports){
 module["exports"] = [
   "Алчевськ",
   "Артемівськ",
@@ -36262,7 +48554,7 @@ module["exports"] = [
   "Ялта"
 ];
 
-},{}],762:[function(require,module,exports){
+},{}],861:[function(require,module,exports){
 module["exports"] = [
   "Південний",
   "Північний",
@@ -36270,12 +48562,12 @@ module["exports"] = [
   "Західний"
 ];
 
-},{}],763:[function(require,module,exports){
+},{}],862:[function(require,module,exports){
 module["exports"] = [
   "град"
 ];
 
-},{}],764:[function(require,module,exports){
+},{}],863:[function(require,module,exports){
 module["exports"] = [
   "Австралія",
   "Австрія",
@@ -36472,12 +48764,12 @@ module["exports"] = [
   "Японія"
 ];
 
-},{}],765:[function(require,module,exports){
+},{}],864:[function(require,module,exports){
 module["exports"] = [
   "Україна"
 ];
 
-},{}],766:[function(require,module,exports){
+},{}],865:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -36496,11 +48788,11 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":759,"./city":760,"./city_name":761,"./city_prefix":762,"./city_suffix":763,"./country":764,"./default_country":765,"./postcode":767,"./secondary_address":768,"./state":769,"./street_address":770,"./street_name":771,"./street_prefix":772,"./street_suffix":773,"./street_title":774}],767:[function(require,module,exports){
-module.exports=require(279)
-},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":279}],768:[function(require,module,exports){
-module.exports=require(622)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/secondary_address.js":622}],769:[function(require,module,exports){
+},{"./building_number":858,"./city":859,"./city_name":860,"./city_prefix":861,"./city_suffix":862,"./country":863,"./default_country":864,"./postcode":866,"./secondary_address":867,"./state":868,"./street_address":869,"./street_name":870,"./street_prefix":871,"./street_suffix":872,"./street_title":873}],866:[function(require,module,exports){
+module.exports=require(291)
+},{"/Users/a/dev/faker.js/lib/locales/es/address/postcode.js":291}],867:[function(require,module,exports){
+module.exports=require(715)
+},{"/Users/a/dev/faker.js/lib/locales/ru/address/secondary_address.js":715}],868:[function(require,module,exports){
 module["exports"] = [
   "АР Крим",
   "Вінницька область",
@@ -36531,15 +48823,15 @@ module["exports"] = [
   "Севастополь"
 ];
 
-},{}],770:[function(require,module,exports){
-module.exports=require(624)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/street_address.js":624}],771:[function(require,module,exports){
+},{}],869:[function(require,module,exports){
+module.exports=require(717)
+},{"/Users/a/dev/faker.js/lib/locales/ru/address/street_address.js":717}],870:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],772:[function(require,module,exports){
+},{}],871:[function(require,module,exports){
 module["exports"] = [
   "вул.",
   "вулиця",
@@ -36551,12 +48843,12 @@ module["exports"] = [
   "провулок"
 ];
 
-},{}],773:[function(require,module,exports){
+},{}],872:[function(require,module,exports){
 module["exports"] = [
   "майдан"
 ];
 
-},{}],774:[function(require,module,exports){
+},{}],873:[function(require,module,exports){
 module["exports"] = [
   "Зелена",
   "Молодіжна",
@@ -36573,11 +48865,11 @@ module["exports"] = [
   "Коліївщини"
 ];
 
-},{}],775:[function(require,module,exports){
-arguments[4][377][0].apply(exports,arguments)
-},{"./name":776,"./prefix":777,"./suffix":778,"/Users/a/dev/faker.js/lib/locales/ge/company/index.js":377}],776:[function(require,module,exports){
-module.exports=require(633)
-},{"/Users/a/dev/faker.js/lib/locales/ru/company/name.js":633}],777:[function(require,module,exports){
+},{}],874:[function(require,module,exports){
+arguments[4][439][0].apply(exports,arguments)
+},{"./name":875,"./prefix":876,"./suffix":877,"/Users/a/dev/faker.js/lib/locales/ge/company/index.js":439}],875:[function(require,module,exports){
+module.exports=require(726)
+},{"/Users/a/dev/faker.js/lib/locales/ru/company/name.js":726}],876:[function(require,module,exports){
 module["exports"] = [
   "ТОВ",
   "ПАТ",
@@ -36589,7 +48881,7 @@ module["exports"] = [
   "ФОП"
 ];
 
-},{}],778:[function(require,module,exports){
+},{}],877:[function(require,module,exports){
 module["exports"] = [
   "Постач",
   "Торг",
@@ -36598,7 +48890,7 @@ module["exports"] = [
   "Збут"
 ];
 
-},{}],779:[function(require,module,exports){
+},{}],878:[function(require,module,exports){
 var uk = {};
 module['exports'] = uk;
 uk.title = "Ukrainian";
@@ -36608,7 +48900,7 @@ uk.internet = require("./internet");
 uk.name = require("./name");
 uk.phone_number = require("./phone_number");
 
-},{"./address":766,"./company":775,"./internet":782,"./name":786,"./phone_number":795}],780:[function(require,module,exports){
+},{"./address":865,"./company":874,"./internet":881,"./name":885,"./phone_number":894}],879:[function(require,module,exports){
 module["exports"] = [
   "cherkassy.ua",
   "cherkasy.ua",
@@ -36672,7 +48964,7 @@ module["exports"] = [
   "укр"
 ];
 
-},{}],781:[function(require,module,exports){
+},{}],880:[function(require,module,exports){
 module["exports"] = [
   "ukr.net",
   "ex.ua",
@@ -36683,9 +48975,9 @@ module["exports"] = [
   "gmail.com"
 ];
 
-},{}],782:[function(require,module,exports){
+},{}],881:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./domain_suffix":780,"./free_email":781,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],783:[function(require,module,exports){
+},{"./domain_suffix":879,"./free_email":880,"/Users/a/dev/faker.js/lib/locales/de/internet/index.js":37}],882:[function(require,module,exports){
 module["exports"] = [
   "Аврелія",
   "Аврора",
@@ -36882,7 +49174,7 @@ module["exports"] = [
   "Ярослава"
 ];
 
-},{}],784:[function(require,module,exports){
+},{}],883:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -37116,7 +49408,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],785:[function(require,module,exports){
+},{}],884:[function(require,module,exports){
 module["exports"] = [
   "Адамівна",
   "Азарівна",
@@ -37236,7 +49528,7 @@ module["exports"] = [
   "Ярославівна"
 ];
 
-},{}],786:[function(require,module,exports){
+},{}],885:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -37250,7 +49542,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./female_first_name":783,"./female_last_name":784,"./female_middle_name":785,"./male_first_name":787,"./male_last_name":788,"./male_middle_name":789,"./name":790,"./prefix":791,"./suffix":792,"./title":793}],787:[function(require,module,exports){
+},{"./female_first_name":882,"./female_last_name":883,"./female_middle_name":884,"./male_first_name":886,"./male_last_name":887,"./male_middle_name":888,"./name":889,"./prefix":890,"./suffix":891,"./title":892}],886:[function(require,module,exports){
 module["exports"] = [
   "Августин",
   "Аврелій",
@@ -37449,7 +49741,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],788:[function(require,module,exports){
+},{}],887:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -37692,7 +49984,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],789:[function(require,module,exports){
+},{}],888:[function(require,module,exports){
 module["exports"] = [
   "Адамович",
   "Азарович",
@@ -37812,15 +50104,15 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],790:[function(require,module,exports){
-module.exports=require(647)
-},{"/Users/a/dev/faker.js/lib/locales/ru/name/name.js":647}],791:[function(require,module,exports){
+},{}],889:[function(require,module,exports){
+module.exports=require(743)
+},{"/Users/a/dev/faker.js/lib/locales/ru/name/name.js":743}],890:[function(require,module,exports){
 module["exports"] = [
   "Пан",
   "Пані"
 ];
 
-},{}],792:[function(require,module,exports){
+},{}],891:[function(require,module,exports){
 module["exports"] = [
   "проф.",
   "доц.",
@@ -37842,7 +50134,7 @@ module["exports"] = [
   "канд. психол. наук"
 ];
 
-},{}],793:[function(require,module,exports){
+},{}],892:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Головний",
@@ -37884,7 +50176,7 @@ module["exports"] = {
   ]
 };
 
-},{}],794:[function(require,module,exports){
+},{}],893:[function(require,module,exports){
 module["exports"] = [
   "(044) ###-##-##",
   "(050) ###-##-##",
@@ -37902,14 +50194,14 @@ module["exports"] = [
   "(099) ###-##-##"
 ];
 
-},{}],795:[function(require,module,exports){
+},{}],894:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":794,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],796:[function(require,module,exports){
+},{"./formats":893,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],895:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}"
 ];
 
-},{}],797:[function(require,module,exports){
+},{}],896:[function(require,module,exports){
 module["exports"] = [
   "Bắc Giang",
   "Bắc Kạn",
@@ -37976,7 +50268,7 @@ module["exports"] = [
   "Vĩnh Long"
 ];
 
-},{}],798:[function(require,module,exports){
+},{}],897:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -38051,12 +50343,12 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],799:[function(require,module,exports){
+},{}],898:[function(require,module,exports){
 module["exports"] = [
   "Việt Nam"
 ];
 
-},{}],800:[function(require,module,exports){
+},{}],899:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -38064,22 +50356,22 @@ address.city = require("./city");
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./city":796,"./city_root":797,"./county":798,"./default_country":799}],801:[function(require,module,exports){
-module.exports=require(208)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/cell_phone/formats.js":208}],802:[function(require,module,exports){
+},{"./city":895,"./city_root":896,"./county":897,"./default_country":898}],900:[function(require,module,exports){
+module.exports=require(220)
+},{"/Users/a/dev/faker.js/lib/locales/en_GB/cell_phone/formats.js":220}],901:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./formats":801,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],803:[function(require,module,exports){
+},{"./formats":900,"/Users/a/dev/faker.js/lib/locales/de/cell_phone/index.js":29}],902:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":804,"./prefix":805}],804:[function(require,module,exports){
+},{"./name":903,"./prefix":904}],903:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.last_name}"
 ];
 
-},{}],805:[function(require,module,exports){
+},{}],904:[function(require,module,exports){
 module["exports"] = [
   "Công ty",
   "Cty TNHH",
@@ -38089,7 +50381,7 @@ module["exports"] = [
   "Chi nhánh"
 ];
 
-},{}],806:[function(require,module,exports){
+},{}],905:[function(require,module,exports){
 var vi = {};
 module['exports'] = vi;
 vi.title = "Vietnamese";
@@ -38101,7 +50393,7 @@ vi.name = require("./name");
 vi.company = require("./company");
 vi.lorem = require("./lorem");
 
-},{"./address":800,"./cell_phone":802,"./company":803,"./internet":808,"./lorem":809,"./name":812,"./phone_number":816}],807:[function(require,module,exports){
+},{"./address":899,"./cell_phone":901,"./company":902,"./internet":907,"./lorem":908,"./name":911,"./phone_number":915}],906:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -38110,11 +50402,11 @@ module["exports"] = [
   "com.vn"
 ];
 
-},{}],808:[function(require,module,exports){
+},{}],907:[function(require,module,exports){
 arguments[4][88][0].apply(exports,arguments)
-},{"./domain_suffix":807,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],809:[function(require,module,exports){
+},{"./domain_suffix":906,"/Users/a/dev/faker.js/lib/locales/de_CH/internet/index.js":88}],908:[function(require,module,exports){
 arguments[4][38][0].apply(exports,arguments)
-},{"./words":810,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],810:[function(require,module,exports){
+},{"./words":909,"/Users/a/dev/faker.js/lib/locales/de/lorem/index.js":38}],909:[function(require,module,exports){
 module["exports"] = [
   "đã",
   "đang",
@@ -38221,7 +50513,7 @@ module["exports"] = [
   "hương"
 ];
 
-},{}],811:[function(require,module,exports){
+},{}],910:[function(require,module,exports){
 module["exports"] = [
   "Phạm",
   "Nguyễn",
@@ -38251,14 +50543,14 @@ module["exports"] = [
   "Hà"
 ];
 
-},{}],812:[function(require,module,exports){
+},{}],911:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.name = require("./name");
 
-},{"./first_name":811,"./last_name":813,"./name":814}],813:[function(require,module,exports){
+},{"./first_name":910,"./last_name":912,"./name":913}],912:[function(require,module,exports){
 module["exports"] = [
   "Nam",
   "Trung",
@@ -38335,18 +50627,18 @@ module["exports"] = [
   "Nhàn"
 ];
 
-},{}],814:[function(require,module,exports){
+},{}],913:[function(require,module,exports){
 module["exports"] = [
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name} #{last_name}"
 ];
 
-},{}],815:[function(require,module,exports){
-module.exports=require(213)
-},{"/Users/a/dev/faker.js/lib/locales/en_GB/phone_number/formats.js":213}],816:[function(require,module,exports){
+},{}],914:[function(require,module,exports){
+module.exports=require(225)
+},{"/Users/a/dev/faker.js/lib/locales/en_GB/phone_number/formats.js":225}],915:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":815,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],817:[function(require,module,exports){
+},{"./formats":914,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],916:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "####",
@@ -38355,9 +50647,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],818:[function(require,module,exports){
-module.exports=require(695)
-},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":695}],819:[function(require,module,exports){
+},{}],917:[function(require,module,exports){
+module.exports=require(791)
+},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":791}],918:[function(require,module,exports){
 module["exports"] = [
   "长",
   "上",
@@ -38382,7 +50674,7 @@ module["exports"] = [
   "包"
 ];
 
-},{}],820:[function(require,module,exports){
+},{}],919:[function(require,module,exports){
 module["exports"] = [
   "沙市",
   "京市",
@@ -38405,12 +50697,12 @@ module["exports"] = [
   "头市"
 ];
 
-},{}],821:[function(require,module,exports){
+},{}],920:[function(require,module,exports){
 module["exports"] = [
   "中国"
 ];
 
-},{}],822:[function(require,module,exports){
+},{}],921:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -38425,9 +50717,9 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":817,"./city":818,"./city_prefix":819,"./city_suffix":820,"./default_country":821,"./postcode":823,"./state":824,"./state_abbr":825,"./street_address":826,"./street_name":827,"./street_suffix":828}],823:[function(require,module,exports){
-module.exports=require(621)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":621}],824:[function(require,module,exports){
+},{"./building_number":916,"./city":917,"./city_prefix":918,"./city_suffix":919,"./default_country":920,"./postcode":922,"./state":923,"./state_abbr":924,"./street_address":925,"./street_name":926,"./street_suffix":927}],922:[function(require,module,exports){
+module.exports=require(714)
+},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":714}],923:[function(require,module,exports){
 module["exports"] = [
   "北京市",
   "上海市",
@@ -38465,7 +50757,7 @@ module["exports"] = [
   "澳门"
 ];
 
-},{}],825:[function(require,module,exports){
+},{}],924:[function(require,module,exports){
 module["exports"] = [
   "京",
   "沪",
@@ -38503,17 +50795,17 @@ module["exports"] = [
   "澳"
 ];
 
-},{}],826:[function(require,module,exports){
+},{}],925:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}号"
 ];
 
-},{}],827:[function(require,module,exports){
+},{}],926:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],828:[function(require,module,exports){
+},{}],927:[function(require,module,exports){
 module["exports"] = [
   "巷",
   "街",
@@ -38525,7 +50817,7 @@ module["exports"] = [
   "栋"
 ];
 
-},{}],829:[function(require,module,exports){
+},{}],928:[function(require,module,exports){
 var zh_CN = {};
 module['exports'] = zh_CN;
 zh_CN.title = "Chinese";
@@ -38533,7 +50825,7 @@ zh_CN.address = require("./address");
 zh_CN.name = require("./name");
 zh_CN.phone_number = require("./phone_number");
 
-},{"./address":822,"./name":831,"./phone_number":835}],830:[function(require,module,exports){
+},{"./address":921,"./name":930,"./phone_number":934}],929:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -38637,9 +50929,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],831:[function(require,module,exports){
-arguments[4][812][0].apply(exports,arguments)
-},{"./first_name":830,"./last_name":832,"./name":833,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":812}],832:[function(require,module,exports){
+},{}],930:[function(require,module,exports){
+arguments[4][911][0].apply(exports,arguments)
+},{"./first_name":929,"./last_name":931,"./name":932,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":911}],931:[function(require,module,exports){
 module["exports"] = [
   "绍齐",
   "博文",
@@ -38777,25 +51069,25 @@ module["exports"] = [
   "彬"
 ];
 
-},{}],833:[function(require,module,exports){
+},{}],932:[function(require,module,exports){
 module["exports"] = [
   "#{first_name}#{last_name}"
 ];
 
-},{}],834:[function(require,module,exports){
+},{}],933:[function(require,module,exports){
 module["exports"] = [
   "###-########",
   "####-########",
   "###########"
 ];
 
-},{}],835:[function(require,module,exports){
+},{}],934:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":834,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],836:[function(require,module,exports){
-module.exports=require(314)
-},{"/Users/a/dev/faker.js/lib/locales/fr/address/building_number.js":314}],837:[function(require,module,exports){
-module.exports=require(695)
-},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":695}],838:[function(require,module,exports){
+},{"./formats":933,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],935:[function(require,module,exports){
+module.exports=require(376)
+},{"/Users/a/dev/faker.js/lib/locales/fr/address/building_number.js":376}],936:[function(require,module,exports){
+module.exports=require(791)
+},{"/Users/a/dev/faker.js/lib/locales/sv/address/city.js":791}],937:[function(require,module,exports){
 module["exports"] = [
   "臺北",
   "新北",
@@ -38819,28 +51111,28 @@ module["exports"] = [
   "連江"
 ];
 
-},{}],839:[function(require,module,exports){
+},{}],938:[function(require,module,exports){
 module["exports"] = [
   "縣",
   "市"
 ];
 
-},{}],840:[function(require,module,exports){
+},{}],939:[function(require,module,exports){
 module["exports"] = [
   "Taiwan (R.O.C.)"
 ];
 
-},{}],841:[function(require,module,exports){
-arguments[4][822][0].apply(exports,arguments)
-},{"./building_number":836,"./city":837,"./city_prefix":838,"./city_suffix":839,"./default_country":840,"./postcode":842,"./state":843,"./state_abbr":844,"./street_address":845,"./street_name":846,"./street_suffix":847,"/Users/a/dev/faker.js/lib/locales/zh_CN/address/index.js":822}],842:[function(require,module,exports){
-module.exports=require(621)
-},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":621}],843:[function(require,module,exports){
+},{}],940:[function(require,module,exports){
+arguments[4][921][0].apply(exports,arguments)
+},{"./building_number":935,"./city":936,"./city_prefix":937,"./city_suffix":938,"./default_country":939,"./postcode":941,"./state":942,"./state_abbr":943,"./street_address":944,"./street_name":945,"./street_suffix":946,"/Users/a/dev/faker.js/lib/locales/zh_CN/address/index.js":921}],941:[function(require,module,exports){
+module.exports=require(714)
+},{"/Users/a/dev/faker.js/lib/locales/ru/address/postcode.js":714}],942:[function(require,module,exports){
 module["exports"] = [
   "福建省",
   "台灣省"
 ];
 
-},{}],844:[function(require,module,exports){
+},{}],943:[function(require,module,exports){
 module["exports"] = [
   "北",
   "新北",
@@ -38865,14 +51157,14 @@ module["exports"] = [
   "馬"
 ];
 
-},{}],845:[function(require,module,exports){
+},{}],944:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}號"
 ];
 
-},{}],846:[function(require,module,exports){
-module.exports=require(827)
-},{"/Users/a/dev/faker.js/lib/locales/zh_CN/address/street_name.js":827}],847:[function(require,module,exports){
+},{}],945:[function(require,module,exports){
+module.exports=require(926)
+},{"/Users/a/dev/faker.js/lib/locales/zh_CN/address/street_name.js":926}],946:[function(require,module,exports){
 module["exports"] = [
   "街",
   "路",
@@ -38882,7 +51174,7 @@ module["exports"] = [
   "西路"
 ];
 
-},{}],848:[function(require,module,exports){
+},{}],947:[function(require,module,exports){
 var zh_TW = {};
 module['exports'] = zh_TW;
 zh_TW.title = "Chinese (Taiwan)";
@@ -38890,7 +51182,7 @@ zh_TW.address = require("./address");
 zh_TW.name = require("./name");
 zh_TW.phone_number = require("./phone_number");
 
-},{"./address":841,"./name":850,"./phone_number":854}],849:[function(require,module,exports){
+},{"./address":940,"./name":949,"./phone_number":953}],948:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -38994,9 +51286,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],850:[function(require,module,exports){
-arguments[4][812][0].apply(exports,arguments)
-},{"./first_name":849,"./last_name":851,"./name":852,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":812}],851:[function(require,module,exports){
+},{}],949:[function(require,module,exports){
+arguments[4][911][0].apply(exports,arguments)
+},{"./first_name":948,"./last_name":950,"./name":951,"/Users/a/dev/faker.js/lib/locales/vi/name/index.js":911}],950:[function(require,module,exports){
 module["exports"] = [
   "紹齊",
   "博文",
@@ -39123,52 +51415,105 @@ module["exports"] = [
   "聰健"
 ];
 
-},{}],852:[function(require,module,exports){
-module.exports=require(833)
-},{"/Users/a/dev/faker.js/lib/locales/zh_CN/name/name.js":833}],853:[function(require,module,exports){
+},{}],951:[function(require,module,exports){
+module.exports=require(932)
+},{"/Users/a/dev/faker.js/lib/locales/zh_CN/name/name.js":932}],952:[function(require,module,exports){
 module["exports"] = [
   "0#-#######",
   "02-########",
   "09##-######"
 ];
 
-},{}],854:[function(require,module,exports){
+},{}],953:[function(require,module,exports){
 arguments[4][47][0].apply(exports,arguments)
-},{"./formats":853,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],855:[function(require,module,exports){
+},{"./formats":952,"/Users/a/dev/faker.js/lib/locales/de/phone_number/index.js":47}],954:[function(require,module,exports){
 
+/**
+ *
+ * @namespace faker.lorem
+ */
 var Lorem = function (faker) {
   var self = this;
   var Helpers = faker.helpers;
 
-  self.words = function (num) {
-      if (typeof num == 'undefined') { num = 3; }
-      return Helpers.shuffle(faker.definitions.lorem.words).slice(0, num);
+  /**
+   * word
+   *
+   * @method faker.lorem.word
+   * @param {number} num
+   */
+  self.word = function (num) {
+    return faker.random.arrayElement(faker.definitions.lorem.words);
   };
 
+  /**
+   * generates a space separated list of words
+   *
+   * @method faker.lorem.words
+   * @param {number} num number of words, defaults to 3
+   */
+  self.words = function (num) {
+      if (typeof num == 'undefined') { num = 3; }
+      var words = [];
+      for (var i = 0; i < num; i++) {
+        words.push(faker.lorem.word());
+      }
+      return words.join(' ');
+  };
+
+  /**
+   * sentence
+   *
+   * @method faker.lorem.sentence
+   * @param {number} wordCount defaults to a random number between 3 and 10
+   * @param {number} range
+   */
   self.sentence = function (wordCount, range) {
-      if (typeof wordCount == 'undefined') { wordCount = 3; }
-      if (typeof range == 'undefined') { range = 7; }
+      if (typeof wordCount == 'undefined') { wordCount = faker.random.number({ min: 3, max: 10 }); }
+      // if (typeof range == 'undefined') { range = 7; }
 
       // strange issue with the node_min_test failing for captialize, please fix and add faker.lorem.back
       //return  faker.lorem.words(wordCount + Helpers.randomNumber(range)).join(' ').capitalize();
 
-      return  faker.lorem.words(wordCount + faker.random.number(range)).join(' ');
+      var sentence = faker.lorem.words(wordCount);
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
   };
 
-  self.sentences = function (sentenceCount) {
-      if (typeof sentenceCount == 'undefined') { sentenceCount = 3; }
+  /**
+   * sentences
+   *
+   * @method faker.lorem.sentences
+   * @param {number} sentenceCount defautls to a random number between 2 and 6
+   * @param {string} separator defaults to `' '`
+   */
+  self.sentences = function (sentenceCount, separator) {
+      if (typeof sentenceCount === 'undefined') { sentenceCount = faker.random.number({ min: 2, max: 6 });}
+      if (typeof separator == 'undefined') { separator = " "; }
       var sentences = [];
       for (sentenceCount; sentenceCount > 0; sentenceCount--) {
         sentences.push(faker.lorem.sentence());
       }
-      return sentences.join("\n");
+      return sentences.join(separator);
   };
 
+  /**
+   * paragraph
+   *
+   * @method faker.lorem.paragraph
+   * @param {number} sentenceCount defaults to 3
+   */
   self.paragraph = function (sentenceCount) {
       if (typeof sentenceCount == 'undefined') { sentenceCount = 3; }
       return faker.lorem.sentences(sentenceCount + faker.random.number(3));
   };
 
+  /**
+   * paragraphs
+   *
+   * @method faker.lorem.paragraphs
+   * @param {number} paragraphCount defaults to 3
+   * @param {string} separatora defaults to `'\n \r'`
+   */
   self.paragraphs = function (paragraphCount, separator) {
     if (typeof separator === "undefined") {
       separator = "\n \r";
@@ -39180,16 +51525,50 @@ var Lorem = function (faker) {
     }
     return paragraphs.join(separator);
   }
-  
+
+  /**
+   * returns random text based on a random lorem method
+   *
+   * @method faker.lorem.text
+   * @param {number} times
+   */
+  self.text = function loremText (times) {
+    var loremMethods = ['lorem.word', 'lorem.words', 'lorem.sentence', 'lorem.sentences', 'lorem.paragraph', 'lorem.paragraphs', 'lorem.lines'];
+    var randomLoremMethod = faker.random.arrayElement(loremMethods);
+    return faker.fake('{{' + randomLoremMethod + '}}');
+  };
+
+  /**
+   * returns lines of lorem separated by `'\n'`
+   *
+   * @method faker.lorem.lines
+   * @param {number} lineCount defaults to a random number between 1 and 5
+   */
+  self.lines = function lines (lineCount) {
+    if (typeof lineCount === 'undefined') { lineCount = faker.random.number({ min: 1, max: 5 });}
+    return faker.lorem.sentences(lineCount, '\n')
+  };
+
   return self;
 };
 
 
 module["exports"] = Lorem;
 
-},{}],856:[function(require,module,exports){
+},{}],955:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.name
+ */
 function Name (faker) {
 
+  /**
+   * firstName
+   *
+   * @method firstName
+   * @param {mixed} gender
+   * @memberof faker.name
+   */
   this.firstName = function (gender) {
     if (typeof faker.definitions.name.male_first_name !== "undefined" && typeof faker.definitions.name.female_first_name !== "undefined") {
       // some locale datasets ( like ru ) have first_name split by gender. since the name.first_name field does not exist in these datasets,
@@ -39206,6 +51585,13 @@ function Name (faker) {
     return faker.random.arrayElement(faker.definitions.name.first_name);
   };
 
+  /**
+   * lastName
+   *
+   * @method lastName
+   * @param {mixed} gender
+   * @memberof faker.name
+   */
   this.lastName = function (gender) {
     if (typeof faker.definitions.name.male_last_name !== "undefined" && typeof faker.definitions.name.female_last_name !== "undefined") {
       // some locale datasets ( like ru ) have last_name split by gender. i have no idea how last names can have genders, but also i do not speak russian
@@ -39222,6 +51608,15 @@ function Name (faker) {
     return faker.random.arrayElement(faker.definitions.name.last_name);
   };
 
+  /**
+   * findName
+   *
+   * @method findName
+   * @param {string} firstName
+   * @param {string} lastName
+   * @param {mixed} gender
+   * @memberof faker.name
+   */
   this.findName = function (firstName, lastName, gender) {
       var r = faker.random.number(8);
       var prefix, suffix;
@@ -39234,12 +51629,12 @@ function Name (faker) {
       lastName = lastName || faker.name.lastName(gender);
       switch (r) {
       case 0:
-          prefix = faker.name.prefix();
+          prefix = faker.name.prefix(gender);
           if (prefix) {
               return prefix + " " + firstName + " " + lastName;
           }
       case 1:
-          suffix = faker.name.prefix();
+          suffix = faker.name.suffix(gender);
           if (suffix) {
               return firstName + " " + lastName + " " + suffix;
           }
@@ -39248,20 +51643,55 @@ function Name (faker) {
       return firstName + " " + lastName;
   };
 
+  /**
+   * jobTitle
+   *
+   * @method jobTitle
+   * @memberof faker.name
+   */
   this.jobTitle = function () {
     return  faker.name.jobDescriptor() + " " +
       faker.name.jobArea() + " " +
       faker.name.jobType();
   };
-
-  this.prefix = function () {
-      return faker.random.arrayElement(faker.definitions.name.prefix);
+  
+  /**
+   * prefix
+   *
+   * @method prefix
+   * @param {mixed} gender
+   * @memberof faker.name
+   */
+  this.prefix = function (gender) {
+    if (typeof faker.definitions.name.male_prefix !== "undefined" && typeof faker.definitions.name.female_prefix !== "undefined") {
+      if (typeof gender !== 'number') {
+        gender = faker.random.number(1);
+      }
+      if (gender === 0) {
+        return faker.random.arrayElement(faker.locales[faker.locale].name.male_prefix);
+      } else {
+        return faker.random.arrayElement(faker.locales[faker.locale].name.female_prefix);
+      }
+    }
+    return faker.random.arrayElement(faker.definitions.name.prefix);
   };
 
+  /**
+   * suffix
+   *
+   * @method suffix
+   * @memberof faker.name
+   */
   this.suffix = function () {
       return faker.random.arrayElement(faker.definitions.name.suffix);
   };
 
+  /**
+   * title
+   *
+   * @method title
+   * @memberof faker.name
+   */
   this.title = function() {
       var descriptor  = faker.random.arrayElement(faker.definitions.name.title.descriptor),
           level       = faker.random.arrayElement(faker.definitions.name.title.level),
@@ -39270,14 +51700,32 @@ function Name (faker) {
       return descriptor + " " + level + " " + job;
   };
 
+  /**
+   * jobDescriptor
+   *
+   * @method jobDescriptor
+   * @memberof faker.name
+   */
   this.jobDescriptor = function () {
     return faker.random.arrayElement(faker.definitions.name.title.descriptor);
   };
 
+  /**
+   * jobArea
+   *
+   * @method jobArea
+   * @memberof faker.name
+   */
   this.jobArea = function () {
     return faker.random.arrayElement(faker.definitions.name.title.level);
   };
 
+  /**
+   * jobType
+   *
+   * @method jobType
+   * @memberof faker.name
+   */
   this.jobType = function () {
     return faker.random.arrayElement(faker.definitions.name.title.job);
   };
@@ -39285,21 +51733,43 @@ function Name (faker) {
 }
 
 module['exports'] = Name;
-},{}],857:[function(require,module,exports){
+
+},{}],956:[function(require,module,exports){
+/**
+ *
+ * @namespace faker.phone
+ */
 var Phone = function (faker) {
   var self = this;
 
+  /**
+   * phoneNumber
+   *
+   * @method faker.phone.phoneNumber
+   * @param {string} format
+   */
   self.phoneNumber = function (format) {
       format = format || faker.phone.phoneFormats();
       return faker.helpers.replaceSymbolWithNumber(format);
   };
 
   // FIXME: this is strange passing in an array index.
+  /**
+   * phoneNumberFormat
+   *
+   * @method faker.phone.phoneFormatsArrayIndex
+   * @param phoneFormatsArrayIndex
+   */
   self.phoneNumberFormat = function (phoneFormatsArrayIndex) {
       phoneFormatsArrayIndex = phoneFormatsArrayIndex || 0;
       return faker.helpers.replaceSymbolWithNumber(faker.definitions.phone_number.formats[phoneFormatsArrayIndex]);
   };
 
+  /**
+   * phoneFormats
+   *
+   * @method faker.phone.phoneFormats
+   */
   self.phoneFormats = function () {
     return faker.random.arrayElement(faker.definitions.phone_number.formats);
   };
@@ -39309,12 +51779,29 @@ var Phone = function (faker) {
 };
 
 module['exports'] = Phone;
-},{}],858:[function(require,module,exports){
+},{}],957:[function(require,module,exports){
 var mersenne = require('../vendor/mersenne');
 
-function Random (faker) {
-  
-  // returns a single random number based on a max number or range
+/**
+ *
+ * @namespace faker.random
+ */
+function Random (faker, seed) {
+  // Use a user provided seed if it exists
+  if (seed) {
+    if (Array.isArray(seed) && seed.length) {
+      mersenne.seed_array(seed);
+    }
+    else {
+      mersenne.seed(seed);
+    }
+  }
+  /**
+   * returns a single random number based on a max number or range
+   *
+   * @method faker.random.number
+   * @param {mixed} options
+   */
   this.number = function (options) {
 
     if (typeof options === "number") {
@@ -39340,7 +51827,7 @@ function Random (faker) {
     var max = options.max;
     if (max >= 0) {
       max += options.precision;
-    } 
+    }
 
     var randomNumber = options.precision * Math.floor(
       mersenne.rand(max / options.precision, options.min / options.precision));
@@ -39349,14 +51836,25 @@ function Random (faker) {
 
   }
 
-  // takes an array and returns a random element of the array
+  /**
+   * takes an array and returns a random element of the array
+   *
+   * @method faker.random.arrayElement
+   * @param {array} array
+   */
   this.arrayElement = function (array) {
       array = array || ["a", "b", "c"];
       var r = faker.random.number({ max: array.length - 1 });
       return array[r];
   }
 
-  // takes an object and returns the randomly key or value
+  /**
+   * takes an object and returns the randomly key or value
+   *
+   * @method faker.random.objectElement
+   * @param {object} object
+   * @param {mixed} field
+   */
   this.objectElement = function (object, field) {
       object = object || { "foo": "bar", "too": "car" };
       var array = Object.keys(object);
@@ -39365,18 +51863,121 @@ function Random (faker) {
       return field === "key" ? key : object[key];
   }
 
+  /**
+   * uuid
+   *
+   * @method faker.random.uuid
+   */
   this.uuid = function () {
+      var self = this;
       var RFC4122_TEMPLATE = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
       var replacePlaceholders = function (placeholder) {
-          var random = Math.random()*16|0;
+          var random = self.number({ min: 0, max: 15 });
           var value = placeholder == 'x' ? random : (random &0x3 | 0x8);
           return value.toString(16);
       };
       return RFC4122_TEMPLATE.replace(/[xy]/g, replacePlaceholders);
   }
 
-  this.boolean =function () {
+  /**
+   * boolean
+   *
+   * @method faker.random.boolean
+   */
+  this.boolean = function () {
       return !!faker.random.number(1)
+  }
+
+  // TODO: have ability to return specific type of word? As in: noun, adjective, verb, etc
+  /**
+   * word
+   *
+   * @method faker.random.word
+   * @param {string} type
+   */
+  this.word = function randomWord (type) {
+
+    var wordMethods = [
+    'commerce.department',
+    'commerce.productName',
+    'commerce.productAdjective',
+    'commerce.productMaterial',
+    'commerce.product',
+    'commerce.color',
+
+    'company.catchPhraseAdjective',
+    'company.catchPhraseDescriptor',
+    'company.catchPhraseNoun',
+    'company.bsAdjective',
+    'company.bsBuzz',
+    'company.bsNoun',
+    'address.streetSuffix',
+    'address.county',
+    'address.country',
+    'address.state',
+
+    'finance.accountName',
+    'finance.transactionType',
+    'finance.currencyName',
+
+    'hacker.noun',
+    'hacker.verb',
+    'hacker.adjective',
+    'hacker.ingverb',
+    'hacker.abbreviation',
+
+    'name.jobDescriptor',
+    'name.jobArea',
+    'name.jobType'];
+
+    // randomly pick from the many faker methods that can generate words
+    var randomWordMethod = faker.random.arrayElement(wordMethods);
+    return faker.fake('{{' + randomWordMethod + '}}');
+
+  }
+
+  /**
+   * randomWords
+   *
+   * @method faker.random.words
+   * @param {number} count defaults to a random value between 1 and 3
+   */
+  this.words = function randomWords (count) {
+    var words = [];
+    if (typeof count === "undefined") {
+      count = faker.random.number({min:1, max: 3});
+    }
+    for (var i = 0; i<count; i++) {
+      words.push(faker.random.word());
+    }
+    return words.join(' ');
+  }
+
+  /**
+   * locale
+   *
+   * @method faker.random.image
+   */
+  this.image = function randomImage () {
+    return faker.image.image();
+  }
+
+  /**
+   * locale
+   *
+   * @method faker.random.locale
+   */
+  this.locale = function randomLocale () {
+    return faker.random.arrayElement(Object.keys(faker.locales));
+  };
+
+  /**
+   * alphaNumeric
+   *
+   * @method faker.random.alphaNumeric
+   */
+  this.alphaNumeric = function alphaNumeric() {
+    return faker.random.arrayElement(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]);
   }
 
   return this;
@@ -39385,11 +51986,166 @@ function Random (faker) {
 
 module['exports'] = Random;
 
+},{"../vendor/mersenne":959}],958:[function(require,module,exports){
+// generates fake data for many computer systems properties
+
+/**
+ *
+ * @namespace faker.system
+ */
+function System (faker) {
+
+  /**
+   * generates a file name with extension or optional type
+   *
+   * @method faker.system.fileName
+   * @param {string} ext
+   * @param {string} type
+   */
+  this.fileName = function (ext, type) {
+    var str = faker.fake("{{random.words}}.{{system.fileExt}}");
+    str = str.replace(/ /g, '_');
+    str = str.replace(/\,/g, '_');
+    str = str.replace(/\-/g, '_');
+    str = str.replace(/\\/g, '_');
+    str = str.toLowerCase();
+    return str;
+  };
+
+  /**
+   * commonFileName
+   *
+   * @method faker.system.commonFileName
+   * @param {string} ext
+   * @param {string} type
+   */
+  this.commonFileName = function (ext, type) {
+    var str = faker.random.words() + "." + (ext || faker.system.commonFileExt());
+    str = str.replace(/ /g, '_');
+    str = str.replace(/\,/g, '_');
+    str = str.replace(/\-/g, '_');
+    str = str.replace(/\\/g, '_');
+    str = str.toLowerCase();
+    return str;
+  };
+
+  /**
+   * mimeType
+   *
+   * @method faker.system.mimeType
+   */
+  this.mimeType = function () {
+    return faker.random.arrayElement(Object.keys(faker.definitions.system.mimeTypes));
+  };
+
+  /**
+   * returns a commonly used file type
+   *
+   * @method faker.system.commonFileType
+   */
+  this.commonFileType = function () {
+    var types = ['video', 'audio', 'image', 'text', 'application'];
+    return faker.random.arrayElement(types)
+  };
+
+  /**
+   * returns a commonly used file extension based on optional type
+   *
+   * @method faker.system.commonFileExt
+   * @param {string} type
+   */
+  this.commonFileExt = function (type) {
+    var types = [
+      'application/pdf',
+      'audio/mpeg',
+      'audio/wav',
+      'image/png',
+      'image/jpeg',
+      'image/gif',
+      'video/mp4',
+      'video/mpeg',
+      'text/html'
+    ];
+    return faker.system.fileExt(faker.random.arrayElement(types));
+  };
 
 
-// module.exports = random;
+  /**
+   * returns any file type available as mime-type
+   *
+   * @method faker.system.fileType
+   */
+  this.fileType = function () {
+    var types = [];
+    var mimes = faker.definitions.system.mimeTypes;
+    Object.keys(mimes).forEach(function(m){
+      var parts = m.split('/');
+      if (types.indexOf(parts[0]) === -1) {
+        types.push(parts[0]);
+      }
+    });
+    return faker.random.arrayElement(types);
+  };
 
-},{"../vendor/mersenne":859}],859:[function(require,module,exports){
+  /**
+   * fileExt
+   *
+   * @method faker.system.fileExt
+   * @param {string} mimeType
+   */
+  this.fileExt = function (mimeType) {
+    var exts = [];
+    var mimes = faker.definitions.system.mimeTypes;
+
+    // get specific ext by mime-type
+    if (typeof mimes[mimeType] === "object") {
+      return faker.random.arrayElement(mimes[mimeType].extensions);
+    }
+
+    // reduce mime-types to those with file-extensions
+    Object.keys(mimes).forEach(function(m){
+      if (mimes[m].extensions instanceof Array) {
+        mimes[m].extensions.forEach(function(ext){
+          exts.push(ext)
+        });
+      }
+    });
+    return faker.random.arrayElement(exts);
+  };
+
+  /**
+   * not yet implemented
+   *
+   * @method faker.system.directoryPath
+   */
+  this.directoryPath = function () {
+    // TODO
+  };
+
+  /**
+   * not yet implemented
+   *
+   * @method faker.system.filePath
+   */
+  this.filePath = function () {
+    // TODO
+  };
+
+  /**
+   * semver
+   *
+   * @method faker.system.semver
+   */
+  this.semver = function () {
+      return [faker.random.number(9),
+              faker.random.number(9),
+              faker.random.number(9)].join('.');
+  }
+
+}
+
+module['exports'] = System;
+},{}],959:[function(require,module,exports){
 // this program is a JavaScript version of Mersenne Twister, with concealment and encapsulation in class,
 // an almost straight conversion from the original program, mt19937ar.c,
 // translated by y. okada on July 17, 2006.
@@ -39495,7 +52251,7 @@ function MersenneTwister19937()
 		//c//mt[0]= s & 0xffffffff;
 		mt[0]= unsigned32(s & 0xffffffff);
 		for (mti=1; mti<N; mti++) {
-			mt[mti] = 
+			mt[mti] =
 			//c//(1812433253 * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
 			addition32(multiplication32(1812433253, unsigned32(mt[mti-1] ^ (mt[mti-1] >>> 30))), mti);
 			/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
@@ -39525,7 +52281,7 @@ function MersenneTwister19937()
 			//c//mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 1664525))
 			//c//	+ init_key[j] + j; /* non linear */
 			mt[i] = addition32(addition32(unsigned32(mt[i] ^ multiplication32(unsigned32(mt[i-1] ^ (mt[i-1] >>> 30)), 1664525)), init_key[j]), j);
-			mt[i] = 
+			mt[i] =
 			//c//mt[i] &= 0xffffffff; /* for WORDSIZE > 32 machines */
 			unsigned32(mt[i] & 0xffffffff);
 			i++; j++;
@@ -39677,8 +52433,7 @@ exports.seed_array = function(A) {
     gen.init_by_array(A);
 }
 
-
-},{}],860:[function(require,module,exports){
+},{}],960:[function(require,module,exports){
 /*
  * password-generator
  * Copyright(c) 2011-2013 Bermi Ferrer <bermi@bermilabs.com>
@@ -39744,7 +52499,7 @@ exports.seed_array = function(A) {
 
   // Establish the root object, `window` in the browser, or `global` on the server.
 }(this));
-},{}],861:[function(require,module,exports){
+},{}],961:[function(require,module,exports){
 /*
 
 Copyright (c) 2012-2014 Jeffrey Mealo
